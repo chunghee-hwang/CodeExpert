@@ -23,3 +23,20 @@
 | 문제 풀기 | 문제를 보고 코드 작성, 테스트 케이스 추가 |
 | 문제 채점 | 테스트 케이스가 모두 맞으면 통과 처리, 채점은 서버 내 컴파일러 사용 |
 | 다른 사람의 풀이 | 다른 사람이 푼 코드 목록을 볼 수 있고 코드마다 댓글 표시 |
+
+### 디자인 설계 (진행 중)
+
+설계 툴: [Oven](https://ovenapp.io/)<br><br>
+
+* 아이콘 (favicon)
+<img src="./images/icon/icon.png" width="500px">
+
+* 상단 바
+<p align="center">
+    <img src="./images/design/top_bar.jpg">
+</p>
+
+* 문제 출제 화면
+<p align="center">
+    <img src="./images/design/make_problem.png">
+</p>

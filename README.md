@@ -25,18 +25,22 @@
 | 다른 사람의 풀이 | 다른 사람이 푼 코드 목록을 볼 수 있고 코드마다 댓글 표시 |
 
 ### 디자인 설계 (진행 중)
+<details markdown="1">
+<summary>접기/펼치기</summary>
 
+<!--summary 아래 빈칸 공백 두고 내용을 적는공간-->
 설계 툴: [Oven](https://ovenapp.io/)<br><br>
 
-* 아이콘 (favicon)
-<img src="./images/icon/icon.png" width="500px">
+#### 아이콘 (favicon)
+<img src="./images/icon/icon.png" width="128px">
 
-* 상단 바
+#### 상단 바
 <p align="center">
     <img src="./images/design/top_bar.jpg">
 </p>
 
-* 문제 출제 화면
-<p align="center">
+#### 문제 출제 화면
+<p align="center" width:80%;>
     <img src="./images/design/make_problem.png">
 </p>
+</details>

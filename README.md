@@ -36,11 +36,48 @@
 
 #### 상단 바
 <p align="center">
-    <img src="./images/design/top_bar.jpg">
+    <img src="./images/design/1.top_bar.png">
 </p>
 
 #### 문제 출제 화면
-<p align="center" width:80%;>
-    <img src="./images/design/make_problem.png">
+<p align="center">
+    <img src="./images/design/2.make_problem.png">
+</p>
+
+
+#### 문제 목록 화면
+<p align="center">
+    <img src="./images/design/3.problem_list.png">
+</p>
+
+#### 알고리즘 테스트 화면
+<p align="center">
+    <img src="./images/design/4.test.png">
+</p>
+
+##### 테스트케이스 추가 창
+<p align="center">
+    <img src="./images/design/5.test_add_testcase.png">
+</p>
+
+#### 다른 사람의 풀이 화면
+<p align="center">
+    <img src="./images/design/6.other_user_answers.png">
+</p>
+
+#### 회원 가입 화면
+<p align="center">
+    <img src="./images/design/7.signup.png">
+</p>
+
+#### 로그인 화면
+<p align="center">
+    <img src="./images/design/8.login.png">
+</p>
+
+
+#### 계정 관리 화면
+<p align="center">
+    <img src="./images/design/9.account_management.png">
 </p>
 </details>

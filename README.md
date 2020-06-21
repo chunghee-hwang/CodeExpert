@@ -25,7 +25,7 @@
 | 문제 채점 | 테스트 케이스, 제한 시간, 제한 용량을 모두 만족하면 통과 처리, 채점은 서버 내 컴파일러 사용 |
 | 다른 사람의 풀이 | 다른 사람이 푼 코드 목록을 볼 수 있고 코드마다 댓글 표시 |
 
-### 디자인 설계 (진행 중)
+### 디자인 설계
 <details markdown="1">
 <summary>접기/펼치기</summary>
 
@@ -39,6 +39,12 @@
 <p align="center">
     <img src="./images/design/1.top_bar.png">
 </p>
+
+#### 하단 바
+<p align="center">
+    <img src="./images/design/10.bottom_bar.png">
+</p>
+
 
 #### 문제 출제 화면
 <p align="center">
@@ -82,3 +88,4 @@
     <img src="./images/design/9.account_management.png">
 </p>
 </details>
+

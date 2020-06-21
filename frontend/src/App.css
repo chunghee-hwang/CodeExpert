@@ -1,0 +1,12 @@
+.App {
+  text-align: center;
+}
+
+.App-header {
+  min-height: 100vh;
+}
+
+.align-center-horizontal{
+  margin: 0 auto;
+}
+

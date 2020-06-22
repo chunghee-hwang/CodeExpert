@@ -1,7 +1,6 @@
 import React from 'react';
 import { Navbar, Nav } from 'react-bootstrap';
 function BottomBar() {
-
     return (
         <Navbar bg="light" variant="light" expand="lg">
             <div className="align-center-horizontal">

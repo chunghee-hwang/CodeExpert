@@ -1,0 +1,17 @@
+.form
+{
+    width: 25vw;
+    margin: 0 auto;
+}
+
+.form-group{
+    margin: 2vh auto;
+}
+
+.form-control{
+    width: 25vw;
+}
+
+.btn-block{
+    width: 25vw;
+}

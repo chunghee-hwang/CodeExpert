@@ -1,10 +1,10 @@
 import React from 'react';
 import Menubar from './Menubar'
-function Header() {
+function Nav() {
     return (
-        <header>
+        <nav>
             <Menubar />
-        </header>
+        </nav>
     );
 }
-export default Header;
+export default Nav;

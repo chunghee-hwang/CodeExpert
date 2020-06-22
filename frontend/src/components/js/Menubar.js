@@ -16,7 +16,7 @@ function Menubar() {
             </Link>
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
             <Navbar.Collapse id="basic-navbar-nav">
-                <Nav className="align-center-horizontal">
+                <Nav className="align-center-horizontal text-align-center-horizontal">
                     <LinkContainer to={paths.make_problem}>
                         <Nav.Link>알고리즘 문제 출제</Nav.Link>
                     </LinkContainer>
@@ -26,8 +26,14 @@ function Menubar() {
                     <LinkContainer to={paths.signup_form}>
                         <Nav.Link>회원 가입</Nav.Link>
                     </LinkContainer>
+                    <LinkContainer to={paths.account_management}>
+                        <Nav.Link>계정 관리</Nav.Link>
+                    </LinkContainer>
                     <LinkContainer to={paths.login_form}>
                         <Nav.Link>로그인</Nav.Link>
+                    </LinkContainer>
+                    <LinkContainer to={paths.logout}>
+                        <Nav.Link>로그아웃</Nav.Link>
                     </LinkContainer>
                 </Nav>
             </Navbar.Collapse>

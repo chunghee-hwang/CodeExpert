@@ -1,6 +1,5 @@
 .form
 {
-    width: 25vw;
     margin: 0 auto;
 }
 
@@ -8,10 +7,25 @@
     margin: 2vh auto;
 }
 
-.form-control{
-    width: 25vw;
-}
+/* 
+  ##Device = Desktops
+*/
 
-.btn-block{
-    width: 25vw;
-}
+@media (min-width: 1025px){
+    .form, .form-control, .btn-block{
+        width: 20vw;
+    }
+    
+  }
+  
+  /* 
+    ##Device = Most of the Smartphones Mobiles (Portrait)
+  */
+  
+  @media (min-width: 320px) and (max-width: 1024px) {
+    .form, .form-control, .btn-block{
+        width: 100%;
+    }
+
+    
+  }

@@ -38,15 +38,18 @@ function ProblemExplainEditor() {
                 img.setAttribute('src', url);
                 img.setAttribute('class', 'attached_pic');
                 editor.focus();
-                loadRange();
-                if (window.getSelection) {
-                    let sel = window.getSelection();
-                    if (sel.getRangeAt && sel.rangeCount) {
-                        let range = sel.getRangeAt(0);
-                        range.insertNode(img);
-                        window.getSelection().removeAllRanges();
+                // editor 태그에 focus가 잡힐 때까지 기다리기 위해 이벤트큐에 이 코드 push
+                setTimeout(() => {
+                    loadRange();
+                    if (window.getSelection) {
+                        let sel = window.getSelection();
+                        if (sel.getRangeAt && sel.rangeCount) {
+                            let range = sel.getRangeAt(0);
+                            range.insertNode(img);
+                            window.getSelection().removeAllRanges();
+                        }
                     }
-                }
+                }, 0)
             }
         }
         event.target.value = '';
@@ -54,7 +57,12 @@ function ProblemExplainEditor() {
 
     // editor에서 포커스가 나가면 커서 위치 저장
     function saveRange() {
-        setRange(window.getSelection().getRangeAt(window.getSelection().rangeCount - 1));
+        let rangeCount = window.getSelection().rangeCount;
+        if (rangeCount > 0) {
+            setRange(window.getSelection().getRangeAt(window.getSelection().rangeCount - 1));
+        } else {
+            setRange(null);
+        }
     }
 
     // 이미지가 추가될 경우 커서 위치 다시 불러옴

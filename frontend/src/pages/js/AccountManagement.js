@@ -3,6 +3,8 @@ import { Form, Button, Card } from 'react-bootstrap'
 
 import 'pages/css/AccountManagement.css';
 import 'pages/css/Form.css'
+import { paths } from 'constants/Paths'
+import { inputNames } from 'constants/FormInputNames'
 function AccountManagement() {
 
     return (
@@ -11,15 +13,14 @@ function AccountManagement() {
             <Card>
                 <Card.Header>프로필</Card.Header>
                 <Card.Body>
-                    <Form id="nicknameform" action="/changenickname
-" className="form">
+                    <Form id="nicknameform" action={paths.actions.change_nickname} className="form">
                         <Form.Group>
                             <Form.Label>아이디</Form.Label>
                             <h6>user1</h6>
                         </Form.Group>
                         <Form.Group>
                             <Form.Label>닉네임</Form.Label>
-                            <Form.Control name="nickname"
+                            <Form.Control name={inputNames.nickname}
                                 defaultValue="사용자1" type="text" placeholder="닉네임을 입력하세요." maxLength="50" />
                         </Form.Group>
                         <Button variant="primary" type="submit">닉네임 변경</Button>
@@ -30,14 +31,14 @@ function AccountManagement() {
             <Card>
                 <Card.Header>비밀번호 관리</Card.Header>
                 <Card.Body>
-                    <Form id="passwordform" action="/changepassword" className="form">
+                    <Form id="passwordform" action={paths.actions.change_password} className="form">
                         <Form.Group >
                             <Form.Label>현재 비밀번호</Form.Label>
-                            <Form.Control name="password" type="password" placeholder="현재 비밀번호를 입력하세요." maxLength="50" />
+                            <Form.Control name={inputNames.password} type="password" placeholder="현재 비밀번호를 입력하세요." maxLength="50" />
                         </Form.Group>
                         <Form.Group>
                             <Form.Label>비밀번호 확인</Form.Label>
-                            <Form.Control name="passwordCheck" type="password" placeholder="비밀번호를 다시 입력하세요." maxLength="50" />
+                            <Form.Control name={inputNames.passwordCheck} type="password" placeholder="비밀번호를 다시 입력하세요." maxLength="50" />
                         </Form.Group>
                         <Button variant="primary" type="submit">비밀번호 변경</Button>
                     </Form>

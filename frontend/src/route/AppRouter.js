@@ -7,16 +7,18 @@ import LoginForm from 'pages/js/LoginForm';
 import MakeProblem from 'pages/js/MakeProblem';
 import NotFound from 'pages/js/NotFound';
 import AccountManagement from 'pages/js/AccountManagement';
+import AlgorithmTest from 'pages/js/AlgorithmTest';
 function AppRouter() {
     return (
         <Switch>
-            <Route exact path={paths.root} component={ProblemList} />
-            <Route path={paths.make_problem} component={MakeProblem} />
-            <Route path={paths.problem_list} component={ProblemList} />
-            <Route path={paths.signup_form} component={SignupForm} />
-            <Route path={paths.login_form} component={LoginForm} />
-            <Route path={paths.account_management} component={AccountManagement} />
-            <Route path={paths.root} component={NotFound} />
+            <Route exact path={paths.pages.root} component={ProblemList} />
+            <Route path={paths.pages.make_problem_form} component={MakeProblem} />
+            <Route path={paths.pages.problem_list} component={ProblemList} />
+            <Route path={paths.pages.signup_form} component={SignupForm} />
+            <Route path={paths.pages.login_form} component={LoginForm} />
+            <Route path={paths.pages.account_management} component={AccountManagement} />
+            <Route path={paths.pages.algorithm_test} component={AlgorithmTest} />
+            <Route path={paths.pages.root} component={NotFound} />
         </Switch >
     );
 }

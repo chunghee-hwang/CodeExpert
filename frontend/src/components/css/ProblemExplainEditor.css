@@ -1,0 +1,45 @@
+
+.editor{
+    border: solid #495057 1px;
+    border-radius: 3px;
+    font-size:1rem;
+    width: 100%;
+    min-height: 50vh;
+    padding:5px;
+    outline:none;
+}
+
+.pic_input{
+    width: 0.1px;
+    height: 0.1px;
+    opacity:0;
+    overflow:hidden;
+    position: absolute;
+    z-index: -1;
+}
+
+.pic_input + .pic_input_label{
+    font-weight: bold;
+    padding:1%;
+    color:white;
+    background-color:grey;
+    display:inline-block;
+}
+
+.pic_input:focus + .pic_input_label,
+.pic_input + .pic_input_label:hover{
+    background-color: #4e585c;
+}
+
+.pic_input + .pic_input_label{
+    cursor: pointer;
+}
+
+.pic_input:focus + .pic_input_label{
+    outline: 1px dotted #000000;
+    outline: -webkit-focus-ring-color auto 5px;
+}
+
+.attached_pic{
+    max-width: 70%;
+}

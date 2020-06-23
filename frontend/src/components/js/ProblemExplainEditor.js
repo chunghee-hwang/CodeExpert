@@ -1,0 +1,69 @@
+import React, { useEffect, useState } from 'react';
+import 'components/css/ProblemExplainEditor.css';
+import { TiImage } from 'react-icons/ti';
+
+// 문제 설명 에디터
+// 참고: http://spectrumdig.blogspot.com/2015/06/contenteditable-html-wyswyg.html
+function ProblemExplainEditor() {
+    const [range, setRange] = useState(null);
+
+    //React의 onBlur가 호출되지 않는 오류가 있어서 html 자체 blur 이벤트 등록
+    useEffect(() => {
+        const editor = document.querySelector('.editor');
+        editor.addEventListener('blur', (e) => {
+            saveRange();
+        })
+    })
+    return (
+        <div className="editor_container">
+            <input type="file" id="file" accept="image/*" className="pic_input" multiple onChange={e => addPicture(e)}></input>
+            <label htmlFor="file" className="pic_input_label">
+                <TiImage /> <span>사진 추가</span>
+            </label>
+            <div className="editor" contentEditable="true"></div>
+        </div>
+    );
+
+    function addPicture(event) {
+        event.preventDefault();
+        const files = event.target.files;
+        /*
+         fetch(서버 업로드) 후 url 생성 
+         */
+        const url = 'https://image.shutterstock.com/image-photo/bright-spring-view-cameo-island-260nw-1048185397.jpg';
+        const editor = document.querySelector('.editor');
+        if (files) {
+            for (let i = 0; i < files.length; i++) {
+                let img = document.createElement('img');
+                img.setAttribute('src', url);
+                img.setAttribute('class', 'attached_pic');
+                editor.focus();
+                loadRange();
+                if (window.getSelection) {
+                    let sel = window.getSelection();
+                    if (sel.getRangeAt && sel.rangeCount) {
+                        let range = sel.getRangeAt(0);
+                        range.insertNode(img);
+                        window.getSelection().removeAllRanges();
+                    }
+                }
+            }
+        }
+        event.target.value = '';
+    }
+
+    // editor에서 포커스가 나가면 커서 위치 저장
+    function saveRange() {
+        setRange(window.getSelection().getRangeAt(window.getSelection().rangeCount - 1));
+    }
+
+    // 이미지가 추가될 경우 커서 위치 다시 불러옴
+    function loadRange() {
+        if (!range) return;
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange(range);
+    }
+}
+
+
+export default ProblemExplainEditor;

@@ -7,7 +7,6 @@ import { TiImage } from 'react-icons/ti';
 function ProblemExplainEditor() {
     const [range, setRange] = useState(null);
 
-    //React의 onBlur가 호출되지 않는 오류가 있어서 html 자체 blur 이벤트 등록
     useEffect(() => {
         const editor = document.querySelector('.editor');
         editor.addEventListener('blur', (e) => {

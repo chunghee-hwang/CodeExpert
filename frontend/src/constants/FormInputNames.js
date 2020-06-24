@@ -5,6 +5,8 @@ export const inputNames =
     password: "password",
     passwordCheck: "passwordCheck",
     nickname: "nickname",
+    newPassword: "changedPassword",
+    newPasswordCheck: "changedPasswordCheck",
 
     // problem info
     problemTitle: "problemTitle",

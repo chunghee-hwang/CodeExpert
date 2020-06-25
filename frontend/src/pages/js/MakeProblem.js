@@ -18,16 +18,15 @@ function MakeProblem() {
     }, [])
     return (
         <div>
-            <Form.Group>
-                <Form.Label>문제 제목</Form.Label>
-                <Form.Control name={inputNames.problemTitle} type="text" placeholder="문제 제목" maxLength="100" />
-            </Form.Group>
+
+            <Form.Label>문제 제목</Form.Label>
+            <Form.Control name={inputNames.problemTitle} type="text" placeholder="문제 제목" maxLength="100" />
+
             <Form.Group>
                 <Form.Label>문제 유형</Form.Label>
                 <Form.Control as="select" custom>
                     {options}
                 </Form.Control>
-                <input name={inputNames.problemType} type="hidden" defaultValue={problemTypes[0] ? problemTypes[0].id : null} />
             </Form.Group>
             <h6>문제 설명</h6>
             <ProblemExplainEditor />

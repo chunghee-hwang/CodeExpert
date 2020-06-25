@@ -6,7 +6,7 @@ import { inputNames } from 'constants/FormInputNames'
 function LoginForm() {
     return (
         <div>
-            <h1 className="my-3 text-align-center-horizontal">로그인</h1>
+            <h1 className="my-3 text-center">로그인</h1>
 
             <Form id="loginform" action={paths.actions.login} className="form">
                 <Form.Group>

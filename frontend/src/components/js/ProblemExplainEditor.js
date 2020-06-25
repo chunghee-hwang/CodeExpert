@@ -15,10 +15,12 @@ function ProblemExplainEditor() {
     })
     return (
         <div className="editor_container">
-            <input type="file" id="file" accept="image/*" className="pic_input" multiple onChange={e => addPicture(e)}></input>
-            <label htmlFor="file" className="pic_input_label">
-                <TiImage /> <span>사진 추가</span>
-            </label>
+            <div className="pic_control text-right">
+                <input type="file" id="file" accept="image/*" className="pic_input" multiple onChange={e => addPicture(e)}></input>
+                <label htmlFor="file" className="pic_input_label">
+                    <TiImage /> <span>사진 추가</span>
+                </label>
+            </div>
             <div className="editor" contentEditable="true"></div>
         </div>
     );

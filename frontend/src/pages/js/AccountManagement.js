@@ -9,7 +9,7 @@ function AccountManagement() {
 
     return (
         <div>
-            <h1 className="text-align-center-horizontal">계정 관리</h1>
+            <h1 className="text-center">계정 관리</h1>
             <Card>
                 <Card.Header>프로필</Card.Header>
                 <Card.Body>
@@ -51,7 +51,7 @@ function AccountManagement() {
             <Card>
                 <Card.Header>회원 탈퇴</Card.Header>
                 <Card.Body>
-                    <div className="text-align-center-horizontal">
+                    <div className="text-center">
                         <span className="mx-3">테스트 결과, 프로필이 삭제됩니다.</span>
                         <Button variant="dark">계정 삭제</Button>
                     </div>

@@ -8,6 +8,7 @@ import MakeProblem from 'pages/js/MakeProblem';
 import NotFound from 'pages/js/NotFound';
 import AccountManagement from 'pages/js/AccountManagement';
 import AlgorithmTest from 'pages/js/AlgorithmTest';
+
 function AppRouter() {
     return (
         <Switch>

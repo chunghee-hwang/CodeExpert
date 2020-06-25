@@ -1,0 +1,32 @@
+.remove-column-tr{
+    visibility:visible;
+}
+
+.remove-column-tr.hidden{
+    visibility: hidden;
+}
+
+.io-table{
+    border-collapse: collapse;
+    border-radius: 5px;
+    text-align:center;
+}
+
+.io-table input{
+    border: none;
+    border-color: transparent;
+    background-color: transparent;
+}
+
+.io-table input:focus{
+    outline:none;
+}
+
+.io-table .input-td, th{
+    border:solid grey 1px;
+    padding:5px;
+}
+
+.io-table .param-tr{
+    background-color: #ecfcff;
+}

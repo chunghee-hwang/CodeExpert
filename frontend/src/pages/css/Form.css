@@ -12,7 +12,7 @@
 */
 
 @media (min-width: 1025px){
-    .form, .form-control, .btn-block{
+    .form, .form-control{
         width: 30vw;
     }
     
@@ -23,7 +23,7 @@
   */
   
   @media (min-width: 320px) and (max-width: 1024px) {
-    .form, .form-control, .btn-block{
+    .form, .form-control{
       width: 100%;
     }
   }

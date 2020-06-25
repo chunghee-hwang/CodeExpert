@@ -1,8 +1,8 @@
 import React from 'react';
 import { Form, Button } from 'react-bootstrap';
-import { paths } from 'constants/Paths';
 import { inputNames } from 'constants/FormInputNames';
 import ProblemExplainEditor from 'components/js/ProblemExplainEditor';
+import InputOutputTable from 'components/js/InputOutputTable';
 import 'pages/css/Form.css'
 function MakeProblem() {
     let problemTypes = [
@@ -17,27 +17,27 @@ function MakeProblem() {
         return accumulator;
     }, [])
     return (
-        <Form id="makeproblemform" action={paths.actions.make_problem} className="form">
+        <div>
             <Form.Group>
                 <Form.Label>문제 제목</Form.Label>
                 <Form.Control name={inputNames.problemTitle} type="text" placeholder="문제 제목" maxLength="100" />
             </Form.Group>
             <Form.Group>
                 <Form.Label>문제 유형</Form.Label>
-                <Form.Control as="select" custom onChange={e => {
-                    let typeId = e.target.options[e.target.selectedIndex].dataset.id
-                    e.target.form.problemType.value = typeId;
-                }}>
+                <Form.Control as="select" custom>
                     {options}
                 </Form.Control>
                 <input name={inputNames.problemType} type="hidden" defaultValue={problemTypes[0] ? problemTypes[0].id : null} />
             </Form.Group>
             <h6>문제 설명</h6>
             <ProblemExplainEditor />
-            <Button variant="primary" type="submit" block>
+            <h6 className="mt-3">테스트케이스 설정</h6>
+            <InputOutputTable id="table1" />
+
+            <Button variant="primary" block>
                 등록
             </Button>
-        </Form >
+        </div>
     );
 }
 

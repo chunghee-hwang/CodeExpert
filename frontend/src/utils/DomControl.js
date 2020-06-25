@@ -20,7 +20,6 @@ export function createTextInput(placeholder = '', value = '', disabled = false) 
     let input = document.createElement('input');
     input.setAttribute('placeholder', placeholder);
     input.setAttribute('type', 'text');
-    input.setAttribute('value', value);
     if (disabled) {
         input.setAttribute('disabled', true);
     }

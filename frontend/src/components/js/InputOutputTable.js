@@ -9,7 +9,7 @@ function InputOutputTable(props) {
     })
     return (
         <div id={props.id}>
-            <div className="my-3">
+            <div className="my-3 text-left">
                 <button className="btn btn-info" onClick={() => addColumn()} >파라미터 추가</button>
                 <button className="btn btn-info mx-2" onClick={() => addRow()} >테스트케이스 추가</button>
             </div>
@@ -31,13 +31,11 @@ function InputOutputTable(props) {
         let param_tr = root.querySelector('table .param-tr');
         let last_th = param_tr.querySelector('th:last-child');
         last_th.insertAdjacentElement('beforebegin', new_th);
-        let trs = root.querySelectorAll('table > tbody > tr')
-        trs.forEach((tr, idx) => {
-            if (tr !== param_tr) {
-                let new_td = createElementWithElement('td', createTextInput('입력/결과 값'), 'input-td');
-                let last_td = tr.querySelector('td:last-child');
-                last_td.insertAdjacentElement('beforebegin', new_td);
-            }
+        let trs = root.querySelectorAll('table > tbody > .input-tr')
+        trs.forEach((tr) => {
+            let new_td = createElementWithElement('td', createTextInput('입력/결과 값'), 'input-td');
+            let last_td = tr.querySelector('td:last-child');
+            last_td.previousElementSibling.insertAdjacentElement('beforebegin', new_td);
         });
         updateColumnRemoveButtons();
 
@@ -46,7 +44,7 @@ function InputOutputTable(props) {
     function addRow() {
         let root = document.querySelector('#' + props.id);
         let tbody = root.querySelector('table > tbody');
-        let new_tr = document.createElement('tr');
+        let new_tr = createElementWithText('tr', '', 'input-tr');
 
         for (let idx = 0; idx < getParamCount() + 1; idx++) {
             new_tr.append(createElementWithElement('td', createTextInput('입력/결과 값'), 'input-td'));
@@ -123,6 +121,41 @@ function InputOutputTable(props) {
         });
         return btn;
     }
+
+    // 출처: https://nine01223.tistory.com/265 [스프링연구소(spring-lab)]
+    function getJson() { // 변환 함수
+        let root = document.querySelector('#' + props.id);
+        let table = root.querySelector("table");
+
+        let data = {
+            params: [],
+            testcases: []
+        };
+
+        let param_inputs = table.querySelectorAll('.param-tr input');
+        data.params = Array.from(param_inputs).reduce((accumulator, param_input) => {
+            accumulator.push(param_input.value);
+            return accumulator;
+        }, []);
+
+
+        table.querySelectorAll('.input-tr').forEach(input_tr => {
+            let input_tds = input_tr.querySelectorAll('.input-td')
+            let input_tds_length = input_tds.length;
+            let testcase = Array.from(input_tds).reduce((accumulator, input_td, idx) => {
+                let input_value = input_td.querySelector('input').value;
+                if (idx !== input_tds_length - 1) {
+                    accumulator.params.push(input_value);
+                } else {
+                    accumulator.return = input_value;
+                }
+                return accumulator;
+            }, { params: [] });
+            data.testcases.push(testcase);
+        })
+        return data;
+    }
+
 
 
 }

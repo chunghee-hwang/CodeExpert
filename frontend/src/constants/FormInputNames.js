@@ -14,5 +14,6 @@ export const inputNames =
     problem_explain: "problemExplain",
     limit_explain: "limitExplain",
     time_limit: "timeLimit",
-    memory_limit: "memoryLimit"
+    memory_limit: "memoryLimit",
+    level: "level",
 }

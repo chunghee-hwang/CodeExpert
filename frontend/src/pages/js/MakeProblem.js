@@ -47,13 +47,15 @@ function MakeProblem() {
             }
             fillWithParametersAndTestcases(new_props);
         }} />
+
+
     return (
-        <Form className="px-5" action={paths.actions.make_problem}>
+        <Form id="make_problem_form" action={paths.actions.make_problem} onSubmit={e => e.preventDefault()}>
             <Form.Label className="font-weight-bold">문제 제목</Form.Label>
             <Form.Control name={inputNames.problem_title} type="text" placeholder="문제 제목" maxLength="100" />
             <Form.Group className="my-5">
                 <Form.Label className="font-weight-bold">문제 유형</Form.Label>
-                <Form.Control as="select" custom className="form-control">
+                <Form.Control name={inputNames.problem_type} as="select" custom className="form-control">
                     {problem_type_options}
                 </Form.Control>
             </Form.Group>
@@ -76,13 +78,18 @@ function MakeProblem() {
             </Form.Group>
             <Form.Group className="level-control-container my-5 align-center-horizontal text-center">
                 <Form.Label className="font-weight-bold">난이도</Form.Label>
-                <Form.Control as="select" custom className="level-control form-control align-center-horizontal">
+                <Form.Control as="select" name={inputNames.level} custom className="level-control form-control align-center-horizontal">
                     {level_options}
                 </Form.Control>
 
             </Form.Group>
-            <Button variant="primary" block onClick={() => { console.log('테스트케이스 정보: ', getParamsAndTestcases(testcase_set_table.props), '\n입출력 예시 정보: ', getParamsAndTestcases(io_ex_table.props)) }}>등록</Button>
-        </Form>
+            <Button type="submit" variant="primary" block onClick={e => {
+                console.log('테스트케이스 정보: ', getParamsAndTestcases(testcase_set_table.props), '\n입출력 예시 정보: ', getParamsAndTestcases(io_ex_table.props))
+
+                // let form = document.getElementById('make_problem_form');
+                // form.submit();
+            }}>등록</Button>
+        </Form >
     );
 }
 

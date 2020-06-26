@@ -3,16 +3,16 @@ export const inputNames =
     // user info.
     id: "id",
     password: "password",
-    passwordCheck: "passwordCheck",
+    password_check: "passwordCheck",
     nickname: "nickname",
-    newPassword: "changedPassword",
-    newPasswordCheck: "changedPasswordCheck",
+    new_password: "changedPassword",
+    new_passwordCheck: "changedPasswordCheck",
 
     // problem info
-    problemTitle: "problemTitle",
-    problemType: "problemType",
-    problemExplain: "problemExplain",
-    limitExplain: "limitExplain",
-    timeLimit: "timeLimit",
-    memoryLimit: "memoryLimit"
+    problem_title: "problemTitle",
+    problem_type: "problemType",
+    problem_explain: "problemExplain",
+    limit_explain: "limitExplain",
+    time_limit: "timeLimit",
+    memory_limit: "memoryLimit"
 }

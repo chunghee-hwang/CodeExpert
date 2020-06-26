@@ -3,6 +3,10 @@
     margin: 0 auto;
 }
 
+.form-control{
+  display: block;
+}
+
 .form-group{
     margin: 2vh auto;
 }

@@ -21,7 +21,7 @@ function InputOutputTable(props) {
     });
     return (
         <div id={props.id} className="my-5">
-            <span className="my-3 font-weight-bold">{props.label_name}</span>{createButtonControl()}
+            <label className="my-3 font-weight-bold">{props.label_name}</label>{createButtonControl()}
 
             <table className="io-table my-3">
                 <tbody>

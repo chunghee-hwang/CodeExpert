@@ -38,11 +38,11 @@ function AccountManagement() {
                         </Form.Group>
                         <Form.Group >
                             <Form.Label>새로운 비밀번호</Form.Label>
-                            <Form.Control name={inputNames.newPassword} type="password" placeholder="새로운 비밀번호를 입력하세요." maxLength="50" />
+                            <Form.Control name={inputNames.new_password} type="password" placeholder="새로운 비밀번호를 입력하세요." maxLength="50" />
                         </Form.Group>
                         <Form.Group>
                             <Form.Label>비밀번호 확인</Form.Label>
-                            <Form.Control name={inputNames.newPasswordCheck} type="password" placeholder="비밀번호를 다시 입력하세요." maxLength="50" />
+                            <Form.Control name={inputNames.new_passwordCheck} type="password" placeholder="비밀번호를 다시 입력하세요." maxLength="50" />
                         </Form.Group>
                         <Button variant="primary" type="submit">비밀번호 변경</Button>
                     </Form>

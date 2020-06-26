@@ -1,0 +1,14 @@
+.limit-time-control, .limit-memory-control{
+    margin-left: 1vw;
+    display: inline-block;
+    width: 15vw;
+}
+
+.level-control{
+    width: 10vw;
+}
+
+.limit-explain-control, .level-control-container{
+    width:100%;
+    margin:1vh auto;
+}

@@ -16,15 +16,30 @@
     border: none;
     border-color: transparent;
     background-color: transparent;
+    text-align: center;
 }
+
+.io-table input:disabled{
+    color:black;
+}
+
+.io-table input:disabled:hover{
+    cursor: not-allowed;
+}
+
 
 .io-table input:focus{
     outline:none;
 }
 
-.io-table .input-td, th{
+.io-table .input-td, .result-td, th{
     border:solid grey 1px;
     padding:5px;
+
+}
+
+.io-table .result-td{
+    background-color: cornsilk;
 }
 
 .io-table .param-tr{

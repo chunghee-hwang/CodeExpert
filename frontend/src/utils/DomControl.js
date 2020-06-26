@@ -16,10 +16,16 @@ export function createElementWithElement(tag, contentElement, className = '') {
     return element;
 }
 
-export function createTextInput(placeholder = '', value = '', disabled = false) {
+export function createTextInput(placeholder = '', value = '', className = '', disabled = false) {
     let input = document.createElement('input');
     input.setAttribute('placeholder', placeholder);
     input.setAttribute('type', 'text');
+    if (value) {
+        input.setAttribute('value', value);
+    }
+    if (className) {
+        input.setAttribute('class', className);
+    }
     if (disabled) {
         input.setAttribute('disabled', true);
     }

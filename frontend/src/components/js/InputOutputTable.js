@@ -1,20 +1,29 @@
 import React, { useEffect } from 'react';
 import 'components/css/InputOutputTable.css'
-import { createElementWithElement, createElementWithText, createTextInput, removeClassName, addClassName } from 'utils/DomControl'
+import { table_mode } from 'constants/InputOutputTableMode';
+import { fillWithParametersAndTestcases, addParam, addTestcase } from 'utils/InputOutputTableUtil';
+/**
+ * @param {*} props
+ *
+ * -label_name: 테이블 위에 표시될 라벨
+ * 
+ *-table_mode: 테이블 모드 constants/InputOutputTableMode에 정의됨
+ *
+ *-init_value : 테이블을 처음에 채울 값 
+ *                 ex)init_value={ {paramNames: ['name1', 'name2'], testcases: [{ params: [13, 15], return: 28 }]} }
+ * 
+ * -onChangeParamNames: 파라미터가 바뀔 경우 호출되는 메소드
+ */
 function InputOutputTable(props) {
 
     useEffect(() => {
-        addColumn();
-        addRow();
-    })
+        initTable();
+    });
     return (
-        <div id={props.id}>
-            <div className="my-3 text-left">
-                <button className="btn btn-info" onClick={() => addColumn()} >파라미터 추가</button>
-                <button className="btn btn-info mx-2" onClick={() => addRow()} >테스트케이스 추가</button>
-            </div>
+        <div id={props.id} className="my-5">
+            <span className="my-3 font-weight-bold">{props.label_name}</span>{createButtonControl()}
 
-            <table className="io-table">
+            <table className="io-table my-3">
                 <tbody>
                     <tr className="param-tr"><th>return</th></tr>
                 </tbody>
@@ -25,137 +34,61 @@ function InputOutputTable(props) {
         </div>
     );
 
-    function addColumn() {
+    function initTable() {
+        if (props.table_mode === table_mode.write.param_and_testcase) {
+            addParam(props);
+            addTestcase(props);
+        }
+
+        fillWithParametersAndTestcases(props);
+
+        setTableEnabled(props.table_mode !== table_mode.read);
+    }
+
+    /**
+     * 테이블의 모든 요소 수정 여부 설정 메소드
+     * @param {boolean} enable true: 수정 가능, false: 수정 불가
+     */
+    function setTableEnabled(enable) {
         let root = document.querySelector(`#${props.id}`);
-        let new_th = createElementWithElement('th', createTextInput('파라미터명'));
-        let param_tr = root.querySelector('table .param-tr');
-        let last_th = param_tr.querySelector('th:last-child');
-        last_th.insertAdjacentElement('beforebegin', new_th);
-        let trs = root.querySelectorAll('table > tbody > .input-tr')
-        trs.forEach((tr) => {
-            let new_td = createElementWithElement('td', createTextInput('입력/결과 값'), 'input-td');
-            let last_td = tr.querySelector('td:last-child');
-            last_td.previousElementSibling.insertAdjacentElement('beforebegin', new_td);
-        });
-        updateColumnRemoveButtons();
-
-    }
-
-    function addRow() {
-        let root = document.querySelector('#' + props.id);
-        let tbody = root.querySelector('table > tbody');
-        let new_tr = createElementWithText('tr', '', 'input-tr');
-
-        for (let idx = 0; idx < getParamCount() + 1; idx++) {
-            new_tr.append(createElementWithElement('td', createTextInput('입력/결과 값'), 'input-td'));
+        let table = root.querySelector('table');
+        let inputs = table.querySelectorAll('input');
+        if (!enable) {
+            inputs.forEach(input => {
+                input.setAttribute('disabled', 'true');
+            });
         }
-
-        new_tr.append(createElementWithElement('td', createRowRemoveButton()));
-        tbody.append(new_tr);
-        hideOrShowRemoveColumnTr();
-    }
-
-    function updateColumnRemoveButtons() {
-        let root = document.querySelector('#' + props.id);
-        let remove_column_tr = root.querySelector('.remove-column-tr')
-        remove_column_tr.innerHTML = '';
-        for (let idx = 0; idx < getParamCount(); idx++) {
-            let column_remove_btn = createColumnRemoveButton()
-            remove_column_tr.append(createElementWithElement('td', column_remove_btn));
+        else {
+            inputs.forEach(input => {
+                input.removeAttribute('disabled');
+            });
         }
     }
 
-    function hideOrShowRemoveColumnTr() {
-        let root = document.querySelector('#' + props.id);
-        let remove_column_tr = root.querySelector('.remove-column-tr')
-        let tbody = root.querySelector('table > tbody');
-        if (tbody.childElementCount < 2) {
-            addClassName(remove_column_tr, "hidden")
-        } else {
-            removeClassName(remove_column_tr, "hidden");
+    function createButtonControl() {
+        let add_button_control;
+        let add_param_button = <button className="btn btn-outline-success btn-sm mx-2" onClick={() => addParam(props)} >파라미터 추가</button>;
+        let add_testcase_button = <button className="btn btn-outline-info btn-sm mx-2" onClick={() => addTestcase(props)} >테스트케이스 추가</button>;
+        switch (props.table_mode) {
+            case table_mode.write.param_and_testcase:
+                add_button_control =
+                    <span className="my-3 text-left">
+                        {add_param_button}
+                        {add_testcase_button}
+                    </span>
+                break;
+            case table_mode.write.testcase:
+                add_button_control =
+                    <span className="my-3 text-left">
+                        {add_testcase_button}
+                    </span>
+                break;
+            default:
+                add_button_control = null;
+                break;
         }
+        return add_button_control;
     }
-    function getParamCount() {
-        return document.querySelector('#' + props.id)
-            .querySelector('table > tbody > tr:first-child')
-            .childElementCount - 1;
-    }
-
-    function getTestcaseCount() {
-        return document.querySelector('#' + props.id)
-            .querySelector('table > tbody')
-            .childElementCount - 1;
-    }
-
-    function createRowRemoveButton() {
-        let btn = createElementWithText('button', '-', 'btn btn-outline-danger');
-        btn.addEventListener('click', e => {
-            if (getTestcaseCount() > 1) {
-                e.target.parentElement.parentElement.remove();
-                hideOrShowRemoveColumnTr();
-            } else {
-                alert('최소 한 개의 테스트케이스가 필요합니다.');
-            }
-        });
-        return btn;
-    }
-
-    function createColumnRemoveButton() {
-        let btn = createElementWithText('button', '-', 'btn btn-outline-danger');
-        btn.addEventListener('click', e => {
-            if (getParamCount() > 1) {
-                let btn_td = btn.parentElement;
-                let columnIdx = Array.from(btn_td.parentElement.children).indexOf(btn_td);
-
-                let root = document.querySelector(`#${props.id}`);
-                let trs = root.querySelectorAll('table tr');
-                trs.forEach(tr => {
-                    let th_td = tr.querySelector(`:nth-child(${columnIdx + 1})`);
-                    if (th_td) {
-                        th_td.remove();
-                    }
-                });
-            } else {
-                alert('최소 한 개의 파라미터가 필요합니다.')
-            }
-        });
-        return btn;
-    }
-
-    // 출처: https://nine01223.tistory.com/265 [스프링연구소(spring-lab)]
-    function getJson() { // 변환 함수
-        let root = document.querySelector('#' + props.id);
-        let table = root.querySelector("table");
-
-        let data = {
-            params: [],
-            testcases: []
-        };
-
-        let param_inputs = table.querySelectorAll('.param-tr input');
-        data.params = Array.from(param_inputs).reduce((accumulator, param_input) => {
-            accumulator.push(param_input.value);
-            return accumulator;
-        }, []);
-
-
-        table.querySelectorAll('.input-tr').forEach(input_tr => {
-            let input_tds = input_tr.querySelectorAll('.input-td')
-            let input_tds_length = input_tds.length;
-            let testcase = Array.from(input_tds).reduce((accumulator, input_td, idx) => {
-                let input_value = input_td.querySelector('input').value;
-                if (idx !== input_tds_length - 1) {
-                    accumulator.params.push(input_value);
-                } else {
-                    accumulator.return = input_value;
-                }
-                return accumulator;
-            }, { params: [] });
-            data.testcases.push(testcase);
-        })
-        return data;
-    }
-
 
 
 }

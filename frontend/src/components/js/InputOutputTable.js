@@ -22,15 +22,16 @@ function InputOutputTable(props) {
     return (
         <div id={props.id} className="my-5">
             <label className="my-3 font-weight-bold">{props.label_name}</label>{createButtonControl()}
-
-            <table className="io-table my-3">
-                <tbody>
-                    <tr className="param-tr"><th>return</th></tr>
-                </tbody>
-                <tfoot>
-                    <tr className="remove-column-tr hidden"></tr>
-                </tfoot>
-            </table>
+            <div className="horizontal-scroll">
+                <table className="io-table my-3">
+                    <tbody>
+                        <tr className="param-tr"><th>return</th></tr>
+                    </tbody>
+                    <tfoot>
+                        <tr className="remove-column-tr hidden"></tr>
+                    </tfoot>
+                </table>
+            </div>
         </div>
     );
 
@@ -89,8 +90,6 @@ function InputOutputTable(props) {
         }
         return add_button_control;
     }
-
-
 }
 
 export default InputOutputTable;

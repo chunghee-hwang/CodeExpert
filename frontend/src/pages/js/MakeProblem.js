@@ -16,7 +16,9 @@ function MakeProblem() {
         { id: 2, name: "스택/큐" },
         { id: 3, name: "동적 계획법" },
         { id: 4, name: "탐욕법" },
-        { id: 5, name: "완전 탐색" }
+        { id: 5, name: "완전 탐색" },
+        { id: 6, name: "힙" },
+        { id: 7, name: "해시" },
     ]
     // 난이도
     let levels = [
@@ -25,6 +27,9 @@ function MakeProblem() {
         { id: 3, name: "3" },
         { id: 4, name: "4" },
     ]
+
+
+
     let problem_type_options = problem_types.reduce((accumulator, problem_type) => {
         accumulator.push(<option key={problem_type.id} data-id={problem_type.id}>{problem_type.name}</option>);
         return accumulator;
@@ -50,7 +55,7 @@ function MakeProblem() {
 
 
     return (
-        <Form id="make_problem_form" action={paths.actions.make_problem} onSubmit={e => e.preventDefault()}>
+        <Form id="make_problem_form text-center" action={paths.actions.make_problem} onSubmit={e => e.preventDefault()}>
             <Form.Label className="font-weight-bold">문제 제목</Form.Label>
             <Form.Control name={inputNames.problem_title} type="text" placeholder="문제 제목" maxLength="100" />
             <Form.Group className="my-5">
@@ -76,12 +81,11 @@ function MakeProblem() {
                 <Form.Control className="limit-memory-control" name={inputNames.memory_limit} placeholder="메모리 제한" maxLength="3" />
                 <span>MB</span>
             </Form.Group>
-            <Form.Group className="level-control-container my-5 align-center-horizontal text-center">
+            <Form.Group className="level-control-container my-5 align-center text-center">
                 <Form.Label className="font-weight-bold">난이도</Form.Label>
-                <Form.Control as="select" name={inputNames.level} custom className="level-control form-control align-center-horizontal">
+                <Form.Control as="select" name={inputNames.level} custom className="level-control form-control align-center">
                     {level_options}
                 </Form.Control>
-
             </Form.Group>
             <Button type="submit" variant="primary" block onClick={e => {
                 console.log('테스트케이스 정보: ', getParamsAndTestcases(testcase_set_table.props), '\n입출력 예시 정보: ', getParamsAndTestcases(io_ex_table.props))

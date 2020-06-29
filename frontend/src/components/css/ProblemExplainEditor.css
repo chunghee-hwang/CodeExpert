@@ -7,6 +7,7 @@
     min-height: 50vh;
     padding:5px;
     outline:none;
+    text-align: justify;
 }
 
 .pic_input{

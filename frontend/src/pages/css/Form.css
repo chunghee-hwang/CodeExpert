@@ -1,10 +1,16 @@
-.form
+form
 {
     margin: 0 auto;
+    text-align: center;
+    margin: 0 auto;
 }
-
 .form-control{
   display: block;
+  margin: 0 auto;
+}
+
+.form-label{
+  font-weight: bold;
 }
 
 .form-group{
@@ -18,8 +24,8 @@
 @media (min-width: 1025px){
     .form, .form-control{
         width: 30vw;
+      
     }
-    
   }
   
   /* 

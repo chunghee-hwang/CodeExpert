@@ -5,7 +5,7 @@ import { paths } from 'constants/Paths'
 import { inputNames } from 'constants/FormInputNames'
 function SignupForm() {
     return (
-        <div className="align-center-horizontal">
+        <div className="align-center">
             <h1 className="my-3 text-center">회원 가입</h1>
             <Form id="signupform" action={paths.actions.signup} className="form">
                 <Form.Group >
@@ -22,7 +22,7 @@ function SignupForm() {
                 </Form.Group>
                 <Form.Group>
                     <Form.Label>비밀번호 확인</Form.Label>
-                    <Form.Control name={inputNames.passwordCheck} type="password" placeholder="비밀번호를 다시 입력하세요." maxLength="50" />
+                    <Form.Control name={inputNames.password_check} type="password" placeholder="비밀번호를 다시 입력하세요." maxLength="50" />
                 </Form.Group>
                 <Button variant="primary" type="submit" block>
                     회원 가입

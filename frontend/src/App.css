@@ -2,11 +2,24 @@
   min-height: 100vh;
 }
 
-.align-center-horizontal{
+.align-center{
   margin: 0 auto;
-  
+  align-items: center;
 }
 
 .main{
   padding: 5%;
+}
+
+.horizontal-scroll{
+  overflow: auto;
+  white-space: nowrap;
+}
+
+/* 텍스트가 일정 길이 이상이되면 ... 처리 */
+.ellipsis-text
+{
+  white-space: nowrap; 
+  overflow: hidden;
+  text-overflow: ellipsis; 
 }

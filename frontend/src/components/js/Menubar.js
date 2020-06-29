@@ -16,7 +16,7 @@ function Menubar() {
             </Link>
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
             <Navbar.Collapse id="basic-navbar-nav">
-                <Nav className="align-center-horizontal text-center">
+                <Nav className="align-center text-center">
                     <LinkContainer to={paths.pages.make_problem_form}>
                         <Nav.Link>알고리즘 문제 출제</Nav.Link>
                     </LinkContainer>

@@ -1,0 +1,72 @@
+
+ .left-panel .panel-title{
+    font-weight: bold;
+    margin:1vh 0;
+}
+
+.problem-types,.problem-levels{
+    margin: 3vh 2vh 3vh 0;
+    border-top: solid 1.1px #adadad;
+}
+
+
+.problem-page{
+    position: relative;
+    width:100%;
+    margin: 0 auto;
+}
+
+
+
+/* 
+  ##Device = Desktops
+*/
+
+@media (min-width: 1025px)
+{
+    .problem-page{
+        display:inline-flex;
+    }
+    .left-panel{
+        width: 33%;
+        height:100%;
+    }
+    .problems-and-pages{
+        width:67%;
+    }
+    .problem-list{
+        width: 100%;
+    }
+    .ploblem-item-box{
+        display:inline-flex;
+        width: 48%;
+        height: 100px;
+        flex-wrap: wrap;
+    }
+    .problem-list-page{
+        display: flex;
+    }
+
+}
+  
+  /* 
+    ##Device = Most of the Smartphones Mobiles (Portrait)
+  */
+  
+@media (min-width: 320px) and (max-width: 1024px) 
+{
+    .left-panel{
+        width: 100%;
+    }
+    .problem-list{
+        display:block;
+        width:100%;
+    }
+    .ploblem-item-box{
+        display:block;
+        width:100%;
+    }
+    .problem-list-page{
+        display: block;
+    }
+}

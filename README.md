@@ -62,11 +62,6 @@
     <img src="./images/design/4.test.png">
 </p>
 
-##### 테스트케이스 추가 창
-<p align="center">
-    <img src="./images/design/5.test_add_testcase.png">
-</p>
-
 #### 다른 사람의 풀이 화면
 <p align="center">
     <img src="./images/design/6.other_user_answers.png">

@@ -8,7 +8,9 @@
 }
 
 .main{
-  padding: 5%;
+  width:100%;
+  padding: 1%;
+  position: relative;
 }
 
 .horizontal-scroll{

@@ -10,7 +10,7 @@ function ProblemItemBox(props) {
         <div className="ploblem-item-box">
             <div className="problem-info">
                 <div className="problem-title">
-                    <NavLink className="to-problem-link ellipsis-text" to={`${paths.pages.algorithm_test}/${problem.id}`}>
+                    <NavLink className="to-problem-link ellipsis-text" to={`${paths.pages.algorithm_test.prefix}/${problem.id}`}>
                         {problem.title}
                     </NavLink>
                 </div>

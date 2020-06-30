@@ -1,0 +1,19 @@
+.algorithm-test{
+    height:90vh;
+    display: flex;
+}
+
+.problem-info-section, .problem-solution-section, .code-section, .answer-section{
+    background-color: white;
+}
+
+.gutter {
+    background-color: #eee;
+}
+.gutter.gutter-horizontal {
+    cursor: col-resize;
+}
+
+.gutter.gutter-vertical {
+    cursor: row-resize;
+}

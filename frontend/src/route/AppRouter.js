@@ -19,7 +19,7 @@ function AppRouter() {
             <Route path={paths.pages.signup_form} component={SignupForm} />
             <Route path={paths.pages.login_form} component={LoginForm} />
             <Route path={paths.pages.account_management} component={AccountManagement} />
-            <Route path={paths.pages.algorithm_test} component={AlgorithmTest} />
+            <Route path={paths.pages.algorithm_test.full} component={AlgorithmTest} />
             <Route path={paths.pages.root} component={NotFound} />
         </Switch >
     );

@@ -7,7 +7,10 @@ export const paths =
         signup_form: "/signup_form",
         account_management: "/account_management",
         login_form: "/login_form",
-        algorithm_test: "/algorithm_test"
+        algorithm_test: {
+            prefix: "/algorithm_test",
+            full: "/algorithm_test/:id"
+        }
     },
     actions: {
         make_problem: "/make_problem",

@@ -20,6 +20,63 @@
     margin: 5vh 0;
 }
 
+.ploblem-item-box{
+    border: solid 0.5px #cccccc;
+    border-radius: 10px;
+    margin: 1%;
+    position: relative;
+    padding: 1%;
+    background-color: #f0f0f0;
+    display:inline-flex;
+    height: 150px;
+}
+
+.to-problem-link{
+    text-decoration: none !important;
+    color:black;
+    font-weight: bold;
+    font-size:1.2rem;
+    background-color: transparent;
+    width: auto;
+    display:block;
+    margin: 1vh 0;
+}
+
+.to-problem-link:hover{
+    text-decoration: none !important;
+}
+
+
+.problem-info{
+    width:80%;
+    padding-left:5vh;
+}
+
+.problem-btn-panel{
+    position: absolute;
+    top: 10px;
+    right:10px;
+    width:40px;
+    height:100%;
+}
+
+.problem-content{
+    margin: 1vh 0;
+}
+
+.edit-problem-btn, .problem-resolved-icon{
+    display:block;
+}
+
+.edit-problem-btn{
+    position: absolute;
+    bottom:2vh;
+  
+}
+
+.problem-level{
+    margin: 1vh 0;
+}
 
 /* 
   ##Device = Desktops
@@ -43,7 +100,7 @@
     .ploblem-item-box{
         display:inline-flex;
         width: 48%;
-        height: 100px;
+
         flex-wrap: wrap;
     }
     .problem-list-page{
@@ -68,6 +125,7 @@
     .ploblem-item-box{
         display:block;
         width:100%;
+ 
     }
     .problem-list-page{
         display: block;

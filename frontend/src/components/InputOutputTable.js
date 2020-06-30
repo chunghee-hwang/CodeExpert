@@ -1,16 +1,17 @@
 import React, { useEffect } from 'react';
-import 'components/css/InputOutputTable.css'
 import { table_mode } from 'constants/InputOutputTableMode';
 import { fillWithParametersAndTestcases, addParam, addTestcase } from 'utils/InputOutputTableUtil';
 /**
  * @param {*} props
  *
+ * -id : 테이블을 구분하기 위한 아이디
+ * 
  * -label_name: 테이블 위에 표시될 라벨
  * 
  *-table_mode: 테이블 모드 constants/InputOutputTableMode에 정의됨
  *
  *-init_value : 테이블을 처음에 채울 값 
- *                 ex)init_value={ {paramNames: ['name1', 'name2'], testcases: [{ params: [13, 15], return: 28 }]} }
+ *                 ex)init_value={ {param_names: ['name1', 'name2'], testcases: [{ params: [13, 15], return: 28 }]} }
  * 
  * -onChangeParamNames: 파라미터가 바뀔 경우 호출되는 메소드
  */
@@ -20,7 +21,7 @@ function InputOutputTable(props) {
         initTable();
     });
     return (
-        <div id={props.id} className="my-5">
+        <div id={props.id} className="my-5 text-center">
             <label className="my-3 font-weight-bold">{props.label_name}</label>{createButtonControl()}
             <div className="horizontal-scroll">
                 <table className="io-table my-3">

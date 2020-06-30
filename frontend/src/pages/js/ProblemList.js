@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import 'pages/css/ProblemList.css';
-import ProblemItemBox from 'components/js/ProblemItemBox';
+import ProblemItemBox from 'components/ProblemItemBox';
 import { Pagination } from 'react-bootstrap';
 function ProblemList() {
     const [page, setPage] = useState(1);

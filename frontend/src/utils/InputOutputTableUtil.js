@@ -8,9 +8,9 @@ export function getParams(table_props) {
     let table = root.querySelector("table");
     let param_inputs = table.querySelectorAll('.param-tr input');
     let data = {
-        paramNames: null
+        param_names: null
     };
-    data.paramNames = Array.from(param_inputs).reduce((accumulator, param_input) => {
+    data.param_names = Array.from(param_inputs).reduce((accumulator, param_input) => {
         accumulator.push(param_input.value);
         return accumulator;
     }, []);
@@ -44,7 +44,7 @@ export function getParamsAndTestcases(table_props) {
 /**
  * 표를 초기 파라미터와 테스트케이스들로 채우는 메소드
  * 
- * ex)props.init_value = {paramNames: ['name1', 'name2'], testcases: [{ params: [13, 15], return: 28 }]};
+ * ex)props.init_value = {param_names: ['name1', 'name2'], testcases: [{ params: [13, 15], return: 28 }]};
  */
 export function fillWithParametersAndTestcases(table_props) {
     if (table_props.init_value) {
@@ -52,11 +52,11 @@ export function fillWithParametersAndTestcases(table_props) {
         //파라미터 채우기
         const root = document.querySelector(`#${table_props.id}`);
         let param_tr = root.querySelector('table .param-tr');
-        if (table_props.init_value.paramNames) {
-            const init_param_count = table_props.init_value.paramNames.length;
+        if (table_props.init_value.param_names) {
+            const init_param_count = table_props.init_value.param_names.length;
             param_tr.innerHTML = '<th>return</th>';
             for (let idx = 0; idx < init_param_count; idx++) {
-                addParam(table_props, table_props.init_value.paramNames[idx]);
+                addParam(table_props, table_props.init_value.param_names[idx]);
             }
         }
 

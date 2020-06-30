@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import 'components/css/CodeSection.css';
 
 // ace 사용법: https://ace.c9.io/#nav=howto
 function CodeSection(props) {
@@ -18,11 +17,11 @@ function CodeSection(props) {
 
     function initAceEditor() {
         const ace = window.ace;
-        const test = props.test;
+        const code = props.code;
         const editor = ace.edit('editor');
-        editor.setValue(test.init_code);
+        editor.setValue(code.init_code);
         editor.setTheme("ace/theme/twilight");
-        editor.session.setMode(`ace/mode/${test.ace_language}`);
+        editor.session.setMode(`ace/mode/${code.ace_language}`);
         editor.session.setUseWrapMode(true);
         editor.session.setTabSize(4);
         editor.session.setWrapLimitRange(null, null);
@@ -38,7 +37,7 @@ function CodeSection(props) {
             })
 
             var snippetManager = ace.require("ace/snippets").snippetManager;
-            ace.config.loadModule(`ace/snippets/${test.ace_language}`, function (m) {
+            ace.config.loadModule(`ace/snippets/${code.ace_language}`, function (m) {
                 if (m) {
                     switch (props.language) {
                         case 'java':

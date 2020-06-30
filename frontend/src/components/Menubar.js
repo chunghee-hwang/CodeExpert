@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 
 import { LinkContainer } from 'react-router-bootstrap'
 import { paths } from 'constants/Paths';
-import 'components/css/Menubar.css'
 function Menubar() {
     return (
         <Navbar bg="light" variant="light" expand="lg">

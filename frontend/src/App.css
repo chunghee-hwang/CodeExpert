@@ -7,10 +7,15 @@
   align-items: center;
 }
 
+.align-right{
+  margin: 0 0 0 auto;
+}
+
 .main{
   width:100%;
   padding: 1%;
   position: relative;
+  scrollbar-base-color: aqua;
 }
 
 .horizontal-scroll{
@@ -25,3 +30,13 @@
   overflow: hidden;
   text-overflow: ellipsis; 
 }
+
+.bottom-bar{
+  height:180px;
+}
+
+.home-button{
+  position:absolute;
+  top:0px;
+}
+

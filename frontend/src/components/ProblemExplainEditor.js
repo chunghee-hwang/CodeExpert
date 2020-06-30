@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import 'components/css/ProblemExplainEditor.css';
 import { TiImage } from 'react-icons/ti';
 
 // 문제 설명 에디터
@@ -8,7 +7,7 @@ function ProblemExplainEditor() {
     const [range, setRange] = useState(null);
 
     useEffect(() => {
-        const editor = document.querySelector('.editor');
+        const editor = document.querySelector('#problem-explain-editor');
         editor.addEventListener('blur', (e) => {
             saveRange();
         })
@@ -21,7 +20,7 @@ function ProblemExplainEditor() {
                     <TiImage /> <span>사진 추가</span>
                 </label>
             </div>
-            <div className="editor" contentEditable="true"></div>
+            <div id="problem-explain-editor" contentEditable="true"></div>
         </div>
     );
 
@@ -32,7 +31,7 @@ function ProblemExplainEditor() {
          fetch(서버 업로드) 후 url 생성 
          */
         const url = 'https://image.shutterstock.com/image-photo/bright-spring-view-cameo-island-260nw-1048185397.jpg';
-        const editor = document.querySelector('.editor');
+        const editor = document.querySelector('#problem-explain-editor');
         if (files) {
             for (let i = 0; i < files.length; i++) {
                 let img = document.createElement('img');

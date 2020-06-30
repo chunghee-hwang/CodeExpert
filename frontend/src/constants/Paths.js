@@ -9,7 +9,11 @@ export const paths =
         login_form: "/login_form",
         algorithm_test: {
             prefix: "/algorithm_test",
-            full: "/algorithm_test/:id"
+            full: "/algorithm_test/:problem_id"
+        },
+        others_solutions: {
+            prefix: "/others_solutions",
+            full: "/others_solutions/:problem_id"
         }
     },
     actions: {

@@ -1,7 +1,6 @@
 import React from 'react';
 import { paths } from 'constants/Paths';
 import { NavLink } from 'react-router-dom';
-import 'components/css/ProblemItemBox.css';
 import { IoMdCheckmarkCircle } from 'react-icons/io';
 import { BsPencilSquare } from 'react-icons/bs'
 function ProblemItemBox(props) {

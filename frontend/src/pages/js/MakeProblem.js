@@ -4,8 +4,8 @@ import { inputNames } from 'constants/FormInputNames';
 import { paths } from 'constants/Paths';
 import { table_mode } from 'constants/InputOutputTableMode';
 
-import ProblemExplainEditor from 'components/js/ProblemExplainEditor';
-import InputOutputTable from 'components/js/InputOutputTable';
+import ProblemExplainEditor from 'components/ProblemExplainEditor';
+import InputOutputTable from 'components/InputOutputTable';
 import { fillWithParametersAndTestcases, getParamsAndTestcases } from 'utils/InputOutputTableUtil';
 import 'pages/css/Form.css';
 import 'pages/css/MakeProblem.css';

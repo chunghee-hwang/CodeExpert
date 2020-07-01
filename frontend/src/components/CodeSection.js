@@ -1,21 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 
 // ace 사용법: https://ace.c9.io/#nav=howto
 function CodeSection(props) {
-    useEffect(() => {
-        initAceEditor();
-    });
-    return (
-        <div style={{ "display": "relative" }}>
-            <div id="editor">
 
-            </div>
-
-        </div>
-
-    );
-
-    function initAceEditor() {
+    const initAceEditor = useCallback(() => {
         const ace = window.ace;
         const code = props.code;
         const editor = ace.edit('editor');
@@ -56,7 +44,21 @@ function CodeSection(props) {
                 }
             });
         });
-    }
+    }, [props.code, props.language]);
+
+    useEffect(() => {
+        initAceEditor();
+    }, [initAceEditor]);
+
+    return (
+        <div style={{ "display": "relative" }}>
+            <div id="editor">
+
+            </div>
+
+        </div>
+
+    );
 
 }
 export default CodeSection;

@@ -32,7 +32,7 @@ function ProblemSolutionSection(props) {
                 cursor="row-resize"
             >
                 <CodeSection code={props.code} />
-                <AnswerSection />
+                <AnswerSection code_results={props.code_results} />
             </Split>
         </div>
     );

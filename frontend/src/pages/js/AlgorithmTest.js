@@ -9,7 +9,7 @@ import Media from 'react-media';
 import { paths } from 'constants/Paths';
 import { Link } from 'react-router-dom';
 function AlgorithmTest() {
-    const { problem_id } = useParams();
+
     let problem =
     {
         id: 1,
@@ -58,8 +58,10 @@ function AlgorithmTest() {
             init_code: "#include <vector>\n#include <string>\nusing namespace std;\nvector<int> solution(string param1, string param2)\n{\n\treturn vector<int>{1, 2};\n}"
         }
     ]
-
+    const { problem_id } = useParams();
     const [code, setCode] = useState(codes[0]);
+    const [code_results, setCodeResults] = useState(null);
+
     return (
         <div>
             {/* computer screen */}
@@ -76,14 +78,14 @@ function AlgorithmTest() {
                     cursor="col-resize"
                 >
                     <ProblemInfoSection problem={problem} />
-                    <ProblemSolutionSection codes={codes} code={code} onChangeCode={code_idx => setCode(codes[code_idx])} />
+                    <ProblemSolutionSection codes={codes} code={code} onChangeCode={code_idx => setCode(codes[code_idx])} code_results={code_results} />
                 </Split>
             )} />
             {/* smart device screen */}
             <Media query="(max-width: 1024px)" render={() => (
                 <div className="algorithm-test">
                     <ProblemInfoSection problem={problem} />
-                    <ProblemSolutionSection codes={codes} code={code} onChangeCode={code_idx => setCode(codes[code_idx])} />
+                    <ProblemSolutionSection codes={codes} code={code} onChangeCode={code_idx => setCode(codes[code_idx])} code_results={code_results} />
                 </div>
             )}
             />
@@ -93,7 +95,7 @@ function AlgorithmTest() {
                 </Link>
 
                 <Button variant="dark align-right" onClick={e => resetCode()}>초기화</Button>
-                <Button variant="primary ml-3">코드 채점</Button>
+                <Button variant="primary ml-3" onClick={e => submitCode()}>코드 채점</Button>
             </div>
         </div>
 
@@ -102,6 +104,37 @@ function AlgorithmTest() {
 
     function resetCode() {
         window.ace.edit('editor').setValue(code.init_code);
+        setCodeResults(null);
+    }
+
+    function submitCode() {
+        console.log(window.ace.edit('editor').getValue());
+        /**
+         * Request Marking the code
+         */
+        const results = [
+            {
+                success: true,
+                interval_time: 5.75,
+                used_memory: 50.9
+            },
+            {
+                success: true,
+                interval_time: 31.20,
+                used_memory: 100.5
+            },
+            {
+                success: true,
+                interval_time: 1.57,
+                used_memory: 12.9
+            },
+        ];
+
+
+        /**
+         * Send the result to ProblemSolutionSection
+         */
+        setCodeResults(results);
     }
 }
 

@@ -8,6 +8,7 @@ import { Button } from 'react-bootstrap';
 import Media from 'react-media';
 import { paths } from 'constants/Paths';
 import { Link } from 'react-router-dom';
+import languages from 'constants/Languages';
 function AlgorithmTest() {
 
     let problem =
@@ -39,22 +40,16 @@ function AlgorithmTest() {
     }
     let codes = [
         {
-            language: 'Java',
-            ace_language: 'java',
-            file_extension: 'java',
+            language: languages.java,
             init_code: "int[] solution(String param1, String param2)\n{\n\treturn new int[]{1, 2};\n}"
         },
         {
-            language: 'Python3',
-            ace_language: 'python',
-            file_extension: 'py',
+            language: languages.python3,
             init_code: "def solution(param1, param2):\n\treturn [1, 2]"
         },
         {
 
-            language: 'C++',
-            ace_language: 'c_cpp',
-            file_extension: 'cpp',
+            language: languages.cpp,
             init_code: "#include <vector>\n#include <string>\nusing namespace std;\nvector<int> solution(string param1, string param2)\n{\n\treturn vector<int>{1, 2};\n}"
         }
     ]
@@ -78,14 +73,14 @@ function AlgorithmTest() {
                     cursor="col-resize"
                 >
                     <ProblemInfoSection problem={problem} />
-                    <ProblemSolutionSection codes={codes} code={code} onChangeCode={code_idx => setCode(codes[code_idx])} code_results={code_results} />
+                    <ProblemSolutionSection codes={codes} code={code} onChangeLanguage={langauge_id => changeLangauge(langauge_id)} code_results={code_results} />
                 </Split>
             )} />
             {/* smart device screen */}
             <Media query="(max-width: 1024px)" render={() => (
                 <div className="algorithm-test">
                     <ProblemInfoSection problem={problem} />
-                    <ProblemSolutionSection codes={codes} code={code} onChangeCode={code_idx => setCode(codes[code_idx])} code_results={code_results} />
+                    <ProblemSolutionSection codes={codes} code={code} onChangeLanguage={langauge_id => changeLangauge(langauge_id)} code_results={code_results} />
                 </div>
             )}
             />
@@ -101,6 +96,14 @@ function AlgorithmTest() {
 
 
     );
+
+    function changeLangauge(language_id) {
+        language_id = Number(language_id);
+        let language_coressponding_code = codes.find(code => language_id === code.language.id);
+        if (language_coressponding_code) {
+            setCode(language_coressponding_code);
+        }
+    }
 
     function resetCode() {
         window.ace.edit('editor').setValue(code.init_code);

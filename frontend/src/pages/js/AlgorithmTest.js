@@ -106,12 +106,14 @@ function AlgorithmTest() {
     }
 
     function resetCode() {
-        window.ace.edit('editor').setValue(code.init_code);
+        let editor = window.ace.edit('code-editor');
+        editor.setValue(code.init_code);
+        editor.gotoLine(1);
         setCodeResults(null);
     }
 
     function submitCode() {
-        console.log(window.ace.edit('editor').getValue());
+        console.log(window.ace.edit('code-editor').getValue());
         /**
          * Request Marking the code
          */

@@ -1,0 +1,61 @@
+.code-viewer{
+    font-size: 1.1rem;
+    width:100%;
+    margin: 1vh 0;
+}
+.others-solutions-title-bar{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.others-solution-language-select{
+    margin-left:3vw;
+}
+
+
+.others-solution-comments{
+    margin-top: 3vh;
+}
+
+.others-solution-comment-input{
+    margin-top: 1vh;
+}
+
+.others-solution{
+    border-bottom: solid 0.5px lightgrey;
+    padding: 4vh 0;
+}
+
+.others-solution-comment-timestamp{
+    color: rgb(85, 85, 85);
+    padding-left: 1vw;
+    font-family:Arial, Helvetica, sans-serif
+}
+.others-solution-comment-content{
+    color: rgb(0, 47, 75);
+    padding-left:5vw;
+}
+
+/* 
+  ##Device = Desktops
+*/
+
+@media (min-width: 1025px){
+    .others-solutions{
+        padding-left: 20vw;
+        padding-right: 20vw;
+    }
+    
+  }
+  
+  /* 
+    ##Device = Most of the Smartphones Mobiles (Portrait)
+  */
+  
+  @media (min-width: 320px) and (max-width: 1024px) {
+    .others-solutions{
+        padding-left: 1vw;
+        padding-right: 1vw;
+    }
+  }

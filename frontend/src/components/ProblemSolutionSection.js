@@ -12,7 +12,7 @@ function ProblemSolutionSection(props) {
         <div>
             <div id="code-title-bar">
                 <div id="code-file-name">solution.{props.code.language.file_extension}</div>
-                <select id="language-select-input" onChange={e => props.onChangeLanguage(e.target.options[e.target.selectedIndex].dataset.language_id)}>
+                <select className="custom-select" id="language-select-input" onChange={e => props.onChangeLanguage(e.target.options[e.target.selectedIndex].dataset.language_id)}>
                     {language_options}
                 </select>
             </div>

@@ -18,6 +18,10 @@
   scrollbar-base-color: aqua;
 }
 
+.pages{
+  margin: 5vh 0;
+}
+
 .horizontal-scroll{
   overflow: auto;
   white-space: nowrap;
@@ -40,3 +44,22 @@
   top:0px;
 }
 
+.custom-select{
+  width:auto;
+}
+
+.to-problem-link{
+  text-decoration: none !important;
+  color:black;
+  font-weight: bold;
+  font-size:1.2rem;
+  background-color: transparent;
+  width: auto;
+  display:block;
+  margin: 1vh 0;
+  text-align: center;
+}
+
+.to-problem-link:hover{
+  text-decoration: none !important;
+}

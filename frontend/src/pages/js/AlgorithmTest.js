@@ -9,6 +9,7 @@ import Media from 'react-media';
 import { paths } from 'constants/Paths';
 import { Link } from 'react-router-dom';
 import languages from 'constants/Languages';
+import { data_types } from 'constants/DataTypes';
 function AlgorithmTest() {
 
     let problem =
@@ -20,12 +21,17 @@ function AlgorithmTest() {
             name: "정렬"
         },
         explain: '파라미터로 int형 배열이 넘어오면,<div>오름차순으로 정렬 후, 문자열의 형태로 출력하는 프로그램을 작성하세요.</div><div><img src="https://image.shutterstock.com/image-photo/bright-spring-view-cameo-island-260nw-1048185397.jpg" class="attached_pic"><br></div><div>결과는 위 사진처럼 나오면 됩니다.</div>',
-        limit_explain: "arr의 원소 x: 1<=x<=<1000 인 자연수",
+        limit_explain: "array의 원소 x: 1<=x<=<1000 인 자연수",
         time_limit: 500,
         memory_limit: 256,
         level: 1,
         input_output: {
-            param_names: ['arr'],
+            params: [
+                { name: 'array', data_type: data_types.integer_array },
+            ],
+            return: {
+                data_type: data_types.string
+            },
             testcases: [
                 {
                     params: ['[1, 9, 7, 6]'],
@@ -41,16 +47,16 @@ function AlgorithmTest() {
     let codes = [
         {
             language: languages.java,
-            init_code: "int[] solution(String param1, String param2)\n{\n\treturn new int[]{1, 2};\n}"
+            init_code: "String solution(int[] array)\n{\n\treturn \"\";\n}"
         },
         {
             language: languages.python3,
-            init_code: "def solution(param1, param2):\n\treturn [1, 2]"
+            init_code: "def solution(array):\n\treturn ''"
         },
         {
 
             language: languages.cpp,
-            init_code: "#include <vector>\n#include <string>\nusing namespace std;\nvector<int> solution(string param1, string param2)\n{\n\treturn vector<int>{1, 2};\n}"
+            init_code: "#include <vector>\n#include <string>\nusing namespace std;\nstring solution(vector<int> array)\n{\n\treturn \"\";\n}"
         }
     ]
     const { problem_id } = useParams();

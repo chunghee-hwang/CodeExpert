@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { table_mode } from 'constants/InputOutputTableMode';
-import { fillWithParametersAndTestcases, addParam, addTestcase } from 'utils/InputOutputTableUtil';
+import { fillWithParametersAndTestcases, addParam, addTestcase, createReturnDiv } from 'utils/InputOutputTableUtil';
+import { data_types } from 'constants/DataTypes';
 /**
  * @param {*} props
  *
@@ -26,7 +27,7 @@ function InputOutputTable(props) {
             <div className="horizontal-scroll">
                 <table className="io-table my-3">
                     <tbody>
-                        <tr className="param-tr"><th>return</th></tr>
+                        <tr className="param-tr"><th className="return-th"></th></tr>
                     </tbody>
                     <tfoot>
                         <tr className="remove-column-tr hidden"></tr>
@@ -37,14 +38,15 @@ function InputOutputTable(props) {
     );
 
     function initTable() {
+        createReturnDiv(props);
         if (props.table_mode === table_mode.write.param_and_testcase) {
-            addParam(props);
+            addParam(props, { name: '', data_type: data_types.integer });
             addTestcase(props);
         }
-
         fillWithParametersAndTestcases(props);
 
         setTableEnabled(props.table_mode !== table_mode.read);
+
     }
 
     /**

@@ -82,6 +82,11 @@
     text-align: center;
 }
 
+.param-input.disabled, .param-input.disabled:hover
+{
+    cursor: not-allowed
+}
+
 .io-table input:disabled{
     color:black;
 }
@@ -95,16 +100,21 @@
     outline:none;
 }
 
-.io-table .input-td, .result-td, th{
+.io-table .input-td, .return-td, th{
     border:solid grey 1px;
     padding:5px;
 
 }
 
-.io-table .result-td{
+.io-table .return-td{
     background-color: cornsilk;
 }
 
 .io-table .param-tr{
     background-color: #ecfcff;
+}
+
+.param-data-type, .return-data-type{
+    font-weight: lighter;
+    color:rgb(27, 0, 126);
 }

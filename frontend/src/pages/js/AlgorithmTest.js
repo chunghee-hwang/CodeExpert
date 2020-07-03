@@ -62,34 +62,36 @@ function AlgorithmTest() {
     const { problem_id } = useParams();
     const [code, setCode] = useState(codes[0]);
     const [code_results, setCodeResults] = useState(null);
-
     return (
         <div>
-            {/* computer screen */}
-            <Media query="(min-width: 1025px)" render={() => (
-                <Split className="algorithm-test"
-                    sizes={[50, 50]}
-                    minSize={0}
-                    expandToMin={true}
-                    gutterSize={10}
-                    gutterAlign="center"
-                    snapOffset={30}
-                    dragInterval={1}
-                    direction="horizontal"
-                    cursor="col-resize"
-                >
-                    <ProblemInfoSection problem={problem} />
-                    <ProblemSolutionSection codes={codes} code={code} onChangeLanguage={langauge_id => changeLangauge(langauge_id)} code_results={code_results} />
-                </Split>
-            )} />
-            {/* smart device screen */}
-            <Media query="(max-width: 1024px)" render={() => (
-                <div className="algorithm-test">
-                    <ProblemInfoSection problem={problem} />
-                    <ProblemSolutionSection codes={codes} code={code} onChangeLanguage={langauge_id => changeLangauge(langauge_id)} code_results={code_results} />
-                </div>
-            )}
-            />
+
+            <Media query={{ minWidth: 1025 }}>
+                {matches =>
+                    matches ? (
+                        /* computer screen */
+                        <Split className="algorithm-test"
+                            sizes={[50, 50]}
+                            minSize={0}
+                            expandToMin={true}
+                            gutterSize={10}
+                            gutterAlign="center"
+                            snapOffset={30}
+                            dragInterval={1}
+                            direction="horizontal"
+                            cursor="col-resize"
+                        >
+                            <ProblemInfoSection problem={problem} />
+                            <ProblemSolutionSection codes={codes} code={code} onChangeLanguage={langauge_id => changeLangauge(langauge_id)} code_results={code_results} />
+                        </Split>
+                    ) : (
+                            /* smart device screen */
+                            <div className="algorithm-test">
+                                <ProblemInfoSection problem={problem} />
+                                <ProblemSolutionSection codes={codes} code={code} onChangeLanguage={langauge_id => changeLangauge(langauge_id)} code_results={code_results} />
+                            </div>
+                        )
+                }
+            </Media>
             <div id="answer-btn-bar">
                 <Link to={`${paths.pages.others_solutions.prefix}/${problem_id}`}>
                     <Button variant="dark mr-3">다른 사람의 풀이</Button>
@@ -102,6 +104,7 @@ function AlgorithmTest() {
 
 
     );
+
 
     function changeLangauge(language_id) {
         language_id = Number(language_id);

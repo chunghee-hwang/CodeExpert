@@ -74,12 +74,19 @@
     text-align:center;
     margin:0 auto;
 }
+.param-input{
+    width: auto;
+}
 
 .io-table input{
     border: none;
     border-color: transparent;
     background-color: transparent;
     text-align: center;
+}
+
+.put-input, .result-input{
+    width: 100%;
 }
 
 .param-input.disabled, .param-input.disabled:hover
@@ -114,7 +121,7 @@
     background-color: #ecfcff;
 }
 
-.param-data-type, .return-data-type{
+.param-data-type-span, .return-data-type-span{
     font-weight: lighter;
     color:rgb(27, 0, 126);
 }

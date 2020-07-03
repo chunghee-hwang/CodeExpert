@@ -62,6 +62,10 @@ function AlgorithmTest() {
     const { problem_id } = useParams();
     const [code, setCode] = useState(codes[0]);
     const [code_results, setCodeResults] = useState(null);
+
+    const problem_info_section = <ProblemInfoSection problem={problem} />;
+    const problem_solution_section = <ProblemSolutionSection codes={codes} code={code} onChangeLanguage={langauge_id => changeLangauge(langauge_id)} code_results={code_results} />;
+
     return (
         <div>
 
@@ -80,8 +84,8 @@ function AlgorithmTest() {
                             direction="horizontal"
                             cursor="col-resize"
                         >
-                            <ProblemInfoSection problem={problem} />
-                            <ProblemSolutionSection codes={codes} code={code} onChangeLanguage={langauge_id => changeLangauge(langauge_id)} code_results={code_results} />
+                            {problem_info_section}
+                            {problem_solution_section}
                         </Split>
                     ) : (
                             /* smart device screen */
@@ -92,6 +96,8 @@ function AlgorithmTest() {
                         )
                 }
             </Media>
+
+
             <div id="answer-btn-bar">
                 <Link to={`${paths.pages.others_solutions.prefix}/${problem_id}`}>
                     <Button variant="dark mr-3">다른 사람의 풀이</Button>

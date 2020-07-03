@@ -187,7 +187,7 @@ export function addParam(table_props, param = null) {
     let trs = root.querySelectorAll('table > tbody > .io-tr')
 
     trs.forEach((tr) => {
-        let new_td = createElementWithElement('td', createTextInput('입력 값'), 'input-td');
+        let new_td = createElementWithElement('td', createTextInput('입력 값', '', 'put-input'), 'input-td');
         let last_td = tr.querySelector('td:last-child');
         last_td.previousElementSibling.insertAdjacentElement('beforebegin', new_td);
     });
@@ -229,9 +229,9 @@ export function addTestcase(table_props, testcase = null) {
     const param_count = getParamsCount(table_props);
     let is_init_params_valid = (testcase && (testcase.params.length === param_count));
     for (let idx = 0; idx < getParamsCount(table_props); idx++) {
-        new_tr.append(createElementWithElement('td', createTextInput('입력 값', is_init_params_valid ? testcase.params[idx] : ''), 'input-td'));
+        new_tr.append(createElementWithElement('td', createTextInput('입력 값', is_init_params_valid ? testcase.params[idx] : '', 'put-input'), 'input-td'));
     }
-    new_tr.append(createElementWithElement('td', createTextInput('결과 값', is_init_params_valid ? testcase.return : ''), 'return-td'));
+    new_tr.append(createElementWithElement('td', createTextInput('결과 값', is_init_params_valid ? testcase.return : '', 'return-input'), 'return-td'));
     if (table_props.table_mode !== table_mode.read) {
         new_tr.append(createElementWithElement('td', createTestcaseRemoveButton(table_props)));
     }

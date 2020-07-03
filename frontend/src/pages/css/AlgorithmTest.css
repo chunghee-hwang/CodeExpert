@@ -10,7 +10,7 @@
 }
 
 .problem-solution-section{
-    height:100vh;
+    height:98vh;
 }
 
 .problem-info-section{
@@ -116,7 +116,6 @@
     }
     .problem-info-section{
         height:105vh;
-
     }
   }
   
@@ -131,7 +130,5 @@
     #code-title-bar{
         border-top: solid 2px darkgrey;
     }
-    .problem-info-section{
-        height:auto;
-    }
+
   }

@@ -42,7 +42,7 @@ function AccountManagement() {
                         </Form.Group>
                         <Form.Group>
                             <Form.Label>비밀번호 확인</Form.Label>
-                            <Form.Control name={inputNames.new_passwordCheck} type="password" placeholder="비밀번호를 다시 입력하세요." maxLength="50" />
+                            <Form.Control name={inputNames.new_password_check} type="password" placeholder="비밀번호를 다시 입력하세요." maxLength="50" />
                         </Form.Group>
                         <Button variant="primary" type="submit">비밀번호 변경</Button>
                     </Form>

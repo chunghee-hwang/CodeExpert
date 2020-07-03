@@ -125,3 +125,22 @@
     font-weight: lighter;
     color:rgb(27, 0, 126);
 }
+
+code{
+    border-radius: 2px;
+    border: solid 0.3px grey;
+    background-color: lightgrey;
+    color:black;
+    padding:1px;
+  }
+  
+  .btn-circle {
+    width: 30px;
+    height: 30px;
+    padding: 6px 0px;
+    border-radius: 15px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 15px;
+    line-height: 1.42857;
+}

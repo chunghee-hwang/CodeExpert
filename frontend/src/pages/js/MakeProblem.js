@@ -7,9 +7,11 @@ import { table_mode } from 'constants/InputOutputTableMode';
 import ProblemExplainEditor from 'components/ProblemExplainEditor';
 import InputOutputTable from 'components/InputOutputTable';
 import { fillWithParametersAndTestcases, getParamsAndTestcases } from 'utils/InputOutputTableUtil';
+import { validateMakeProblem } from 'utils/validation/MakeProblemValidation';
 import 'pages/css/Form.css';
 import 'pages/css/MakeProblem.css';
-function MakeProblem() {
+import swal from 'sweetalert';
+function MakeProblem(props) {
     // 문제 유형
     let problem_types = [
         { id: 1, name: "정렬" },
@@ -52,49 +54,76 @@ function MakeProblem() {
             }
             fillWithParametersAndTestcases(new_props);
         }} />
-
-
     return (
-        <Form id="make_problem_form text-center" action={paths.actions.make_problem} onSubmit={e => e.preventDefault()}>
-            <Form.Label className="font-weight-bold">문제 제목</Form.Label>
-            <Form.Control name={inputNames.problem_title} type="text" placeholder="문제 제목" maxLength="100" />
-            <Form.Group className="my-5">
-                <Form.Label className="font-weight-bold">문제 유형</Form.Label>
-                <Form.Control name={inputNames.problem_type} as="select" custom className="form-control">
-                    {problem_type_options}
-                </Form.Control>
-            </Form.Group>
-            <Form.Label className="font-weight-bold">문제 설명</Form.Label>
-            <ProblemExplainEditor />
-            {testcase_set_table}
-            {io_ex_table}
+        <div>
+            <Form id="make_problem_form" method="post" className="text-center" action={paths.actions.make_problem} onSubmit={e => e.preventDefault()}>
+                <Form.Label className="font-weight-bold">문제 제목</Form.Label>
+                <Form.Control name={inputNames.problem_title} type="text" placeholder="문제 제목" maxLength="100" />
+                <Form.Group className="my-5">
+                    <Form.Label className="font-weight-bold">문제 유형</Form.Label>
+                    <Form.Control as="select" custom className="form-control" onChange={e => e.target.form[inputNames.problem_type].value = e.target.options[e.target.selectedIndex].dataset.id}>
+                        {problem_type_options}
+                    </Form.Control>
+                    <input type="hidden" name={inputNames.problem_type} value="1"></input>
+                </Form.Group>
+                <Form.Label className="font-weight-bold">문제 설명</Form.Label>
+                <ProblemExplainEditor />
+                {testcase_set_table}
+                {io_ex_table}
 
-            <Form.Group className="limit-control-container my-5 text-center">
-                <Form.Label className="font-weight-bold">제한 사항</Form.Label>
-                <textarea className="limit-explain-control form-control rounded-0" name={inputNames.limit_explain} placeholder="제한사항 입력" rows="3" maxLength="200" />
+                <Form.Group className="limit-control-container my-5 text-center">
+                    <Form.Label className="font-weight-bold">제한 사항</Form.Label>
+                    <textarea className="limit-explain-control form-control rounded-0" name={inputNames.limit_explain} placeholder="제한사항 입력" rows="3" maxLength="200" />
 
-                <Form.Label className="font-weight-bold">제한 시간</Form.Label>
-                <Form.Control className="limit-time-control" name={inputNames.time_limit} placeholder="제한시간" maxLength="5" />
-                <span>ms</span>
+                    <Form.Label className="font-weight-bold">제한 시간</Form.Label>
+                    <Form.Control className="limit-time-control" name={inputNames.time_limit} placeholder="제한시간" maxLength="5" />
+                    <span>ms</span>
 
-                <Form.Label className="font-weight-bold ml-3">메모리 제한</Form.Label>
-                <Form.Control className="limit-memory-control" name={inputNames.memory_limit} placeholder="메모리 제한" maxLength="3" />
-                <span>MB</span>
-            </Form.Group>
-            <Form.Group className="level-control-container my-5 align-center text-center">
-                <Form.Label className="font-weight-bold">난이도</Form.Label>
-                <Form.Control as="select" name={inputNames.level} custom className="level-control form-control align-center">
-                    {level_options}
-                </Form.Control>
-            </Form.Group>
-            <Button type="submit" variant="primary" block onClick={e => {
-                console.log('테스트케이스 정보: ', getParamsAndTestcases(testcase_set_table.props), '\n입출력 예시 정보: ', getParamsAndTestcases(io_ex_table.props))
+                    <Form.Label className="font-weight-bold ml-3">메모리 제한</Form.Label>
+                    <Form.Control className="limit-memory-control" name={inputNames.memory_limit} placeholder="메모리 제한" maxLength="3" />
+                    <span>MB</span>
+                </Form.Group>
+                <Form.Group className="level-control-container my-5 align-center text-center">
+                    <Form.Label className="font-weight-bold">난이도</Form.Label>
+                    <Form.Control as="select" custom className="level-control form-control align-center" onChange={e => e.target.form[inputNames.level].value = e.target.options[e.target.selectedIndex].dataset.id}>
+                        {level_options}
+                    </Form.Control>
+                    <input type="hidden" name={inputNames.level} value="1"></input>
+                </Form.Group>
+                <Button type="submit" variant="primary" block onClick={e => registerProblem()}>등록</Button>
+            </Form >
+        </div>
 
-                // let form = document.getElementById('make_problem_form');
-                // form.submit();
-            }}>등록</Button>
-        </Form >
     );
+
+    function registerProblem() {
+        const testcase_table_info = getParamsAndTestcases(testcase_set_table.props);
+        const io_table_info = getParamsAndTestcases(io_ex_table.props);
+
+        let form = document.getElementById('make_problem_form');
+        let validation = validateMakeProblem(form, testcase_table_info, io_table_info);
+        console.log({ validation });
+        if (validation.valid) {
+            swal({
+                title: "문제 등록 성공",
+                text: "문제를 성공적으로 등록했습니다.",
+                icon: "success",
+                button: "확인",
+            });
+        }
+        else {
+
+            swal({
+                title: "문제 등록 실패",
+                text: validation.fail_cause,
+                icon: "error",
+                button: "확인",
+            }).then(() => {
+                validation.failed_element.focus();
+                validation.failed_element.scrollIntoView({ behavior: "smooth", block: "start", inline: "nearest" });
+            });
+        }
+    }
 }
 
 export default MakeProblem;

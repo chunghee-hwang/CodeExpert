@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { TiImage } from 'react-icons/ti';
+import { inputNames } from 'constants/FormInputNames';
 
 // 문제 설명 에디터
 // 참고: http://spectrumdig.blogspot.com/2015/06/contenteditable-html-wyswyg.html
@@ -20,7 +21,7 @@ function ProblemExplainEditor() {
                     <TiImage /> <span>사진 추가</span>
                 </label>
             </div>
-            <div id="problem-explain-editor" contentEditable="true"></div>
+            <div id="problem-explain-editor" contentEditable="true" name={inputNames.problem_explain}></div>
         </div>
     );
 

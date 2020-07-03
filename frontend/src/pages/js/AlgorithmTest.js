@@ -35,11 +35,11 @@ function AlgorithmTest() {
             testcases: [
                 {
                     params: ['[1, 9, 7, 6]'],
-                    return: '1-6-7-9'
+                    return: '"1-6-7-9"'
                 },
                 {
                     params: ['[2, 6, 3, 7]'],
-                    return: '2-3-6-7'
+                    return: '"2-3-6-7"'
                 }
             ]
         }

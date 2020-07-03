@@ -41,6 +41,7 @@ export function getParams(table_props) {
  * 테이블에서 파라미터, 테스트케이스를 json으로 반환하는 메소드
  */
 export function getParamsAndTestcases(table_props) {
+
     let root = document.querySelector(`#${table_props.id}`);
     let table = root.querySelector("table");
 
@@ -68,6 +69,7 @@ export function getParamsAndTestcases(table_props) {
  * ex)props.init_value = {params: [{name: 'number1', data_type: 'int'}, {name: 'number2', data_type:'int'}], return_data_type: 'int', testcases: [{ params: [13, 15], return: 28 }]};
  */
 export function fillWithParametersAndTestcases(table_props) {
+
     if (table_props.init_value) {
         //파라미터 채우기
         const root = document.querySelector(`#${table_props.id}`);
@@ -243,7 +245,7 @@ export function addTestcase(table_props, testcase = null) {
 /**
  * 테스트케이스 개수를 반환하는 메소드
  */
-function getTestcaseCount(table_props) {
+export function getTestcaseCount(table_props) {
     return document.querySelector(`#${table_props.id}`)
         .querySelector('table > tbody')
         .childElementCount - 1;

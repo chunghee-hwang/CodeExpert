@@ -47,11 +47,13 @@ function AlgorithmTest() {
     let codes = [
         {
             language: languages.java,
-            init_code: "String solution(int[] array)\n{\n\treturn \"\";\n}"
+            init_code: "String solution(int[] array)\n{\n\treturn \"\";\n}",
         },
         {
             language: languages.python3,
-            init_code: "def solution(array):\n\treturn ''"
+            init_code: "def solution(array):\n\treturn ''",
+            prev_code: "def solution(array):\n\treturn '-'.join(map(str, sorted(array)))"
+
         },
         {
 
@@ -128,7 +130,10 @@ function AlgorithmTest() {
     }
 
     function submitCode() {
-        console.log(window.ace.edit('code-editor').getValue());
+        const submitted_code = window.ace.edit('code-editor').getValue();
+        const language_id = code.language.id;
+
+        console.log({ submitted_code, language_id });
         /**
          * Request Marking the code
          */

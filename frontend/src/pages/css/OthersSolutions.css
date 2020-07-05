@@ -14,7 +14,7 @@
 }
 
 
-.others-solution-comments{
+.others-solution-comment{
     margin-top: 3vh;
 }
 
@@ -37,6 +37,16 @@
     padding-left:5vw;
 }
 
+.like-btn{
+    display: inline-block;
+    cursor: pointer;
+}
+.like-btn:hover{
+    cursor: pointer;
+}
+.like-btn.pressed{
+    color:blue;
+}
 /* 
   ##Device = Desktops
 */

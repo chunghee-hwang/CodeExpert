@@ -1,4 +1,4 @@
-export const inputNames =
+export const input_names =
 {
     // user info.
     id: "id",
@@ -17,5 +17,6 @@ export const inputNames =
     memory_limit: "memory_limit",
     level: "level",
     testcase_table: "testcase_table",
-    input_output_table: "input_output_table"
+    input_output_table: "input_output_table",
+
 }

@@ -33,13 +33,15 @@ export function createTextInput(placeholder = '', value = '', className = '', di
 }
 
 export function removeClassName(element, className) {
+    const original_class_name = element.getAttribute('class');
     let regex = new RegExp(`${className}`, 'g')
-    element.className = element.className.replace(regex, "").trim();
+    element.setAttribute('class', original_class_name.replace(regex, "").trim());
 }
 
 export function addClassName(element, className) {
-    let arr = element.className.split(" ");
+    const original_class_name = element.getAttribute('class');
+    let arr = original_class_name.split(" ");
     if (arr.indexOf(className) === -1) {
-        element.className += " " + className;
+        element.setAttribute('class', `${original_class_name} ${className}`);
     }
 }

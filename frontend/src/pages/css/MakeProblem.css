@@ -134,13 +134,8 @@ code{
     padding:1px;
   }
   
-  .btn-circle {
-    width: 30px;
-    height: 30px;
-    padding: 6px 0px;
-    border-radius: 15px;
-    text-align: center;
-    font-weight: bold;
-    font-size: 15px;
-    line-height: 1.42857;
+
+.help-toggle-btn:hover{
+    color:blueviolet;
+    cursor: help;
 }

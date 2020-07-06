@@ -1,4 +1,4 @@
-import { put, takeEvery, call } from 'redux-saga/effects';
+import { delay, put, takeEvery, call } from 'redux-saga/effects';
 import { handleActions, createAction } from 'redux-actions';
 import * as AccountApi from 'utils/api/AccountApi';
 const CHANGE_NICKNAME = 'CHANGE_NICKNAME';
@@ -16,7 +16,9 @@ const CHANGE_NICKNAME_FAILURE = 'CHANGE_NICKNAME_FAILURE';
 export const changeNickname = createAction(CHANGE_NICKNAME, nickname => nickname)
 
 function* changeNicknameSaga(action) {
+    yield delay(1000);
     try {
+
         const response = yield call(AccountApi.changeNickname, action.payload);
         yield put({ type: CHANGE_NICKNAME_SUCCESS, payload: response });
     }

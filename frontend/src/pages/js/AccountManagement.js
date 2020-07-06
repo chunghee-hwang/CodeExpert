@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Form, Button, Card, ProgressBar } from 'react-bootstrap';
+import { Form, Button, Card, Spinner } from 'react-bootstrap';
 import 'pages/css/AccountManagement.css';
 import 'pages/css/Form.css';
 import { paths } from 'constants/Paths';
@@ -110,10 +110,11 @@ function AccountManagement(props) {
                             <Form.Control name={input_names.nickname}
                                 defaultValue={unescape(user.nickname)} type="text" placeholder="닉네임을 입력하세요." maxLength="50" />
                         </Form.Group>
-                        <Button variant="primary" type="submit" onClick={e => changeNickname(document.getElementById('nicknameform'))}>닉네임 변경</Button>
-                        <div>
-                            {nickname.is_changing ? <ProgressBar /> : null}
-                        </div>
+                        {nickname.is_changing ?
+                            <Button variant="primary" disabled><Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true" />변경 중...</Button>
+                            :
+                            <Button variant="primary" type="submit" onClick={e => changeNickname(document.getElementById('nicknameform'))}>닉네임 변경</Button>
+                        }
                     </Form>
                 </Card.Body>
             </Card>

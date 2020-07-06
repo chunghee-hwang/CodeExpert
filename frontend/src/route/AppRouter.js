@@ -6,7 +6,8 @@ import SignupForm from 'pages/js/SignupForm';
 import LoginForm from 'pages/js/LoginForm';
 import MakeProblem from 'pages/js/MakeProblem';
 import NotFound from 'pages/js/NotFound';
-import AccountManagement from 'pages/js/AccountManagement';
+// import AccountManagement from 'pages/js/AccountManagement';
+import AccountManagementContainer from 'containers/AccountManagementContainer';
 import AlgorithmTest from 'pages/js/AlgorithmTest';
 import OthersSolutions from 'pages/js/OthersSolutions';
 
@@ -19,7 +20,7 @@ function AppRouter() {
             <Route path={paths.pages.problem_list} component={ProblemList} />
             <Route path={paths.pages.signup_form} component={SignupForm} />
             <Route path={paths.pages.login_form} component={LoginForm} />
-            <Route path={paths.pages.account_management} component={AccountManagement} />
+            <Route path={paths.pages.account_management} component={AccountManagementContainer} />
             <Route path={paths.pages.algorithm_test.full} component={AlgorithmTest} />
             <Route path={paths.pages.others_solutions.full} component={OthersSolutions} />
             <Route path={paths.pages.root} component={NotFound} />

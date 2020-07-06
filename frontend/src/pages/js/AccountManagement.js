@@ -1,13 +1,21 @@
-import React from 'react';
-import { Form, Button, Card } from 'react-bootstrap'
-
+import React, { useEffect } from 'react';
+import { Form, Button, Card, ProgressBar } from 'react-bootstrap';
 import 'pages/css/AccountManagement.css';
-import 'pages/css/Form.css'
-import { paths } from 'constants/Paths'
-import { input_names } from 'constants/FormInputNames'
+import 'pages/css/Form.css';
+import { paths } from 'constants/Paths';
+import { input_names } from 'constants/FormInputNames';
 import { validateNewNickname, validateNewPassword } from 'utils/validation/AccountManagementValidation';
 import swal from 'sweetalert';
-function AccountManagement() {
+function AccountManagement(props) {
+    /**
+     *  nickname: {
+        is_changing: false,
+        is_change_success: false,
+        msg: null
+    }
+     */
+    const { nickname, account_actions } = props;
+
     let user = {
         id: 1,
         name: 'user1',
@@ -31,7 +39,7 @@ function AccountManagement() {
             });
         } else {
             // request change nickname
-
+            account_actions.changeNickname(validation.values[input_names.nickname]);
         }
     }
 
@@ -66,7 +74,26 @@ function AccountManagement() {
             // request delete account
         });
     }
-
+    useEffect(() => {
+        if (!nickname.is_changing) {
+            if (nickname.is_change_success) {
+                swal({
+                    title: "닉네임 변경 성공",
+                    text: "닉네임 변경을 완료했습니다.",
+                    icon: "success",
+                    button: "확인",
+                })
+            }
+            else if (nickname.msg) {
+                swal({
+                    title: "닉네임 변경 실패",
+                    text: nickname.msg,
+                    icon: "error",
+                    button: "확인",
+                })
+            }
+        }
+    }, [nickname]);
     return (
         <div>
             <h1 className="text-center">계정 관리</h1>
@@ -84,6 +111,9 @@ function AccountManagement() {
                                 defaultValue={unescape(user.nickname)} type="text" placeholder="닉네임을 입력하세요." maxLength="50" />
                         </Form.Group>
                         <Button variant="primary" type="submit" onClick={e => changeNickname(document.getElementById('nicknameform'))}>닉네임 변경</Button>
+                        <div>
+                            {nickname.is_changing ? <ProgressBar /> : null}
+                        </div>
                     </Form>
                 </Card.Body>
             </Card>

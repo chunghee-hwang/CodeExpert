@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import 'pages/css/AlgorithmTest.css';
 import Split from 'react-split';
@@ -10,7 +10,14 @@ import { paths } from 'constants/Paths';
 import { Link } from 'react-router-dom';
 import languages from 'constants/Languages';
 import { data_types } from 'constants/DataTypes';
-function AlgorithmTest() {
+function AlgorithmTest(props) {
+    const { user } = props;
+
+    useEffect(() => {
+        if (!user) {
+            props.history.push(paths.pages.login_form);
+        }
+    }, [user, props.history]);
 
     let problem =
     {
@@ -67,6 +74,7 @@ function AlgorithmTest() {
 
     const problem_info_section = <ProblemInfoSection problem={problem} />;
     const problem_solution_section = <ProblemSolutionSection codes={codes} code={code} onChangeLanguage={langauge_id => changeLangauge(langauge_id)} code_results={code_results} />;
+
 
     return (
         <div>

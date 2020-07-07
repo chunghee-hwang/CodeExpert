@@ -1,28 +1,30 @@
 import React from 'react';
-import { Route, Switch } from 'react-router-dom'
+import { Route, Switch, Redirect } from 'react-router-dom'
 import { paths } from 'constants/Paths'
-import ProblemList from 'pages/js/ProblemList'
-import SignupForm from 'pages/js/SignupForm';
-import LoginForm from 'pages/js/LoginForm';
-import MakeProblem from 'pages/js/MakeProblem';
 import NotFound from 'pages/js/NotFound';
-// import AccountManagement from 'pages/js/AccountManagement';
 import AccountManagementContainer from 'containers/AccountManagementContainer';
-import AlgorithmTest from 'pages/js/AlgorithmTest';
-import OthersSolutions from 'pages/js/OthersSolutions';
-
+import LoginFormContainer from 'containers/LoginFormContainer';
+import MakeProblemContainer from 'containers/MakeProblemContainer';
+import ProblemListContainer from 'containers/ProblemListContainer';
+import SignupFormContainer from 'containers/SignupFormContainer';
+import AlgorithmTestContainer from 'containers/AlgorithmTestContainer';
+import OthersSolutionsContainer from 'containers/OthersSolutionsContainer';
+import LogoutManager from 'pages/js/LogoutManager';
 
 function AppRouter() {
     return (
         <Switch>
-            <Route exact path={paths.pages.root} component={ProblemList} />
-            <Route path={paths.pages.make_problem_form} component={MakeProblem} />
-            <Route path={paths.pages.problem_list} component={ProblemList} />
-            <Route path={paths.pages.signup_form} component={SignupForm} />
-            <Route path={paths.pages.login_form} component={LoginForm} />
+            <Route exact path={paths.pages.root}>
+                <Redirect to={paths.pages.problem_list} />
+            </Route>
+            <Route path={paths.pages.make_problem_form} component={MakeProblemContainer} />
+            <Route path={paths.pages.problem_list} component={ProblemListContainer} />
+            <Route path={paths.pages.signup_form} component={SignupFormContainer} />
+            <Route path={paths.pages.login_form} component={LoginFormContainer} />
             <Route path={paths.pages.account_management} component={AccountManagementContainer} />
-            <Route path={paths.pages.algorithm_test.full} component={AlgorithmTest} />
-            <Route path={paths.pages.others_solutions.full} component={OthersSolutions} />
+            <Route path={paths.pages.algorithm_test.full} component={AlgorithmTestContainer} />
+            <Route path={paths.pages.others_solutions.full} component={OthersSolutionsContainer} />
+            <Route path={paths.actions.logout} component={LogoutManager}></Route>
             <Route path={paths.pages.root} component={NotFound} />
         </Switch >
     );

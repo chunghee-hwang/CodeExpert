@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Form, Button } from 'react-bootstrap';
 import { input_names } from 'constants/FormInputNames';
 import { paths } from 'constants/Paths';
@@ -8,10 +8,20 @@ import ProblemExplainEditor from 'components/ProblemExplainEditor';
 import InputOutputTable from 'components/InputOutputTable';
 import { fillWithParametersAndTestcases, getParamsAndTestcases } from 'utils/InputOutputTableUtil';
 import { validateMakeProblem } from 'utils/validation/MakeProblemValidation';
+import { showValidationFailureAlert } from 'utils/AlertManager';
+
 import 'pages/css/Form.css';
 import 'pages/css/MakeProblem.css';
-import swal from 'sweetalert';
-function MakeProblem() {
+
+function MakeProblem(props) {
+    const { user } = props;
+
+    useEffect(() => {
+        if (!user) {
+            props.history.push(paths.pages.login_form);
+        }
+    }, [user, props.history]);
+
     // 문제 유형
     let problem_types = [
         { id: 1, name: "정렬" },
@@ -104,25 +114,10 @@ function MakeProblem() {
         let validation = validateMakeProblem(form, testcase_table_info, io_table_info);
         console.log({ validation });
         if (validation.is_valid) {
-            // swal({
-            //     title: "문제 등록 성공",
-            //     text: "문제를 성공적으로 등록했습니다.",
-            //     icon: "success",
-            //     button: "확인",
-            // });
             // request register problem
         }
         else {
-
-            swal({
-                title: "문제 등록 실패",
-                text: validation.fail_cause,
-                icon: "error",
-                button: "확인",
-            }).then(() => {
-                validation.failed_element.focus();
-                validation.failed_element.scrollIntoView({ behavior: "smooth", block: "start", inline: "nearest" });
-            });
+            showValidationFailureAlert({ validation, fail_what: "문제 등록" });
         }
     }
 }

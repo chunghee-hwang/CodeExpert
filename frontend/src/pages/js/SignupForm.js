@@ -1,26 +1,26 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Form, Button } from 'react-bootstrap'
 import 'pages/css/Form.css'
 import { paths } from 'constants/Paths'
 import { input_names } from 'constants/FormInputNames'
 import { validateSignup } from 'utils/validation/SignupValidation';
-import swal from 'sweetalert';
-function SignupForm() {
+import { showValidationFailureAlert } from 'utils/AlertManager';
+
+function SignupForm(props) {
+
+    const { user } = props;
+
+    useEffect(() => {
+        if (user) {
+            props.history.push(paths.pages.problem_list);
+        }
+    }, [user, props.history]);
+
     const signup = form => {
         const validation = validateSignup(form);
 
         if (!validation.is_valid) {
-            swal({
-                title: "회원가입 실패",
-                text: validation.fail_cause,
-                icon: "error",
-                button: "확인",
-            }).then(() => {
-                if (validation.failed_element) {
-                    validation.failed_element.focus();
-                    validation.failed_element.scrollIntoView({ behavior: "smooth", block: "start", inline: "nearest" });
-                }
-            });
+            showValidationFailureAlert({ validation, fail_what: "회원 가입" });
         } else {
             // request siginup
 

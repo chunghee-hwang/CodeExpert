@@ -8,7 +8,7 @@ import { BrowserRouter } from 'react-router-dom';
 import store from 'store/store';
 import { Provider } from 'react-redux';
 ReactDOM.render(
-  <Provider store={store}>
+  <Provider store={store}> {/* store 모든 컴포넌트에서 사용가능하게 함 */}
     <BrowserRouter>
       <App />
     </BrowserRouter>

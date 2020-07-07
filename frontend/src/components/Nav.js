@@ -1,9 +1,9 @@
 import React from 'react';
-import Menubar from './Menubar'
+import MenubarContainer from 'containers/MenubarContainer';
 function Nav() {
     return (
         <nav>
-            <Menubar />
+            <MenubarContainer />
         </nav>
     );
 }

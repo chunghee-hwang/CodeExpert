@@ -2,11 +2,16 @@ import React, { useState, useEffect } from 'react';
 import 'pages/css/ProblemList.css';
 import ProblemItemBox from 'components/ProblemItemBox';
 import { Pagination } from 'react-bootstrap';
-function ProblemList() {
+import { paths } from 'constants/Paths';
+function ProblemList(props) {
     const [page, setPage] = useState(1);
+    const { user } = props;
     useEffect(() => {
+        if (!user) {
+            props.history.push(paths.pages.login_form);
+        }
         fetch(`/problem_list?page=${page}`);
-    }, [page])
+    }, [page, user, props.history]);
     // 문제 유형
     let problem_types = [
         { id: 1, name: "정렬" },
@@ -141,8 +146,8 @@ function ProblemList() {
         <div className="problem-page align-center">
             <div className="left-panel">
                 <div className="user-info">
-                    <div className="panel-title">사용자1</div>
-                    <h6>해결한 문제 수: 11</h6>
+                    <div className="panel-title">{user ? user.nickname : 'N/A'}</div>
+                    <h6>해결한 문제 수: {user ? user.resolved_problem_count : 'N/A'}</h6>
                 </div>
 
                 <div className="problem-types">

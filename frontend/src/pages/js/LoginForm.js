@@ -1,33 +1,46 @@
-import React from 'react';
-import { Form, Button } from 'react-bootstrap'
+import React, { useEffect } from 'react';
+import { Form, Button, Spinner } from 'react-bootstrap'
 import 'pages/css/Form.css'
 import { paths } from 'constants/Paths'
 import { input_names } from 'constants/FormInputNames'
 import { validateLogin } from 'utils/validation/LoginValidation';
-import swal from 'sweetalert';
-function LoginForm() {
+import { showErrorAlert, showValidationFailureAlert } from 'utils/AlertManager';
+
+function LoginForm(props) {
+    const { is_progressing,
+        is_success,
+        data,
+        which, user, account_actions } = props;
+
+
 
     const login = form => {
         const validation = validateLogin(form);
         if (!validation.is_valid) {
-
-            swal({
-                title: "로그인 실패",
-                text: validation.fail_cause,
-                icon: "error",
-                button: "확인",
-            }).then(() => {
-                if (validation.failed_element) {
-                    validation.failed_element.focus();
-                    validation.failed_element.scrollIntoView({ behavior: "smooth", block: "start", inline: "nearest" });
-                }
-            });
+            showValidationFailureAlert({ validation, fail_what: "로그인" });
         } else {
-
             // request login
-
+            account_actions.login(validation.values);
         }
     }
+
+
+    useEffect(() => {
+        if (user) {
+            props.history.push(paths.pages.problem_list);
+        }
+        if (which === 'login') {
+            let success_or_error_what = '로그인';
+            if (!is_progressing) {
+                if (is_success) {
+                    props.history.push(paths.pages.problem_list);
+                } else {
+                    showErrorAlert({ error_what: success_or_error_what, text: data });
+                }
+            }
+        }
+
+    }, [which, is_progressing, is_success, data, user, props.history]);
 
     return (
         <div>
@@ -42,9 +55,11 @@ function LoginForm() {
                     <Form.Label>비밀번호</Form.Label>
                     <Form.Control name={input_names.password} type="password" placeholder="비밀번호를 입력하세요." maxLength="50" />
                 </Form.Group>
-                <Button variant="primary" type="submit" block onClick={e => login(document.getElementById('loginform'))}>
-                    로그인
-                </Button>
+                {which === 'login' && is_progressing ?
+                    <Button variant="primary" disabled block><Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true" />로그인 중...</Button>
+                    :
+                    <Button variant="primary" type="submit" block onClick={e => login(document.getElementById('loginform'))}>로그인</Button>
+                }
             </Form>
         </div>
     );

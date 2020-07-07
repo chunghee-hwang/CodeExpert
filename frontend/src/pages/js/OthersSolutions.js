@@ -8,10 +8,11 @@ import { Pagination } from 'react-bootstrap';
 import { paths } from 'constants/Paths';
 import LikeBtn from 'components/LikeBtn';
 import Comments from 'components/Comments';
-function OthersSolution() {
+function OthersSolutions(props) {
     const { problem_id } = useParams()
     const [page, setPage] = useState(1);
     const [language, setLanguage] = useState(languages.java.name);
+    const { user } = props;
     let problem = {
         title: '오름차순으로 정렬하기'
     }
@@ -60,7 +61,7 @@ function OthersSolution() {
                     </div>
                     <h6 className="font-weight-bold mt-3">댓글</h6>
                     <div className="others-solution-comments">
-                        <Comments solution_id={solution.id} />
+                        <Comments solution_id={solution.id} user={user} />
                     </div>
                 </div>
 
@@ -71,6 +72,10 @@ function OthersSolution() {
 
 
     useEffect(() => {
+        if (!user) {
+            props.history.push(paths.pages.login_form);
+            return;
+        }
         fetch(`/solutions/${problem_id}?language=${language}?page=${page}`);
 
         const code_viewers = document.querySelectorAll('.code-viewer');
@@ -78,7 +83,7 @@ function OthersSolution() {
             const solution = solutions[code_viewer.dataset.solution_idx];
             initAceEditor(solution.code, solution.language.ace_name, code_viewer, true);
         })
-    });
+    }, [user, props.history, language, page, problem_id, solutions]);
 
     return (
         <div className="others-solutions">
@@ -119,4 +124,4 @@ function OthersSolution() {
     );
 }
 
-export default OthersSolution;
+export default OthersSolutions;

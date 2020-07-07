@@ -4,7 +4,7 @@ import Moment from 'react-moment';
 import 'moment-timezone';
 function Comments(props) {
     // const solution_id = props.solution_id;
-    const user_id = 2;
+    const { user } = props;
     /**
      * request a solution includes comments only using solution_id
      */
@@ -14,7 +14,7 @@ function Comments(props) {
             {
                 id: 1,
                 user: {
-                    id: 2,
+                    id: 1,
                     name: '사용자2',
                 },
                 timestamp: new Date(),
@@ -23,7 +23,7 @@ function Comments(props) {
             {
                 id: 2,
                 user: {
-                    id: 3,
+                    id: 2,
                     name: '사용자3',
                 },
                 timestamp: new Date(),
@@ -50,13 +50,13 @@ function Comments(props) {
                     <td className="others-solution-comment-timestamp"><Moment date={comment.timestamp} format="YYYY-MM-DD HH:mm" /></td>
                     <td className="others-solution-comment-content">
                         {
-                            user_id === comment.user.id ?
+                            user.id === comment.user.id ?
                                 <input className="others-solution-comment-update-input form-control" defaultValue={comment.content} placeholder="댓글을 입력하세요." aria-label="댓글 남기기" /> :
                                 comment.content
                         }
                     </td>
 
-                    {user_id === comment.user.id ?
+                    {user.id === comment.user.id ?
                         <td>
                             <Button variant="outline-info" onClick={e => updateComment(comment.id, e.target.parentElement.parentElement.querySelector('.others-solution-comment-update-input').value)}>수정</Button>
                             <Button variant="outline-danger" onClick={e => deleteComment(comment.id)}>삭제</Button>
@@ -104,7 +104,7 @@ function Comments(props) {
                     }, {
                         id: 4,
                         user: {
-                            id: user_id,
+                            id: user.id,
                             name: '사용자2'
                         },
                         timestamp: new Date(),
@@ -117,7 +117,7 @@ function Comments(props) {
     }
 
     const updateComment = (comment_id, comment_content) => {
-        // request update comment using comment_id, comment_content, user_id
+        // request update comment using comment_id, comment_content, user id
         if (comment_content.trim()) {
             console.log(comment_content);
             // get comment
@@ -125,7 +125,7 @@ function Comments(props) {
     }
 
     const deleteComment = (comment_id) => {
-        // request delete comment using comment_id, user_id
+        // request delete comment using comment_id, user id
         setSolution({
             comments: [
                 {
@@ -154,7 +154,7 @@ function Comments(props) {
         <>
             <table>
                 <tbody>
-                    {createCommentsTemplate(solution.comments)}
+                    {user ? createCommentsTemplate(solution.comments) : null}
                 </tbody>
             </table>
 

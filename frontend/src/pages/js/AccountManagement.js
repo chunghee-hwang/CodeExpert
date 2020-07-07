@@ -5,41 +5,21 @@ import 'pages/css/Form.css';
 import { paths } from 'constants/Paths';
 import { input_names } from 'constants/FormInputNames';
 import { validateNewNickname, validateNewPassword } from 'utils/validation/AccountManagementValidation';
-import swal from 'sweetalert';
+import { showSuccessAlert, showErrorAlert, showValidationFailureAlert, showWarningAlert } from 'utils/AlertManager';
 function AccountManagement(props) {
-    /**
-     *  nickname: {
-        is_changing: false,
-        is_change_success: false,
-        msg: null
-    }
-     */
-    const { nickname, account_actions } = props;
-
-    let user = {
-        id: 1,
-        name: 'user1',
-        nickname: escape('사용자1')
-    }
+    const { is_progressing,
+        is_success,
+        data,
+        which, account_actions, user } = props;
 
     const changeNickname = form => {
         const validation = validateNewNickname(form, user.nickname);
 
         if (!validation.is_valid) {
-            swal({
-                title: "닉네임 변경 실패",
-                text: validation.fail_cause,
-                icon: "error",
-                button: "확인",
-            }).then(() => {
-                if (validation.failed_element) {
-                    validation.failed_element.focus();
-                    validation.failed_element.scrollIntoView({ behavior: "smooth", block: "start", inline: "nearest" });
-                }
-            });
+            showValidationFailureAlert({ validation, fail_what: "닉네임 변경" });
         } else {
             // request change nickname
-            account_actions.changeNickname(validation.values[input_names.nickname]);
+            account_actions.changeNickname(validation.values);
         }
     }
 
@@ -47,53 +27,49 @@ function AccountManagement(props) {
         const validation = validateNewPassword(form);
 
         if (!validation.is_valid) {
-            swal({
-                title: "비밀번호 변경 실패",
-                text: validation.fail_cause,
-                icon: "error",
-                button: "확인",
-            }).then(() => {
-                if (validation.failed_element) {
-                    validation.failed_element.focus();
-                    validation.failed_element.scrollIntoView({ behavior: "smooth", block: "start", inline: "nearest" });
-                }
-            });
+            showValidationFailureAlert({ validation, fail_what: "비밀번호 변경" });
         } else {
             // request change password
-
+            account_actions.changePassword(validation.values);
         }
     }
 
     const deleteAccount = () => {
-        swal({
-            title: "계정 삭제",
-            text: "정말 계정을 삭제할까요?",
-            icon: "warning",
-            button: "삭제",
-        }).then(() => {
+        showWarningAlert({ title: "계정 삭제", text: "정말 계정을 삭제할까요?", btn_text: "삭제" }).then(() => {
             // request delete account
+            account_actions.deleteAccount();
         });
     }
     useEffect(() => {
-        if (!nickname.is_changing) {
-            if (nickname.is_change_success) {
-                swal({
-                    title: "닉네임 변경 성공",
-                    text: "닉네임 변경을 완료했습니다.",
-                    icon: "success",
-                    button: "확인",
-                })
-            }
-            else if (nickname.msg) {
-                swal({
-                    title: "닉네임 변경 실패",
-                    text: nickname.msg,
-                    icon: "error",
-                    button: "확인",
-                })
+        let success_or_error_what = null;
+        if (!user) {
+            props.history.push(paths.pages.login_form);
+            return;
+        }
+        switch (which) {
+            case 'nickname':
+                success_or_error_what = '닉네임 변경';
+                break;
+            case 'password':
+                success_or_error_what = '비밀번호 변경';
+                break;
+            case 'account':
+                success_or_error_what = '계정 삭제';
+                break;
+            default:
+                break;
+        }
+        if (success_or_error_what && !is_progressing) {
+            if (is_success) {
+                showSuccessAlert({ success_what: success_or_error_what, text: data });
+            } else {
+                showErrorAlert({ success_what: success_or_error_what, text: data });
             }
         }
-    }, [nickname]);
+    }, [which, is_progressing, is_success, data, props.history, user]);
+
+
+
     return (
         <div>
             <h1 className="text-center">계정 관리</h1>
@@ -103,14 +79,15 @@ function AccountManagement(props) {
                     <Form id="nicknameform" action={paths.actions.change_nickname} className="form" onSubmit={e => e.preventDefault()}>
                         <Form.Group>
                             <Form.Label>아이디</Form.Label>
-                            <h6>{user.name}</h6>
+                            <h6>{user ? user.name : 'N/A'}</h6>
                         </Form.Group>
                         <Form.Group>
                             <Form.Label>닉네임</Form.Label>
+
                             <Form.Control name={input_names.nickname}
-                                defaultValue={unescape(user.nickname)} type="text" placeholder="닉네임을 입력하세요." maxLength="50" />
+                                defaultValue={user ? unescape(user.nickname) : 'N/A'} type="text" placeholder="닉네임을 입력하세요." maxLength="50" />
                         </Form.Group>
-                        {nickname.is_changing ?
+                        {which === 'nickname' && is_progressing ?
                             <Button variant="primary" disabled><Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true" />변경 중...</Button>
                             :
                             <Button variant="primary" type="submit" onClick={e => changeNickname(document.getElementById('nicknameform'))}>닉네임 변경</Button>
@@ -135,7 +112,11 @@ function AccountManagement(props) {
                             <Form.Label>비밀번호 확인</Form.Label>
                             <Form.Control name={input_names.new_password_check} type="password" placeholder="비밀번호를 다시 입력하세요." maxLength="50" />
                         </Form.Group>
-                        <Button variant="primary" type="submit" onClick={e => changePassword(document.getElementById('passwordform'))}>비밀번호 변경</Button>
+                        {which === 'password' && is_progressing ?
+                            <Button variant="primary" disabled><Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true" />변경 중...</Button>
+                            :
+                            <Button variant="primary" type="submit" onClick={e => changePassword(document.getElementById('passwordform'))}>비밀번호 변경</Button>
+                        }
                     </Form>
                 </Card.Body>
             </Card>
@@ -144,7 +125,11 @@ function AccountManagement(props) {
                 <Card.Body>
                     <div className="text-center">
                         <span className="mx-3">테스트 결과, 프로필이 삭제됩니다.</span>
-                        <Button variant="dark" onClick={e => deleteAccount()}>계정 삭제</Button>
+                        {which === 'account' && is_progressing ?
+                            <Button variant="dark" disabled><Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true" />삭제 중...</Button>
+                            :
+                            <Button variant="dark" onClick={e => deleteAccount()}>계정 삭제</Button>
+                        }
                     </div>
                 </Card.Body>
             </Card>

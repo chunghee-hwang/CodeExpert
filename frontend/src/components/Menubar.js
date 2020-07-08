@@ -27,6 +27,9 @@ function Menubar(props) {
                         <LinkContainer to={paths.pages.account_management}>
                             <Nav.Link>계정 관리</Nav.Link>
                         </LinkContainer>
+                        <LinkContainer to={paths.pages.signup_form}>
+                            <Nav.Link>회원 가입</Nav.Link>
+                        </LinkContainer>
                         <LinkContainer to={paths.actions.logout}>
                             <Nav.Link>로그아웃</Nav.Link>
                         </LinkContainer>

@@ -21,21 +21,25 @@ const LOGOUT = 'LOGOUT';
 const LOGOUT_SUCCESS = 'LOGOUT_SUCCESS';
 const LOGOUT_FAILURE = 'LOGOUT_FAILURE';
 
-export const changeNickname = createAction(CHANGE_NICKNAME, nickname => nickname);
+const SIGNUP = 'SIGNUP';
+const SIGNUP_SUCCESS = 'SIGNUP_SUCCESS';
+const SIGNUP_FAILURE = 'SIGNUP_FAILURE';
+
+export const changeNickname = createAction(CHANGE_NICKNAME, data => data);
 export const changePassword = createAction(CHANGE_PASSWORD, data => data);
 export const deleteAccount = createAction(DELETE_ACCOUNT, data => data);
 export const login = createAction(LOGIN);
 export const logout = createAction(LOGOUT);
+export const signup = createAction(SIGNUP);
 
 function* changeNicknameSaga(action) {
     yield delay(1000);
     try {
-
         const response = yield call(AccountApi.changeNickname, action.payload);
         yield put({ type: CHANGE_NICKNAME_SUCCESS, payload: response });
     }
     catch (e) {
-        yield put({ type: CHANGE_NICKNAME_FAILURE, payload: e });
+        yield put({ type: CHANGE_NICKNAME_FAILURE, payload: e.message });
     }
 }
 
@@ -45,7 +49,7 @@ function* changePasswordSaga(action) {
         const response = yield call(AccountApi.changePassword, action.payload);
         yield put({ type: CHANGE_PASSWORD_SUCCESS, payload: response });
     } catch (e) {
-        yield put({ type: CHANGE_PASSWORD_FAILURE, payload: e });
+        yield put({ type: CHANGE_PASSWORD_FAILURE, payload: e.message });
     }
 }
 
@@ -55,29 +59,39 @@ function* deleteAccountSaga(action) {
         const response = yield call(AccountApi.deleteAccount, action.payload);
         yield put({ type: DELETE_ACCOUNT_SUCCESS, payload: response });
     } catch (e) {
-        yield put({ type: DELETE_ACCOUNT_FAILURE, payload: e });
+        yield put({ type: DELETE_ACCOUNT_FAILURE, payload: e.message });
     }
 }
 
 function* loginSaga(action) {
     yield delay(1000);
     try {
-        const response = yield call(AccountApi.login, action.payload)
+        const response = yield call(AccountApi.login, action.payload);
         yield sessionStorage.setItem('user', JSON.stringify(response.user));
         yield put({ type: LOGIN_SUCCESS, payload: response });
     } catch (e) {
-        yield put({ type: LOGIN_FAILURE, payload: e });
+        yield put({ type: LOGIN_FAILURE, payload: e.message });
     }
 }
 
 function* logoutSaga(action) {
     yield delay(1000);
     try {
-        const response = yield call(AccountApi.logout, action.payload)
+        const response = yield call(AccountApi.logout, action.payload);
         yield sessionStorage.removeItem('user');
         yield put({ type: LOGOUT_SUCCESS, payload: response });
     } catch (e) {
-        yield put({ type: LOGOUT_FAILURE, payload: e });
+        yield put({ type: LOGOUT_FAILURE, payload: e.message });
+    }
+}
+
+function* signupSaga(action) {
+    yield delay(1000);
+    try {
+        const response = yield call(AccountApi.signUp, action.payload);
+        yield put({ type: SIGNUP_SUCCESS, payload: response });
+    } catch (e) {
+        yield put({ type: SIGNUP_FAILURE, payload: e.message });
     }
 }
 
@@ -87,6 +101,7 @@ export function* accountSaga() {
     yield takeEvery(DELETE_ACCOUNT, deleteAccountSaga);
     yield takeEvery(LOGIN, loginSaga);
     yield takeEvery(LOGOUT, logoutSaga);
+    yield takeEvery(SIGNUP, signupSaga);
 }
 
 // 새로 고침하면 유저 데이터가 store에서 날아가는 거 방지. 세션 스토리지기 때문에 서버의 세션이 만료되면 같이 만료됨.
@@ -129,7 +144,7 @@ export default handleActions({
             which: 'nickname',
             is_progressing: false,
             is_success: false,
-            data: action.payload.message,
+            data: action.payload,
         };
     },
     [CHANGE_PASSWORD]: (state, action) => {
@@ -156,7 +171,7 @@ export default handleActions({
             which: 'password',
             is_progressing: false,
             is_success: false,
-            data: action.payload.message,
+            data: action.payload,
         };
     },
     [DELETE_ACCOUNT]: (state, action) => {
@@ -183,7 +198,7 @@ export default handleActions({
             which: 'account',
             is_progressing: false,
             is_success: false,
-            data: action.payload.message,
+            data: action.payload,
         };
     },
     [LOGIN]: (state, action) => {
@@ -209,7 +224,7 @@ export default handleActions({
             which: 'login',
             is_progressing: false,
             is_success: false,
-            data: action.payload.message,
+            data: action.payload,
             user: null
         };
     },
@@ -237,7 +252,34 @@ export default handleActions({
             which: 'logout',
             is_progressing: false,
             is_success: false,
-            data: action.payload.message,
+            data: action.payload,
+        };
+    },
+    [SIGNUP]: (state, action) => {
+        return {
+            ...state,
+            which: 'signup',
+            is_progressing: true,
+            is_success: false,
+            data: null,
+        };
+    },
+    [SIGNUP_SUCCESS]: (state, action) => {
+        return {
+            ...state,
+            which: 'signup',
+            is_progressing: false,
+            is_success: true,
+            data: action.payload,
+        };
+    },
+    [SIGNUP_FAILURE]: (state, action) => {
+        return {
+            ...state,
+            which: 'signup',
+            is_progressing: false,
+            is_success: false,
+            data: action.payload,
         };
     }
 }, initial_state);

@@ -4,7 +4,7 @@ import * as account_actions from 'store/modules/Account';
 import { connect } from 'react-redux';
 import { paths } from 'constants/Paths';
 import { showErrorAlert } from 'utils/AlertManager';
-import { Spinner } from 'react-bootstrap';
+import LoadingScreen from 'components/LoadingScreen';
 
 function LogoutManager(props) {
 
@@ -30,7 +30,7 @@ function LogoutManager(props) {
         }
     }, [props.history, account_actions, which, is_progressing, is_success, user, data]);
 
-    return <div className="text-center" style={{ "height": "100vh" }}>로그아웃 중입니다 <Spinner animation="grow" variant="warning" /></div>
+    return <LoadingScreen label="로그 아웃 중입니다." variant='warning' />;
 }
 
 

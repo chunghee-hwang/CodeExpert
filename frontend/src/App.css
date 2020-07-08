@@ -63,3 +63,9 @@
 .to-problem-link:hover{
   text-decoration: none !important;
 }
+
+.loading-container{
+  text-align: center;
+  margin: auto 0;
+  height: 50vh;
+}

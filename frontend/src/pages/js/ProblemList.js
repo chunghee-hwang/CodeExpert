@@ -3,37 +3,31 @@ import 'pages/css/ProblemList.css';
 import ProblemItemBox from 'components/ProblemItemBox';
 import { Pagination } from 'react-bootstrap';
 import { paths } from 'constants/Paths';
+import LoadingScreen from 'components/LoadingScreen';
 function ProblemList(props) {
-    const [page, setPage] = useState(1);
-    const { user } = props;
+    const [page, setPage] = useState(0);
+    const { user } = props.account;
+    const { data } = props.problem;
+    const { problem_actions } = props;
+    const [level_filters, setLevelFilters] = useState(new Set());
+    const [type_filters, setTypeFilters] = useState(new Set());
     useEffect(() => {
         if (!user) {
             props.history.push(paths.pages.login_form);
+            return;
         }
-        fetch(`/problem_list?page=${page}`);
-    }, [page, user, props.history]);
-    // 문제 유형
-    let problem_types = [
-        { id: 1, name: "정렬" },
-        { id: 2, name: "스택/큐" },
-        { id: 3, name: "동적 계획법" },
-        { id: 4, name: "탐욕법" },
-        { id: 5, name: "완전 탐색" },
-        { id: 6, name: "힙" },
-        { id: 7, name: "해시" },
-        { id: 1000, name: "내가 출제한 문제" }
-    ]
 
-    // 난이도
-    let levels = [
-        { id: 1, name: "1" },
-        { id: 2, name: "2" },
-        { id: 3, name: "3" },
-        { id: 4, name: "4" },
-    ]
+        // request problem list and page info using type, level, page
+        // fetch(`/problems?type=${type_ids.join(',')}&level=${levels.join(',')}&page=${page}`);
+        if (!data.problems_and_max_page) problem_actions.getProblemList({ type: type_filters, level: level_filters, page });
+    }, [page, user, props.history, data.problems_and_max_page, level_filters, problem_actions, type_filters]);
 
-    // 끝 페이지
-    let end_page_number = 20;
+    if (!data.problems_and_max_page) {
+        return <LoadingScreen label="문제 목록을 불러오는 중입니다." />;
+    }
+
+    // 끝 페이지 (props 대체 예정)
+    let end_page_number = data.problems_and_max_page.max_page;
     let pagination_items = [];
     for (let number = 1; number <= end_page_number; number++) {
         pagination_items.push(
@@ -41,107 +35,60 @@ function ProblemList(props) {
         );
     }
 
-    // 문제
-    let problems = [
-        {
-            id: 1, title: "오름차순으로 정렬하기",
-            type:
-            {
-                id: 1, name: "정렬"
-            },
-            level: 1,
-            resolve_count: 51891,
-            created_by_me: true,
-            resolved: true,
-        },
-        {
-            id: 2, title: "미니 계산기",
-            type:
-            {
-                id: 2, name: "스택"
-            },
-            level: 3
-            ,
-            resolve_count: 424,
-            created_by_me: false,
-            resolved: true,
-        },
-        {
-            id: 3, title: "동전 교환기",
-            type:
-            {
-                id: 4, name: "탐욕법"
-            },
-            level: 2,
-            resolve_count: 7901,
-            created_by_me: false,
-            resolved: false,
-        },
-        {
-            id: 4, title: "짝 맞추기",
-            type:
-            {
-                id: 7, name: "해시"
-            },
-            level: 1
-            ,
-            resolve_count: 14791,
-            created_by_me: false,
-            resolved: false,
-        },
-        {
-            id: 5, title: "공정 거래",
-            type:
-            {
-                id: 5, name: "완전 탐색"
-            },
-            level: 4,
-            resolve_count: 11,
-            created_by_me: false,
-            resolved: false,
-        },
-        {
-            id: 6, title: "출력 대기열",
-            type:
-            {
-                id: 6, name: "힙"
-            },
-            level: 3,
-            resolve_count: 5464,
-            created_by_me: false,
-            resolved: true,
-        },
-
-    ];
-    let problem_boxes = problems.reduce((accumulator, problem, idx) => {
+    let problem_boxes = data.problems_and_max_page.problems.reduce((accumulator, problem) => {
         accumulator.push(
             <ProblemItemBox key={problem.id} problem={problem} />
         );
         return accumulator;
     }, []);
 
-
-    let problem_type_checkboxes = problem_types.reduce((accumulator, problem_type) => {
+    let problem_type_checkboxes = [];
+    let level_checkboxes = [];
+    data.problems_and_max_page.problems.forEach((problem, idx) => {
+        const problem_type = problem.type;
         let tag_id = `type-checkbox-${problem_type.id}`;
-        accumulator.push(
+        problem_type_checkboxes.push(
             <div key={problem_type.id}>
-                <input type="checkbox" className="form-check-input" id={tag_id} onChange={e => updateProblemList()} />
+                <input type="checkbox" defaultChecked={type_filters.has(problem_type.id)} className="form-check-input type-filter" id={tag_id} data-type_id={problem_type.id} onChange={e => addOrRemoveTypeFilter(e.target)} />
                 <label className="form-check-label" htmlFor={tag_id}>{problem_type.name}</label>
             </div>
         );
-        return accumulator;
-    }, []);
+    });
 
-    let level_checkboxes = levels.reduce((accumulator, level) => {
-        let tag_id = `level-checkbox-${level.id}`;
-        accumulator.push(
-            <div key={level.id}>
-                <input type="checkbox" className="form-check-input" id={tag_id} onChange={e => updateProblemList()} />
-                <label className="form-check-label" htmlFor={tag_id}>{level.name}</label>
-            </div>
-        )
+
+    let levels = data.problems_and_max_page.problems.reduce((accumulator, problem) => {
+        accumulator.add(problem.level);
         return accumulator;
-    }, []);
+    }, new Set());
+    if (levels) {
+        Array.from(levels.values()).sort().forEach((level) => {
+            const tag_id = `level-checkbox-${level}`;
+            level_checkboxes.push(
+                <div key={level}>
+                    <input type="checkbox" defaultChecked={level_filters.has(level)} className="form-check-input level-filter" id={tag_id} data-level={level} onChange={e => addOrRemoveLevelFilter(e.target)} />
+                    <label className="form-check-label" htmlFor={tag_id}>{level}</label>
+                </div>
+            );
+        });
+    }
+
+    const addOrRemoveLevelFilter = (input) => {
+        if (input.checked) {
+            setLevelFilters(level_filters => new Set(level_filters).add(Number(input.dataset.level)));
+        } else {
+            setLevelFilters(level_filters => new Set([...level_filters].filter(level_filter => level_filter !== Number(input.dataset.level))));
+        }
+        problem_actions.getProblemList({ type: type_filters, level: level_filters, page });
+    }
+    const addOrRemoveTypeFilter = (input) => {
+        if (input.checked) {
+            setTypeFilters(type_filters => new Set(type_filters).add(Number(input.dataset.type_id)));
+        } else {
+            setLevelFilters(type_filters => new Set([...type_filters].filter(type_filter => type_filter !== Number(input.dataset.type_id))));
+        }
+        problem_actions.getProblemList({ type: type_filters, level: level_filters, page });
+    }
+
     return (
         <div className="problem-page align-center">
             <div className="left-panel">
@@ -185,12 +132,7 @@ function ProblemList(props) {
     );
 
 
-    function updateProblemList() {
-
-    }
 }
-
-
 
 
 export default ProblemList;

@@ -8,10 +8,11 @@ import { Pagination } from 'react-bootstrap';
 import { paths } from 'constants/Paths';
 import LikeBtn from 'components/LikeBtn';
 import Comments from 'components/Comments';
+import { getIntegerPathParameter } from 'utils/PageControl';
 function OthersSolutions(props) {
-    const { problem_id } = useParams()
+    const problem_id = getIntegerPathParameter(useParams, 'problem_id');
     const [page, setPage] = useState(1);
-    const [language, setLanguage] = useState(languages.java.name);
+    const [language, setLanguage] = useState(languages.java.id);
     const { user } = props;
     let problem = {
         title: '오름차순으로 정렬하기'
@@ -76,6 +77,8 @@ function OthersSolutions(props) {
             props.history.push(paths.pages.login_form);
             return;
         }
+        // request others solutions using problem_id, language_id, page
+
         fetch(`/solutions/${problem_id}?language=${language}?page=${page}`);
 
         const code_viewers = document.querySelectorAll('.code-viewer');
@@ -96,7 +99,6 @@ function OthersSolutions(props) {
                 </div>
 
                 <select className="custom-select others-solution-language-select" onChange={e => {
-                    // console.log(e.target.options[e.target.selectedIndex].dataset);
                     setLanguage(e.target.options[e.target.selectedIndex].dataset.language_name)
                     setPage(1);
                 }}>

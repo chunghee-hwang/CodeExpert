@@ -34,3 +34,9 @@ export const logout = () => {
         logout_success: true
     }
 }
+
+export const signUp = ({ id, nickname, password, password_check }) => {
+    return {
+        signup_success: true
+    }
+}

@@ -1,20 +1,29 @@
 import React, { useEffect } from 'react';
-import { Form, Button } from 'react-bootstrap'
+import { Form, Button, Spinner } from 'react-bootstrap'
 import 'pages/css/Form.css'
 import { paths } from 'constants/Paths'
 import { input_names } from 'constants/FormInputNames'
 import { validateSignup } from 'utils/validation/SignupValidation';
-import { showValidationFailureAlert } from 'utils/AlertManager';
+import { showValidationFailureAlert, showSuccessAlert, showErrorAlert } from 'utils/AlertManager';
 
 function SignupForm(props) {
 
-    const { user } = props;
+    const { account_actions, is_progressing, is_success, data, which } = props;
 
     useEffect(() => {
-        if (user) {
-            props.history.push(paths.pages.problem_list);
+        if (which === 'signup') {
+            if (!is_progressing) {
+                if (is_success) {
+                    showSuccessAlert({ success_what: "회원 가입", text: "회원가입을 완료했습니다. 가입하신 정보로 로그인 해주세요." }).then(() => {
+                        props.history.push(paths.pages.login_form);
+                    });
+                }
+                else {
+                    showErrorAlert({ error_what: "회원 가입", text: data });
+                }
+            }
         }
-    }, [user, props.history]);
+    }, [data, is_progressing, is_success, which, props.history]);
 
     const signup = form => {
         const validation = validateSignup(form);
@@ -22,8 +31,8 @@ function SignupForm(props) {
         if (!validation.is_valid) {
             showValidationFailureAlert({ validation, fail_what: "회원 가입" });
         } else {
-            // request siginup
-
+            //- request siginup
+            account_actions.signup(validation.values);
         }
     }
     return (
@@ -46,9 +55,12 @@ function SignupForm(props) {
                     <Form.Label>비밀번호 확인</Form.Label>
                     <Form.Control name={input_names.password_check} type="password" placeholder="비밀번호를 다시 입력하세요." maxLength="50" />
                 </Form.Group>
-                <Button variant="primary" type="submit" block onClick={e => signup(document.getElementById('signupform'))}>
-                    회원 가입
-                </Button>
+                {which === 'signup' && is_progressing ?
+                    <Button variant="primary" disabled block><Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true" />회원가입 중...</Button>
+                    :
+                    <Button variant="primary" type="submit" block onClick={e => signup(document.getElementById('signupform'))}>회원 가입</Button>
+                }
+
             </Form>
         </div>
     );

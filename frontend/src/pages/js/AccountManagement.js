@@ -18,7 +18,7 @@ function AccountManagement(props) {
         if (!validation.is_valid) {
             showValidationFailureAlert({ validation, fail_what: "닉네임 변경" });
         } else {
-            // request change nickname
+            //- request change nickname
             account_actions.changeNickname(validation.values);
         }
     }
@@ -29,14 +29,14 @@ function AccountManagement(props) {
         if (!validation.is_valid) {
             showValidationFailureAlert({ validation, fail_what: "비밀번호 변경" });
         } else {
-            // request change password
+            //- request change password
             account_actions.changePassword(validation.values);
         }
     }
 
     const deleteAccount = () => {
         showWarningAlert({ title: "계정 삭제", text: "정말 계정을 삭제할까요?", btn_text: "삭제" }).then(() => {
-            // request delete account
+            //- request delete account
             account_actions.deleteAccount();
         });
     }

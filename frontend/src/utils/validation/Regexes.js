@@ -18,3 +18,6 @@ export const data_type_regexs = {
     string: /^"[^"]*"$/,
     string_array: /^\[("[^"]*"(,)?(\s)?)*\]$/,
 }
+
+// URL regex
+export const integer_param_regex = /^\d+$/;

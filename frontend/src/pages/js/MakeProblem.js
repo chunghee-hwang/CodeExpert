@@ -9,18 +9,27 @@ import InputOutputTable from 'components/InputOutputTable';
 import { fillWithParametersAndTestcases, getParamsAndTestcases } from 'utils/InputOutputTableUtil';
 import { validateMakeProblem } from 'utils/validation/MakeProblemValidation';
 import { showValidationFailureAlert } from 'utils/AlertManager';
+import { getIntegerQueryParameter } from 'utils/PageControl';
 
 import 'pages/css/Form.css';
 import 'pages/css/MakeProblem.css';
 
 function MakeProblem(props) {
     const { user } = props;
-
+    const problem_id = getIntegerQueryParameter("id");
+    console.log(problem_id);
     useEffect(() => {
         if (!user) {
             props.history.push(paths.pages.login_form);
+        } else {
+            // request get problem_types, levels
+
+            // request get problem data if problem_id is not null and the problem is made by same user.
+            if (problem_id) {
+
+            }
         }
-    }, [user, props.history]);
+    }, [user, problem_id, props.history]);
 
     // 문제 유형
     let problem_types = [
@@ -31,14 +40,10 @@ function MakeProblem(props) {
         { id: 5, name: "완전 탐색" },
         { id: 6, name: "힙" },
         { id: 7, name: "해시" },
+        { id: 8, name: "기타" },
     ]
     // 난이도
-    let levels = [
-        { id: 1, name: "1" },
-        { id: 2, name: "2" },
-        { id: 3, name: "3" },
-        { id: 4, name: "4" },
-    ]
+    let levels = [1, 2, 3, 4]
 
 
 
@@ -47,8 +52,8 @@ function MakeProblem(props) {
         return accumulator;
     }, []);
 
-    let level_options = levels.reduce((accumulator, level_option) => {
-        accumulator.push(<option key={level_option.id} data-id={level_option.id}>{level_option.name}</option>);
+    let level_options = levels.reduce((accumulator, level) => {
+        accumulator.push(<option key={level} data-level={level}>{level}</option>);
         return accumulator;
     }, []);
 
@@ -95,7 +100,7 @@ function MakeProblem(props) {
                 </Form.Group>
                 <Form.Group className="level-control-container my-5 align-center text-center">
                     <Form.Label className="font-weight-bold">난이도</Form.Label>
-                    <Form.Control as="select" custom className="level-control form-control align-center" onChange={e => e.target.form[input_names.level].value = e.target.options[e.target.selectedIndex].dataset.id}>
+                    <Form.Control as="select" custom className="level-control form-control align-center" onChange={e => e.target.form[input_names.level].value = e.target.options[e.target.selectedIndex].dataset.level}>
                         {level_options}
                     </Form.Control>
                     <input type="hidden" name={input_names.level} value="1"></input>
@@ -115,6 +120,7 @@ function MakeProblem(props) {
         console.log({ validation });
         if (validation.is_valid) {
             // request register problem
+
         }
         else {
             showValidationFailureAlert({ validation, fail_what: "문제 등록" });

@@ -19,7 +19,7 @@ function LoginForm(props) {
         if (!validation.is_valid) {
             showValidationFailureAlert({ validation, fail_what: "로그인" });
         } else {
-            // request login
+            //- request login
             account_actions.login(validation.values);
         }
     }

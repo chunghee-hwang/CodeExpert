@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { initAceEditor } from 'utils/AceEditor';
 function CodeSection(props) {
     useEffect(() => {
+        if (!props.code) return;
         let code_value;
         if (props.code.prev_code) {
             code_value = props.code.prev_code;

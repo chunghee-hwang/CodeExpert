@@ -2,9 +2,7 @@ import React, { useState } from 'react';
 import { AiOutlineLike } from 'react-icons/ai';
 function LikeBtn(props) {
     // const solution_id = props.solution_id;
-    /**
-     * request a solution includes like_count, like_pressed only using solution_id
-     */
+    // request a solution includes like_count, like_pressed only using solution_id
 
     // props로 대체 예정
     const [solution, setSolution] = useState({

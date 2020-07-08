@@ -1,6 +1,7 @@
 import React from 'react';
 import InputOutputTable from './InputOutputTable';
 import { table_mode } from 'constants/InputOutputTableMode';
+import LoadingScreen from './LoadingScreen';
 /*
   let problem =
     {
@@ -32,6 +33,7 @@ import { table_mode } from 'constants/InputOutputTableMode';
 
 function ProblemInfoSection(props) {
     const problem = props.problem;
+    if (!problem) return <LoadingScreen label="문제를 불러오는 중입니다." />
     return (
         <div className="problem-info-section">
             <div className="problem-info-title text-center">

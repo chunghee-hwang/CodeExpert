@@ -1,16 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import 'pages/css/ProblemList.css';
 import ProblemItemBox from 'components/ProblemItemBox';
 import { Pagination } from 'react-bootstrap';
 import { paths } from 'constants/Paths';
 import LoadingScreen from 'components/LoadingScreen';
 function ProblemList(props) {
-    const [page, setPage] = useState(0);
+    const [page, setPage] = useState(1);
     const { user } = props.account;
     const { data } = props.problem;
     const { problem_actions } = props;
     const [level_filters, setLevelFilters] = useState(new Set());
     const [type_filters, setTypeFilters] = useState(new Set());
+
+    const updateProblemList = useCallback(() => {
+        problem_actions.getProblemList({ type: type_filters, level: level_filters, page });
+    }, [page, level_filters, problem_actions, type_filters]);
     useEffect(() => {
         if (!user) {
             props.history.push(paths.pages.login_form);
@@ -19,8 +23,8 @@ function ProblemList(props) {
 
         // request problem list and page info using type, level, page
         // fetch(`/problems?type=${type_ids.join(',')}&level=${levels.join(',')}&page=${page}`);
-        if (!data.problems_and_max_page) problem_actions.getProblemList({ type: type_filters, level: level_filters, page });
-    }, [page, user, props.history, data.problems_and_max_page, level_filters, problem_actions, type_filters]);
+        if (!data.problems_and_max_page) updateProblemList();
+    }, [props.history, updateProblemList, data.problems_and_max_page, user]);
 
     if (!data.problems_and_max_page) {
         return <LoadingScreen label="문제 목록을 불러오는 중입니다." />;
@@ -31,7 +35,7 @@ function ProblemList(props) {
     let pagination_items = [];
     for (let number = 1; number <= end_page_number; number++) {
         pagination_items.push(
-            <Pagination.Item key={number} active={page === number} onClick={e => { setPage(number); }}>{number}</Pagination.Item>
+            <Pagination.Item key={number} active={page === number} onClick={e => { setPage(number); updateProblemList(); }}>{number}</Pagination.Item>
         );
     }
 
@@ -78,7 +82,7 @@ function ProblemList(props) {
         } else {
             setLevelFilters(level_filters => new Set([...level_filters].filter(level_filter => level_filter !== Number(input.dataset.level))));
         }
-        problem_actions.getProblemList({ type: type_filters, level: level_filters, page });
+        updateProblemList();
     }
     const addOrRemoveTypeFilter = (input) => {
         if (input.checked) {
@@ -86,7 +90,7 @@ function ProblemList(props) {
         } else {
             setLevelFilters(type_filters => new Set([...type_filters].filter(type_filter => type_filter !== Number(input.dataset.type_id))));
         }
-        problem_actions.getProblemList({ type: type_filters, level: level_filters, page });
+        updateProblemList();
     }
 
     return (
@@ -118,11 +122,19 @@ function ProblemList(props) {
                 <div className="pages horizontal-scroll ">
                     <Pagination className="align-center">
                         <Pagination.Prev onClick={e => {
-                            if (page > 1) setPage(page - 1);
+                            if (page > 1) {
+                                setPage(page - 1);
+                                updateProblemList();
+                            }
                         }} />
                         {pagination_items}
                         <Pagination.Next onClick={e => {
-                            if (page < end_page_number) setPage(page + 1);
+                            if (page < end_page_number) {
+                                setPage(page + 1);
+                                updateProblemList();
+                            }
+
+
                         }} />
                     </Pagination>
                 </div>

@@ -26,7 +26,11 @@ export const showWarningAlert = ({ title, text, btn_text }) => {
         title,
         text,
         icon: "warning",
-        button: btn_text
+        buttons: {
+            cancel: '취소',
+            [btn_text]: btn_text
+        },
+        dangerMode: true,
     });
 }
 
@@ -35,7 +39,7 @@ export const showValidationFailureAlert = ({ validation, fail_what, btn_text }) 
     const afterValidate = () => {
         if (validation.failed_element) {
             validation.failed_element.focus();
-            validation.failed_element.scrollIntoView({ behavior: "smooth", block: "start", inline: "nearest" });
+            validation.failed_element.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
         }
     };
     return showErrorAlert({ error_what: fail_what, text: validation.fail_cause, btn_text }).then(afterValidate);

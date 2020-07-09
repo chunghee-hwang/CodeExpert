@@ -9,6 +9,7 @@ export const input_names =
     new_password_check: "new_password_check",
 
     // problem info
+    problem_id: "problem_id",
     problem_title: "problem_title",
     problem_type: "problem_type",
     problem_explain: "problem_explain",

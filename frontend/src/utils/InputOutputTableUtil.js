@@ -120,15 +120,22 @@ export function getParamsCount(table_props) {
 }
 
 // 데이터 타입 선택 select 만드는 메소드
-function createDataTypeSelect(table_props) {
+function createDataTypeSelect(table_props, data_type_key = data_types.integer) {
     let data_type_input = document.createElement('select');
     data_type_input.setAttribute('class', 'data-type-input custom-select');
     data_type_input.addEventListener('change', e => { updateInputExampleTable(table_props) })
+    let option_idx = 0;
+    let selected_idx = 0;
     for (const property in data_types) {
         let option = createElementWithText('option', data_types[property].name, 'data-type-option')
         option.setAttribute('value', data_types[property].key);
         data_type_input.appendChild(option);
+        if (property === data_type_key) {
+            selected_idx = option_idx;
+        }
+        option_idx += 1;
     }
+    data_type_input.selectedIndex = selected_idx;
 
     return data_type_input;
 }
@@ -153,19 +160,20 @@ function createParamDiv(param = null, table_props) {
     let param_name = param ? param.name : '';
     div.setAttribute('class', 'param-div');
     div.append(createParamInput(param_name, table_props));
-    if (table_props.table_mode === table_mode.write.param_and_testcase) {
-        div.append(createDataTypeSelect(table_props));
-    } else {
 
-        let text;
-        let data_type_key;
-        if (param.data_type) {
-            text = param.data_type.name;
-            data_type_key = param.data_type.key;
-        } else {
-            text = data_types.integer.name;
-            data_type_key = data_types.integer.key;
-        }
+    let text;
+    let data_type_key;
+    if (param && param.data_type) {
+        text = param.data_type.name;
+        data_type_key = param.data_type.key;
+    } else {
+        text = data_types.integer.name;
+        data_type_key = data_types.integer.key;
+    }
+
+    if (table_props.table_mode === table_mode.write.param_and_testcase) {
+        div.append(createDataTypeSelect(table_props, data_type_key));
+    } else {
         let param_data_type_span = createElementWithText('span', `${text}`, 'param-data-type-span ml-2');
         param_data_type_span.setAttribute('data-data_type_key', data_type_key);
         div.append(param_data_type_span);
@@ -207,7 +215,7 @@ export function createReturnDiv(table_props, return_data_type = data_types.integ
     let return_span = createElementWithText('span', 'Return', 'text-weight-bold');
     div.append(return_span);
     if (table_props.table_mode === table_mode.write.param_and_testcase) {
-        div.append(createDataTypeSelect(table_props));
+        div.append(createDataTypeSelect(table_props, return_data_type.key));
     }
     else {
         let return_data_type_span = createElementWithText('span', return_data_type.name, 'return-data-type-span ml-2');

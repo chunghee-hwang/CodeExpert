@@ -4,11 +4,10 @@ import 'pages/css/AlgorithmTest.css';
 import Split from 'react-split';
 import ProblemInfoSection from 'components/ProblemInfoSection';
 import ProblemSolutionSection from 'components/ProblemSolutionSection';
-import { Button } from 'react-bootstrap';
+import { Button, Nav } from 'react-bootstrap';
 import Media from 'react-media';
 import { paths } from 'constants/Paths';
-import { Link } from 'react-router-dom';
-import { getIntegerPathParameter } from 'utils/PageControl';
+import { getIntegerPathParameter, moveToPage } from 'utils/PageControl';
 import { showWarningAlert } from 'utils/AlertManager';
 function AlgorithmTest(props) {
     const { user } = props.account;
@@ -18,7 +17,7 @@ function AlgorithmTest(props) {
     const problem_id = getIntegerPathParameter(useParams, 'problem_id');
     useEffect(() => {
         if (!user) {
-            props.history.push(paths.pages.login_form);
+            moveToPage(props.history, paths.pages.login_form);
         }
         else if (problem_id) {
             if (!data.problem_data_and_code) {
@@ -72,7 +71,7 @@ function AlgorithmTest(props) {
             <div id="answer-btn-bar">
                 {!is_progressing ?
                     <>
-                        <Link to={`${paths.pages.others_solutions.prefix}/${problem_id}`}><Button variant="dark mr-3">다른 사람의 풀이</Button></Link>
+                        <Nav.Link href={`${paths.pages.others_solutions.prefix}/${problem_id}`}><Button variant="dark mr-3">다른 사람의 풀이</Button></Nav.Link>
                         <Button variant="dark align-right" onClick={e => resetCode()}>초기화</Button>
                         <Button variant="primary ml-3" onClick={e => submitCode()}>코드 채점</Button>
                     </>
@@ -104,12 +103,14 @@ function AlgorithmTest(props) {
     }
 
     function resetCode() {
-        showWarningAlert({ title: '정말 코드를 초기화 할까요?', btn_text: '초기화' }).then(() => {
-            //- request reset problem code
-            problem_actions.resetProblemCode({ problem_id });
-            let editor = window.ace.edit('code-editor');
-            editor.setValue(code.init_code);
-            editor.gotoLine(1);
+        showWarningAlert({ title: '정말 코드를 초기화 할까요?', btn_text: '초기화' }).then((will_reset) => {
+            if (will_reset) {
+                //- request reset problem code
+                problem_actions.resetProblemCode({ problem_id });
+                let editor = window.ace.edit('code-editor');
+                editor.setValue(code.init_code);
+                editor.gotoLine(1);
+            }
         });
     }
     function submitCode() {

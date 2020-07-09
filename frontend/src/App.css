@@ -66,6 +66,13 @@
 
 .loading-container{
   text-align: center;
-  margin: auto 0;
-  height: 50vh;
+  padding: 5vh;
+}
+
+.align-vertical-center{
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
 }

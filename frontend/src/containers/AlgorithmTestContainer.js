@@ -13,7 +13,6 @@ const mapStateToProps = state => {
             data: state.problem.data,
             which: state.problem.which
         }
-
     }
 }
 

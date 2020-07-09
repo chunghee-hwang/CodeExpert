@@ -6,11 +6,41 @@ import { paths } from 'constants/Paths';
 import { input_names } from 'constants/FormInputNames';
 import { validateNewNickname, validateNewPassword } from 'utils/validation/AccountManagementValidation';
 import { showSuccessAlert, showErrorAlert, showValidationFailureAlert, showWarningAlert } from 'utils/AlertManager';
+import { moveToPage } from 'utils/PageControl';
 function AccountManagement(props) {
     const { is_progressing,
         is_success,
         data,
         which, account_actions, user } = props;
+    useEffect(() => {
+        let success_or_error_what = null;
+        if (!user) {
+            moveToPage(props.history, paths.pages.login_form);
+            return;
+        }
+        switch (which) {
+            case 'nickname':
+                success_or_error_what = '닉네임 변경';
+                break;
+            case 'password':
+                success_or_error_what = '비밀번호 변경';
+                break;
+            case 'account':
+                success_or_error_what = '계정 삭제';
+                break;
+            default:
+                break;
+        }
+
+        if (success_or_error_what && !is_progressing) {
+            if (is_success) {
+                showSuccessAlert({ success_what: success_or_error_what, text: data });
+            } else {
+                showErrorAlert({ success_what: success_or_error_what, text: data });
+            }
+            account_actions.clearWhich();
+        }
+    }, [which, is_progressing, is_success, data, props.history, user, account_actions]);
 
     const changeNickname = form => {
         const validation = validateNewNickname(form, user.nickname);
@@ -35,38 +65,14 @@ function AccountManagement(props) {
     }
 
     const deleteAccount = () => {
-        showWarningAlert({ title: "계정 삭제", text: "정말 계정을 삭제할까요?", btn_text: "삭제" }).then(() => {
-            //- request delete account
-            account_actions.deleteAccount();
+        showWarningAlert({ title: "계정 삭제", text: "정말 계정을 삭제할까요?", btn_text: "삭제" }).then((will_delete) => {
+            if (will_delete) {
+                //- request delete account
+                account_actions.deleteAccount();
+            }
         });
     }
-    useEffect(() => {
-        let success_or_error_what = null;
-        if (!user) {
-            props.history.push(paths.pages.login_form);
-            return;
-        }
-        switch (which) {
-            case 'nickname':
-                success_or_error_what = '닉네임 변경';
-                break;
-            case 'password':
-                success_or_error_what = '비밀번호 변경';
-                break;
-            case 'account':
-                success_or_error_what = '계정 삭제';
-                break;
-            default:
-                break;
-        }
-        if (success_or_error_what && !is_progressing) {
-            if (is_success) {
-                showSuccessAlert({ success_what: success_or_error_what, text: data });
-            } else {
-                showErrorAlert({ success_what: success_or_error_what, text: data });
-            }
-        }
-    }, [which, is_progressing, is_success, data, props.history, user]);
+
 
 
 

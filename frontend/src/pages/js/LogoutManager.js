@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { paths } from 'constants/Paths';
 import { showErrorAlert } from 'utils/AlertManager';
 import LoadingScreen from 'components/LoadingScreen';
+import { moveToPage } from 'utils/PageControl';
 
 function LogoutManager(props) {
 
@@ -15,16 +16,16 @@ function LogoutManager(props) {
             if (user) {
                 account_actions.logout();
             } else {
-                props.history.push(paths.pages.login_form);
+                moveToPage(props.history, paths.pages.login_form);
             }
         }
         else if (!is_progressing) {
             if (is_success) {
-                props.history.push(paths.pages.login_form);
+                moveToPage(props.history, paths.pages.login_form);
             }
             else {
                 showErrorAlert({ error_what: '로그아웃', text: data }).then(() => {
-                    props.history.push(paths.pages.problem_list);
+                    moveToPage(props.history, paths.pages.problem_list);
                 });
             }
         }

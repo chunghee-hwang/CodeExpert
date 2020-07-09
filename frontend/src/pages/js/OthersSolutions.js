@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import languages from 'constants/Languages';
-import { useParams, NavLink } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { initAceEditor } from 'utils/AceEditor';
 
 import 'pages/css/OthersSolutions.css';
-import { Pagination } from 'react-bootstrap';
+import { Pagination, Nav } from 'react-bootstrap';
 import { paths } from 'constants/Paths';
 import LikeBtn from 'components/LikeBtn';
 import Comments from 'components/Comments';
-import { getIntegerPathParameter } from 'utils/PageControl';
+import { getIntegerPathParameter, moveToPage } from 'utils/PageControl';
 function OthersSolutions(props) {
     const problem_id = getIntegerPathParameter(useParams, 'problem_id');
     const [page, setPage] = useState(1);
@@ -74,7 +74,7 @@ function OthersSolutions(props) {
 
     useEffect(() => {
         if (!user) {
-            props.history.push(paths.pages.login_form);
+            moveToPage(props.history, paths.pages.login_form);
             return;
         }
         // request others solutions using problem_id, language_id, page
@@ -93,9 +93,9 @@ function OthersSolutions(props) {
             <div className="others-solutions-title-bar">
                 <div className="others-solution-title">
                     <h3 className="font-weight-bold">다른 사람의 풀이</h3>
-                    <NavLink className="to-problem-link ellipsis-text" to={`${paths.pages.algorithm_test.prefix}/${problem_id}`}>
+                    <Nav.Link className="to-problem-link ellipsis-text" href={`${paths.pages.algorithm_test.prefix}/${problem_id}`}>
                         {problem.title}
-                    </NavLink>
+                    </Nav.Link>
                 </div>
 
                 <select className="custom-select others-solution-language-select" onChange={e => {

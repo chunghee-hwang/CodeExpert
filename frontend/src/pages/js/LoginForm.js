@@ -5,6 +5,7 @@ import { paths } from 'constants/Paths'
 import { input_names } from 'constants/FormInputNames'
 import { validateLogin } from 'utils/validation/LoginValidation';
 import { showErrorAlert, showValidationFailureAlert } from 'utils/AlertManager';
+import { moveToPage } from 'utils/PageControl';
 
 function LoginForm(props) {
     const { is_progressing,
@@ -27,13 +28,13 @@ function LoginForm(props) {
 
     useEffect(() => {
         if (user) {
-            props.history.push(paths.pages.problem_list);
+            moveToPage(props.history, paths.pages.problem_list);
         }
         if (which === 'login') {
             let success_or_error_what = '로그인';
             if (!is_progressing) {
                 if (is_success) {
-                    props.history.push(paths.pages.problem_list);
+                    moveToPage(props.history, paths.pages.problem_list);
                 } else {
                     showErrorAlert({ error_what: success_or_error_what, text: data });
                 }

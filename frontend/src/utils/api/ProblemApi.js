@@ -19,50 +19,103 @@ export const getProblemMetaData = () => {
 }
 
 /**
- * 문제 정보 가져오기
+ * 문제 정보 가져오기(테스트케이스 정보 포함)
  */
 export const getProblemData = ({ problem_id }) => {
-    let response = {
-        problem: {
-            id: 1,
-            title: "오름차순으로 정렬하기",
-            type: {
-                id: 1,
-                name: "정렬"
+    let response =
+    {
+        id: 1,
+        title: "오름차순으로 정렬하기",
+        type: {
+            id: 3,
+            name: "탐욕법"
+        },
+        explain: '파라미터로 int형 배열이 넘어오면,<div>오름차순으로 정렬 후, 문자열의 형태로 출력하는 프로그램을 작성하세요.</div><div><img src="https://image.shutterstock.com/image-photo/bright-spring-view-cameo-island-260nw-1048185397.jpg" class="attached_pic"><br></div><div>결과는 위 사진처럼 나오면 됩니다.</div>',
+        limit_explain: "array의 원소 x: 1<=x<=<1000 인 자연수",
+        time_limit: 500,
+        memory_limit: 256,
+        level: 3,
+        // 테스트케이스 
+        testcase_table: {
+            params: [
+                { name: 'array', data_type: 'integer_array' },
+            ],
+            return: {
+                data_type: 'string'
             },
-            explain: '파라미터로 int형 배열이 넘어오면,<div>오름차순으로 정렬 후, 문자열의 형태로 출력하는 프로그램을 작성하세요.</div><div><img src="https://image.shutterstock.com/image-photo/bright-spring-view-cameo-island-260nw-1048185397.jpg" class="attached_pic"><br></div><div>결과는 위 사진처럼 나오면 됩니다.</div>',
-            limit_explain: "array의 원소 x: 1<=x<=<1000 인 자연수",
-            time_limit: 500,
-            memory_limit: 256,
-            level: 1,
-            input_output: {
-                params: [
-                    { name: 'array', data_type: 'integer_array' },
-                ],
-                return: {
-                    data_type: 'string'
+            testcases: [
+                {
+                    params: ['[1, 9, 7, 6]'],
+                    return: '"1-6-7-9"'
                 },
-                testcases: [
-                    {
-                        params: ['[1, 9, 7, 6]'],
-                        return: '"1-6-7-9"'
-                    },
-                    {
-                        params: ['[2, 6, 3, 7]'],
-                        return: '"2-3-6-7"'
-                    }
-                ]
-            }
+                {
+                    params: ['[2, 6, 3, 7]'],
+                    return: '"2-3-6-7"'
+                }
+            ]
+        },
+        input_output_table: {
+            params: [
+                { name: 'array', data_type: 'integer_array' },
+            ],
+            return: {
+                data_type: 'string'
+            },
+            testcases: [
+                {
+                    params: ['[1, 9, 7, 6]'],
+                    return: '"1-6-7-9"'
+                },
+                {
+                    params: ['[2, 6, 3, 7]'],
+                    return: '"2-3-6-7"'
+                }
+            ]
+        },
+        // 만든 사람
+        creator: {
+            id: 1,
+            nickname: 'Hwaaaaa',
         }
     }
-
-    addDateTypeDetailToInputOutput(response.problem);
+    addDateTypeDetailToTableValue(response.testcase_table);
+    addDateTypeDetailToTableValue(response.input_output_table);
 
     return response;
 }
 
 /**
- * 문제 정보와 최종 제출한 코드(또는 초기 코드) 정보가져오기
+ * 문제 새로 등록 시, 새 문제 아이디 가져오기
+ */
+export const getNewProblemId = () => {
+    return {
+        problem_id: 2
+    }
+}
+
+/**
+ * 문제 이미지 업로드 요청
+ */
+export const uploadProblemImage = ({ problem_id, files }) => {
+    console.log({ problem_id, files });
+    return {
+        images: [
+            {
+                problem_id: 2, // 이미지가 속한 문제의 아이디
+                id: 13, // 이미지 아이디
+                url: 'https://image.shutterstock.com/image-photo/bright-spring-view-cameo-island-260nw-1048185397.jpg'
+            },
+            {
+                problem_id: 2,
+                id: 14,
+                url: 'https://www.codingfactory.net/wp-content/uploads/abc.jpg'
+            }
+        ]
+    }
+}
+
+/**
+ * 문제 정보와 최종 제출한 코드(또는 초기 코드) 정보가져오기 (테스트케이스 테이블 미포함)
  */
 export const getProblemDataAndCode = ({ problem_id }) => {
     let response = {
@@ -78,7 +131,7 @@ export const getProblemDataAndCode = ({ problem_id }) => {
             time_limit: 500,
             memory_limit: 256,
             level: 1,
-            input_output: {
+            input_output_table: {
                 params: [
                     { name: 'array', data_type: 'integer_array' },
                 ],
@@ -95,6 +148,11 @@ export const getProblemDataAndCode = ({ problem_id }) => {
                         return: '"2-3-6-7"'
                     }
                 ]
+            },
+            // 만든 사람
+            creator: {
+                id: 1,
+                nickname: 'hwang',
             }
         },
         codes: [
@@ -114,17 +172,17 @@ export const getProblemDataAndCode = ({ problem_id }) => {
             }
         ]
     };
-    addDateTypeDetailToInputOutput(response.problem.input_output);
+    addDateTypeDetailToTableValue(response.problem.input_output_table);
     addLanguageDetailToCodes(response.codes);
     return response;
 
 }
 
-const addDateTypeDetailToInputOutput = (input_output) => {
-    input_output.params.forEach(param => {
+const addDateTypeDetailToTableValue = (input_output_table) => {
+    input_output_table.params.forEach(param => {
         param.data_type = data_types[param.data_type];
     });
-    input_output.return.data_type = data_types[input_output.return.data_type];
+    input_output_table.return.data_type = data_types[input_output_table.return.data_type];
 }
 
 const addLanguageDetailToCodes = (codes) => {
@@ -155,6 +213,41 @@ export const registerProblem = (data) => {
     }
 
 }
+
+/**
+ * 만든 문제 수정
+ */
+export const updateProblem = (data) => {
+    /*
+    [input_names.problem_id],
+    [input_names.problem_title],
+    [input_names.problem_type],
+    [input_names.problem_explain],
+    [input_names.problem_type],
+    [input_names.limit_explain],
+    [input_names.time_limit],
+    [input_names.memory_limit],
+    [input_names.level],
+    [input_names.testcase_table],
+    [input_names.input_output_table],
+    */
+
+    return {
+        update_success: true
+    }
+
+}
+
+/**
+ * 
+ * 만든 문제 삭제 
+ */
+export const deleteProblem = ({ problem_id }) => {
+    return {
+        delete_success: true
+    }
+}
+
 
 /**
  * 코드 제출(채점)
@@ -192,6 +285,8 @@ export const resetProblemCode = ({ problem_id }) => {
  * 문제 목록 가져오기
  */
 export const getProblemList = ({ type, level, page }) => {
+    console.log({ type, level, page });
+
     return {
         //page가 0일때(지정되지 않았을 때) 데이터
         problems: [
@@ -261,8 +356,8 @@ export const getProblemList = ({ type, level, page }) => {
                 created_by_me: false,
                 resolved: true,
             },
-
         ],
-        max_page: 3
+        max_page: 10
+
     }
 }

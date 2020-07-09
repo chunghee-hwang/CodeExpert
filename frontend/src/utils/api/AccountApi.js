@@ -1,9 +1,9 @@
 // import axios from 'axios';
-export const changeNickname = new_nickname => {
+export const changeNickname = ({ nickname }) => {
     // return axios.put('/change_nickname', { new_nickname });
 
     return {
-        new_nickname
+        nickname
     }
 }
 

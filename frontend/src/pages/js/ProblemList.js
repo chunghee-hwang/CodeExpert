@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import 'pages/css/ProblemList.css';
 import ProblemItemBox from 'components/ProblemItemBox';
 import { Pagination } from 'react-bootstrap';
 import { paths } from 'constants/Paths';
 import LoadingScreen from 'components/LoadingScreen';
+import { moveToPage } from 'utils/PageControl';
 function ProblemList(props) {
     const [page, setPage] = useState(1);
     const { user } = props.account;
@@ -12,19 +13,20 @@ function ProblemList(props) {
     const [level_filters, setLevelFilters] = useState(new Set());
     const [type_filters, setTypeFilters] = useState(new Set());
 
-    const updateProblemList = useCallback(() => {
-        problem_actions.getProblemList({ type: type_filters, level: level_filters, page });
-    }, [page, level_filters, problem_actions, type_filters]);
     useEffect(() => {
         if (!user) {
-            props.history.push(paths.pages.login_form);
+            moveToPage(props.history, paths.pages.login_form);
             return;
         }
 
-        // request problem list and page info using type, level, page
+        //-request problem list and page info using type, level, page
         // fetch(`/problems?type=${type_ids.join(',')}&level=${levels.join(',')}&page=${page}`);
-        if (!data.problems_and_max_page) updateProblemList();
-    }, [props.history, updateProblemList, data.problems_and_max_page, user]);
+        if (!data.problems_and_max_page) problem_actions.getProblemList({ type: Array.from(type_filters), level: Array.from(level_filters), page });
+    }, [props.history, data.problems_and_max_page, user, page, level_filters, problem_actions, type_filters]);
+
+    const updateProblemList = () => {
+        problem_actions.clearProblemList();
+    }
 
     if (!data.problems_and_max_page) {
         return <LoadingScreen label="문제 목록을 불러오는 중입니다." />;

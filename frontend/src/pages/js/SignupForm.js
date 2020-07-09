@@ -5,6 +5,7 @@ import { paths } from 'constants/Paths'
 import { input_names } from 'constants/FormInputNames'
 import { validateSignup } from 'utils/validation/SignupValidation';
 import { showValidationFailureAlert, showSuccessAlert, showErrorAlert } from 'utils/AlertManager';
+import { moveToPage } from 'utils/PageControl';
 
 function SignupForm(props) {
 
@@ -15,7 +16,7 @@ function SignupForm(props) {
             if (!is_progressing) {
                 if (is_success) {
                     showSuccessAlert({ success_what: "회원 가입", text: "회원가입을 완료했습니다. 가입하신 정보로 로그인 해주세요." }).then(() => {
-                        props.history.push(paths.pages.login_form);
+                        moveToPage(props.history, paths.pages.login_form);
                     });
                 }
                 else {

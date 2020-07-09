@@ -25,12 +25,15 @@ const SIGNUP = 'SIGNUP';
 const SIGNUP_SUCCESS = 'SIGNUP_SUCCESS';
 const SIGNUP_FAILURE = 'SIGNUP_FAILURE';
 
+const CLEAR_WHICH = "CLEAR_WHICH";
+
 export const changeNickname = createAction(CHANGE_NICKNAME, data => data);
 export const changePassword = createAction(CHANGE_PASSWORD, data => data);
 export const deleteAccount = createAction(DELETE_ACCOUNT, data => data);
 export const login = createAction(LOGIN);
 export const logout = createAction(LOGOUT);
 export const signup = createAction(SIGNUP);
+export const clearWhich = createAction(CLEAR_WHICH);
 
 function* changeNicknameSaga(action) {
     yield delay(1000);
@@ -134,7 +137,7 @@ export default handleActions({
             data: null,
             user: {
                 ...state.user,
-                nickname: action.payload.new_nickname
+                nickname: action.payload.nickname
             }
         };
     },
@@ -281,5 +284,11 @@ export default handleActions({
             is_success: false,
             data: action.payload,
         };
+    },
+    [CLEAR_WHICH]: (state, action) => {
+        return {
+            ...state,
+            which: null
+        }
     }
 }, initial_state);

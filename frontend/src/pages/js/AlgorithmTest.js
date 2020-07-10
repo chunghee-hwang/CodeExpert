@@ -98,6 +98,7 @@ function AlgorithmTest(props) {
             let language_coressponding_code = data.problem_data_and_code.codes.find(code => language_id === code.language.id);
             if (language_coressponding_code) {
                 setCode(language_coressponding_code);
+                if (data.submit_results) problem_actions.clearSubmitResults();
             }
         }
     }

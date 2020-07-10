@@ -38,6 +38,8 @@ const SUBMIT_PROBLEM_CODE = "SUBMIT_PROBLEM_CODE"; // 코드 제출(채점)
 const SUBMIT_PROBLEM_CODE_SUCCESS = "SUBMIT_PROBLEM_CODE_SUCCESS";
 const SUBMIT_PROBLEM_CODE_FAILURE = "SUBMIT_PROBLEM_CODE_FAILURE";
 
+const CLEAR_SUBMIT_RESULTS = "CLEAR_SUBMIT_RESULTS"; // 채점 데이터 지우기
+
 const RESET_PROBLEM_CODE = "RESET_PROBLEM_CODE"; // 문제 코드 초기화
 const RESET_PROBLEM_CODE_SUCCESS = "RESET_PROBLEM_CODE_SUCCESS";
 const RESET_PROBLEM_CODE_FAILURE = "RESET_PROBLEM_CODE_FAILURE";
@@ -46,7 +48,7 @@ const GET_PROBLEM_LIST = "GET_PROBLEM_LIST"; //문제 목록 가져오기
 const GET_PROBLEM_LIST_SUCCESS = "GET_PROBLEM_LIST_SUCCESS";
 const GET_PROBLEM_LIST_FAILURE = "GET_PROBLEM_LIST_FAILURE";
 
-const CLEAR_PROBLEM_LIST = "CLEAR_PROBLEM_LIST"; //문제 목록 초기화
+const CLEAR_PROBLEM_LIST = "CLEAR_PROBLEM_LIST"; // 문제 목록 초기화
 
 
 export const getProblemMetaData = createAction(GET_PROBLEM_META_DATA);
@@ -62,6 +64,7 @@ export const resetProblemCode = createAction(RESET_PROBLEM_CODE, data => data);
 export const getProblemList = createAction(GET_PROBLEM_LIST, data => data);
 export const clearProblemImageCache = createAction(CLEAR_PROBLEM_IMAGE_CACHE);
 export const clearProblemList = createAction(CLEAR_PROBLEM_LIST);
+export const clearSubmitResults = createAction(CLEAR_SUBMIT_RESULTS);
 function* getProblemMetaDataSaga(action) {
     yield delay(1000);
     try {
@@ -541,6 +544,17 @@ export default handleActions({
                 ...state.data,
                 problems_and_max_page: null
 
+            }
+        }
+    },
+    [CLEAR_SUBMIT_RESULTS]: (state, action) => {
+        return {
+            ...state,
+            is_progressing: false,
+            is_success: true,
+            data: {
+                ...state.data,
+                submit_results: null
             }
         }
     }

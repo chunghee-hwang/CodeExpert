@@ -9,17 +9,13 @@
     justify-content: center;
 }
 
-.others-solution-language-select{
+#others-solution-language-select{
     margin-left:3vw;
 }
 
 
 .others-solution-comment{
     margin-top: 3vh;
-}
-
-.others-solution-comment-input{
-    margin-top: 1vh;
 }
 
 .others-solution{
@@ -47,14 +43,20 @@
 .like-btn.pressed{
     color:blue;
 }
+.like-btn.disabled{
+    color:gray;
+}
+.like-btn.disabled:hover{
+    cursor: not-allowed;
+}
 /* 
   ##Device = Desktops
 */
 
 @media (min-width: 1025px){
     .others-solutions{
-        padding-left: 20vw;
-        padding-right: 20vw;
+        padding-left: 10vw;
+        padding-right: 10vw;
     }
     
   }

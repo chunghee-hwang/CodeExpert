@@ -127,7 +127,6 @@ function MakeProblem(props) {
 
         let form = document.getElementById('make_problem_form');
         let validation = validateMakeProblem(data.new_problem_id, form, testcase_table_info, io_table_info);
-        console.log({ validation });
         if (validation.is_valid) {
             //- request register problem
             problem_actions.registerProblem(validation.values);
@@ -143,7 +142,6 @@ function MakeProblem(props) {
 
         let form = document.getElementById('make_problem_form');
         let validation = validateUpdateProblem(user, data.problem_data, form, testcase_table_info, io_table_info);
-        console.log({ validation });
         if (validation.is_valid) {
             //- request update problem
             problem_actions.updateProblem(validation.values);
@@ -157,7 +155,6 @@ function MakeProblem(props) {
         showWarningAlert({ title: '문제 삭제', text: '정말 삭제할까요?', btn_text: '삭제' }).then((will_delete) => {
             if (will_delete) {
                 let validation = validateDeleteProblem(user, data.problem_data);
-                console.log({ validation });
                 if (validation.is_valid) {
                     //- request delete problem
                     problem_actions.deleteProblem(validation.values);

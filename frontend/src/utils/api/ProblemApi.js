@@ -97,7 +97,6 @@ export const getNewProblemId = () => {
  * 문제 이미지 업로드 요청
  */
 export const uploadProblemImage = ({ problem_id, files }) => {
-    console.log({ problem_id, files });
     return {
         images: [
             {
@@ -285,7 +284,6 @@ export const resetProblemCode = ({ problem_id }) => {
  * 문제 목록 가져오기
  */
 export const getProblemList = ({ type, level, page }) => {
-    console.log({ type, level, page });
 
     return {
         //page가 0일때(지정되지 않았을 때) 데이터

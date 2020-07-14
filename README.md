@@ -99,8 +99,10 @@
 |속성 이름|속성 설명|
 |:---:|:---:|
 | id(pk) | 사용자 아이디 |
+| email | 사용자 이메일 |
 | password | 사용자 비밀번호 |
 | nickname | 사용자 닉네임 |
+| role | 사용자 역할(ADMIN, USER) |
 | created_date | 생성 날짜 |
 | modified_date | 수정 날짜 |
 

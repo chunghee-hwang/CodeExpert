@@ -8,7 +8,7 @@ function LikeBtn(props) {
 
     // container에서 수행할 일 (props.changeLikeCount)
     const changeLikeCount = () => {
-        // request like or cancel like using solution_id
+        //- request like or cancel like using solution_id
         if (solution_id && !is_progressing_like_or_cancel_like) {
             solution_actions.likeOrCancelLike({ solution_id });
         }

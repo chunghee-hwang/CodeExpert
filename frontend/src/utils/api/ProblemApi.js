@@ -36,7 +36,7 @@ export const getProblemData = ({ problem_id }) => {
         memory_limit: 256,
         level: 3,
         // 테스트케이스 
-        testcase_table: {
+        testcase_table: { // answer_table
             params: [
                 { name: 'array', data_type: 'integer_array' },
             ],
@@ -54,7 +54,7 @@ export const getProblemData = ({ problem_id }) => {
                 }
             ]
         },
-        input_output_table: {
+        input_output_table: { //example_table
             params: [
                 { name: 'array', data_type: 'integer_array' },
             ],

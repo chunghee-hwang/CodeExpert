@@ -69,7 +69,7 @@ function Comments(props) {
     const registerComment = (comment_input) => {
         const comment_content = comment_input.value;
         if (comment_content.trim()) {
-            // request register comment using solution_id
+            //- request register comment using solution_id
             solution_actions.registerComment({ comment_content, solution_id });
         }
         comment_input.value = '';
@@ -82,7 +82,7 @@ function Comments(props) {
         }
         showTextInputAlert({ title: '댓글 수정', text: '', btn_text: '수정', default_value: comment.content }).then((comment_content) => {
             if (comment_content) {
-                // request update comment using comment_id, comment_content
+                //- request update comment using comment_id, comment_content
                 solution_actions.updateComment({ comment_id: comment.id, comment_content });
                 // 성공 시, store의 해당 댓글 데이터만 수정
             }
@@ -95,9 +95,11 @@ function Comments(props) {
             return;
         }
         showWarningAlert({ title: '댓글 삭제', text: '정말 삭제할까요?', btn_text: '삭제' }).then((will_delete) => {
-            // request delete comment using comment_id
-            solution_actions.deleteComment({ comment_id: comment.id });
-            // 성공 시, store의 해당 댓글 데이터만 삭제
+            if (will_delete) {
+                //- request delete comment using comment_id
+                solution_actions.deleteComment({ comment_id: comment.id });
+                // 성공 시, store의 해당 댓글 데이터만 삭제
+            }
         });
 
     }

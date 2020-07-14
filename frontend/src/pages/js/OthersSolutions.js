@@ -55,7 +55,7 @@ function OthersSolutions(props) {
             moveToPage(props.history, paths.pages.login_form);
             return;
         }
-        // request others solutions using problem_id, language_id, page
+        //- request others solutions using problem_id, language_id, page
         if (!data.others_solutions) solution_actions.getOthersSolutions({ problem_id, page, language_id });
         else {
             const language_select = document.querySelector('#others-solution-language-select');

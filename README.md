@@ -112,7 +112,7 @@
 |:---:|:---:|
 | id(pk) | 문제 아이디 |
 | title | 문제 제목 |
-| explain | 문제 설명 |
+| content | 문제 내용 |
 | limit_explain | 제한 사항 설명 |
 | time_limit | 시간 제한(ms) |
 | memory_limit | 메모리 제한(MB) |
@@ -158,41 +158,41 @@
 ###### problem_paramter
 파라미터 명, 자료형 엔티티<br/>
 문제를 채점할 때(정답 목록)와 문제 예시(입출력 예시)에 사용된다.<br/>
-group 속성으로 둘을 구분한다.<br/>
+answer_or_example 속성으로 둘을 구분한다.<br/>
 |속성 이름|속성 설명|
 |:---:|:---:|
 | id(pk) | 파라미터 아이디 |
 | name | 파라미터 명(변수명) |
-| group | 채점할 때 사용되면 'a', 문제 설명에 사용되면 'e' |
+| answer_or_example | 채점할 때 사용되면 'a', 문제 설명에 사용되면 'e' |
 | datatype_id(fk) | 자료형 아이디(datatype) |
 | problem_id(fk) | 문제 아이디(problem_id) |
 
 ###### problem_return
 반환될 변수의 자료형 엔티티<br/>
 문제를 채점할 때(정답 목록)와 문제 예시(입출력 예시)에 사용된다.<br/>
-group 속성으로 둘을 구분한다.<br/>
+answer_or_example 속성으로 둘을 구분한다.<br/>
 |속성 이름|속성 설명|
 |:---:|:---:|
 | id(pk) | 리턴 아이디 |
-| group | 채점할 때 사용되면 'a', 문제 설명에 사용되면 'e' |
+| answer_or_example | 채점할 때 사용되면 'a', 문제 설명에 사용되면 'e' |
 | data_type_id(fk) | 자료형 아이디 |
 | problem_id(fk) | 문제 아이디(problem) |
 
 ###### problem_testcase
 테스트케이스(반환 값 정보) 엔티티
 문제를 채점할 때(정답 목록)와 문제 예시(입출력 예시)에 사용된다.<br/>
-group 속성으로 둘을 구분한다.<br/>
+answer_or_example 속성으로 둘을 구분한다.<br/>
 |속성 이름|속성 설명|
 |:---:|:---:|
 | id(pk) | 테스트케이스 아이디 |
 | return value| 반환 값 |
-| group | 채점할 때 사용되면 'a', 문제 설명에 사용되면 'e' |
+| answer_or_example | 채점할 때 사용되면 'a', 문제 설명에 사용되면 'e' |
 | problem_id(fk) | 문제 아이디(problem) |
 
 ###### problem_parameter_value
 파라미터 값 엔티티
 문제를 채점할 때(정답 목록)와 문제 예시(입출력 예시)에 사용된다.<br/>
-부모 엔티티인 problem_testcase의 group 속성으로 둘을 구분한다.
+부모 엔티티인 problem_testcase의 answer_or_example 속성으로 둘을 구분한다.
 |속성 이름|속성 설명|
 |:---:|:---:|
 | id(pk) | 파라미터 값 아이디 |

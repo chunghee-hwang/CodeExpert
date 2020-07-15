@@ -1,12 +1,18 @@
 package com.goodperson.code.expert.model;
 
 import java.time.LocalDateTime;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -19,24 +25,10 @@ import lombok.Setter;
 @Setter
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-public class User {
+public class Solution {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(nullable = false, unique = true, length = 45)
-    private String email;
-
-    @Column(nullable = false, length = 30)
-    private String password;
-
-    // 영어가 아닌 글자 입력시 unescape 함수로 한글이 변환되서 넘어오기 때문에 6(인코딩된 한 글자 길이)X15(닉네임 최대 길이)로
-    // 설정
-    @Column(nullable = false, unique = true, length = 15)
-    private String nickname;
-
-    @Column(nullable = false, length = 5)
-    private String role;
 
     @CreatedDate
     @Column(nullable = false)
@@ -44,4 +36,16 @@ public class User {
 
     @LastModifiedDate
     private LocalDateTime modifiedDate;
+
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.DETACH)
+    @JoinColumn(name = "problem_id", nullable = false)
+    private Problem problem;
+
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.DETACH)
+    @JoinColumn(name = "creator_id", nullable = false)
+    private User creator;
+
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.DETACH)
+    @JoinColumn(name = "code_id", nullable = false)
+    private Code code;
 }

@@ -23,16 +23,16 @@ function AlgorithmTest(props) {
             if (!data.problem_data_and_code) {
                 //- request problem data and code using problem id
                 problem_actions.getProblemDataAndCode({ problem_id });
-            }
+            } else if (!data.problem_meta_data) problem_actions.getProblemMetaData();
             else {
                 setCode(data.problem_data_and_code.codes[0]);
             }
         }
-    }, [user, props.history, data.problem_data_and_code, problem_actions, problem_id]);
+    }, [user, props.history, data.problem_data_and_code, problem_actions, problem_id, data.problem_meta_data]);
     const is_marking = is_progressing && which === 'submit_problem_code';
     const is_resetting = is_progressing && which === 'reset_problem_code';
 
-    const problem_info_section = <ProblemInfoSection problem={data.problem_data_and_code ? data.problem_data_and_code.problem : null} />;
+    const problem_info_section = <ProblemInfoSection problem_meta_data={data.problem_meta_data ? data.problem_meta_data : null} problem={data.problem_data_and_code ? data.problem_data_and_code.problem : null} />;
     const problem_solution_section = <ProblemSolutionSection codes={data.problem_data_and_code ? data.problem_data_and_code.codes : null} code={code} onChangeLanguage={langauge_id => changeLangauge(langauge_id)} code_results={data.submit_results} is_marking={is_marking} is_resetting={is_resetting} />;
 
 

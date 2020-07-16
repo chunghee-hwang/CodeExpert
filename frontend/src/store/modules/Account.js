@@ -42,7 +42,7 @@ function* changeNicknameSaga(action) {
         yield put({ type: CHANGE_NICKNAME_SUCCESS, payload: response });
     }
     catch (e) {
-        yield put({ type: CHANGE_NICKNAME_FAILURE, payload: e.message });
+        yield put({ type: CHANGE_NICKNAME_FAILURE, payload: e.response.data.error_message ? e.response.data.error_message : e.message });
     }
 }
 
@@ -52,7 +52,7 @@ function* changePasswordSaga(action) {
         const response = yield call(AccountApi.changePassword, action.payload);
         yield put({ type: CHANGE_PASSWORD_SUCCESS, payload: response });
     } catch (e) {
-        yield put({ type: CHANGE_PASSWORD_FAILURE, payload: e.message });
+        yield put({ type: CHANGE_PASSWORD_FAILURE, payload: e.response.data.error_message ? e.response.data.error_message : e.message });
     }
 }
 
@@ -62,7 +62,7 @@ function* deleteAccountSaga(action) {
         const response = yield call(AccountApi.deleteAccount, action.payload);
         yield put({ type: DELETE_ACCOUNT_SUCCESS, payload: response });
     } catch (e) {
-        yield put({ type: DELETE_ACCOUNT_FAILURE, payload: e.message });
+        yield put({ type: DELETE_ACCOUNT_FAILURE, payload: e.response.data.error_message ? e.response.data.error_message : e.message });
     }
 }
 
@@ -73,7 +73,7 @@ function* loginSaga(action) {
         yield sessionStorage.setItem('user', JSON.stringify(response.user));
         yield put({ type: LOGIN_SUCCESS, payload: response });
     } catch (e) {
-        yield put({ type: LOGIN_FAILURE, payload: e.message });
+        yield put({ type: LOGIN_FAILURE, payload: e.response.data.error_message ? e.response.data.error_message : e.message });
     }
 }
 
@@ -84,7 +84,7 @@ function* logoutSaga(action) {
         yield sessionStorage.removeItem('user');
         yield put({ type: LOGOUT_SUCCESS, payload: response });
     } catch (e) {
-        yield put({ type: LOGOUT_FAILURE, payload: e.message });
+        yield put({ type: LOGOUT_FAILURE, payload: e.response.data.error_message ? e.response.data.error_message : e.message });
     }
 }
 
@@ -94,7 +94,7 @@ function* signupSaga(action) {
         const response = yield call(AccountApi.signUp, action.payload);
         yield put({ type: SIGNUP_SUCCESS, payload: response });
     } catch (e) {
-        yield put({ type: SIGNUP_FAILURE, payload: e.message });
+        yield put({ type: SIGNUP_FAILURE, payload: e.response.data.error_message ? e.response.data.error_message : e.message });
     }
 }
 

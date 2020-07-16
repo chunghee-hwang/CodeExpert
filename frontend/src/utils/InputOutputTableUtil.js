@@ -10,31 +10,31 @@ export function getParams(table_props) {
     let param_divs = table.querySelectorAll('.param-div');
     let data = {
         params: null,
-        return: null,
+        returns: null,
     };
     data.params = Array.from(param_divs).reduce((accumulator, param_div) => {
         let param_input = param_div.querySelector('.param-input');
 
-        let param_data_type_key;
+        let param_data_type_id;
         if (table_props.table_mode === table_mode.write.param_and_testcase) {
-            param_data_type_key = param_div.querySelector('.data-type-input').value;
+            param_data_type_id = Number(param_div.querySelector('.data-type-input').value);
         }
         else {
-            param_data_type_key = param_div.querySelector('.param-data-type-span').dataset.data_type_key;
+            param_data_type_id = Number(param_div.querySelector('.param-data-type-span').dataset.data_type_id);
         }
         accumulator.push({
             name: param_input.value,
-            data_type: data_types[param_data_type_key]
+            data_type: table_props.data_types.find(data_type => data_type.id === param_data_type_id)
         });
         return accumulator;
     }, []);
-    let return_data_type_key;
+    let return_data_type_id;
     if (table_props.table_mode === table_mode.write.param_and_testcase) {
-        return_data_type_key = table.querySelector('.return-div .data-type-input').value;
+        return_data_type_id = Number(table.querySelector('.return-div .data-type-input').value);
     } else {
-        return_data_type_key = table.querySelector('.return-div .return-data-type-span').dataset.data_type_key;
+        return_data_type_id = Number(table.querySelector('.return-div .return-data-type-span').dataset.data_type_id);
     }
-    data.return = { data_type: data_types[return_data_type_key] };
+    data.returns = { data_type: table_props.data_types.find(data_type => data_type.id === return_data_type_id) };
     return data;
 }
 /**
@@ -57,7 +57,7 @@ export function getParamsAndTestcases(table_props) {
             accumulator.params.push(input_value);
             return accumulator;
         }, { params: [] });
-        testcase.return = return_input.value;
+        testcase.returns = return_input.value;
         data.testcases.push(testcase);
     });
     return data;
@@ -66,7 +66,7 @@ export function getParamsAndTestcases(table_props) {
 /**
  * 표를 초기 파라미터와 테스트케이스들로 채우는 메소드
  * 
- * ex)props.init_value = {params: [{name: 'number1', data_type: 'int'}, {name: 'number2', data_type:'int'}], return_data_type: 'int', testcases: [{ params: [13, 15], return: 28 }]};
+ * ex)props.init_value = {params: [{name: 'number1', data_type: 'int'}, {name: 'number2', data_type:'int'}], return_data_type: 'int', testcases: [{ params: [13, 15], returns: 28 }]};
  */
 export function fillWithParametersAndTestcases(table_props) {
 
@@ -88,8 +88,8 @@ export function fillWithParametersAndTestcases(table_props) {
         }
 
         // 리턴 채우기
-        if (table_props.init_value.return) {
-            createReturnDiv(table_props, table_props.init_value.return.data_type);
+        if (table_props.init_value.returns) {
+            createReturnDiv(table_props, table_props.init_value.returns.data_type);
         }
 
         //테스트케이스 채우기
@@ -120,23 +120,24 @@ export function getParamsCount(table_props) {
 }
 
 // 데이터 타입 선택 select 만드는 메소드
-function createDataTypeSelect(table_props, data_type_key = data_types.integer) {
+function createDataTypeSelect(table_props, data_type_key = data_types.integer.key) {
     let data_type_input = document.createElement('select');
     data_type_input.setAttribute('class', 'data-type-input custom-select');
     data_type_input.addEventListener('change', e => { updateInputExampleTable(table_props) })
-    let option_idx = 0;
     let selected_idx = 0;
-    for (const property in data_types) {
-        let option = createElementWithText('option', data_types[property].name, 'data-type-option')
-        option.setAttribute('value', data_types[property].key);
-        data_type_input.appendChild(option);
-        if (property === data_type_key) {
-            selected_idx = option_idx;
-        }
-        option_idx += 1;
-    }
-    data_type_input.selectedIndex = selected_idx;
+    if (table_props.data_types) {
+        table_props.data_types.forEach((data_type, idx) => {
 
+            let option = createElementWithText('option', data_types[data_type.name].name, 'data-type-option')
+            option.setAttribute('value', data_type.id);
+            data_type_input.appendChild(option);
+            if (data_type.name === data_type_key) {
+                selected_idx = idx;
+            }
+        });
+
+        data_type_input.selectedIndex = selected_idx;
+    }
     return data_type_input;
 }
 
@@ -163,9 +164,10 @@ function createParamDiv(param = null, table_props) {
 
     let text;
     let data_type_key;
+
     if (param && param.data_type) {
-        text = param.data_type.name;
-        data_type_key = param.data_type.key;
+        text = data_types[param.data_type.name].name;
+        data_type_key = param.data_type.name;
     } else {
         text = data_types.integer.name;
         data_type_key = data_types.integer.key;
@@ -175,7 +177,7 @@ function createParamDiv(param = null, table_props) {
         div.append(createDataTypeSelect(table_props, data_type_key));
     } else {
         let param_data_type_span = createElementWithText('span', `${text}`, 'param-data-type-span ml-2');
-        param_data_type_span.setAttribute('data-data_type_key', data_type_key);
+        param_data_type_span.setAttribute('data-data_type_id', param.data_type.id);
         div.append(param_data_type_span);
     }
 
@@ -208,18 +210,20 @@ export function addParam(table_props, param = null) {
 
 
 // 결과 값 input과 데이터 타입 선택 input을 담고 있는 div 만드는 메소드
-export function createReturnDiv(table_props, return_data_type = data_types.integer) {
-
+export function createReturnDiv(table_props, return_data_type = null) {
+    if (!return_data_type) {
+        return_data_type = table_props.data_types[0];
+    }
     let div = document.createElement('div');
     div.setAttribute('class', 'return-div');
     let return_span = createElementWithText('span', 'Return', 'text-weight-bold');
     div.append(return_span);
     if (table_props.table_mode === table_mode.write.param_and_testcase) {
-        div.append(createDataTypeSelect(table_props, return_data_type.key));
+        div.append(createDataTypeSelect(table_props, return_data_type.name));
     }
     else {
-        let return_data_type_span = createElementWithText('span', return_data_type.name, 'return-data-type-span ml-2');
-        return_data_type_span.setAttribute('data-data_type_key', return_data_type.key);
+        let return_data_type_span = createElementWithText('span', data_types[return_data_type.name].name, 'return-data-type-span ml-2');
+        return_data_type_span.setAttribute('data-data_type_id', return_data_type.id);
         div.append(return_data_type_span);
     }
     let return_th = document.querySelector(`#${table_props.id} table .return-th`);
@@ -230,7 +234,7 @@ export function createReturnDiv(table_props, return_data_type = data_types.integ
 
 /**
 * 테스트케이스 한 줄을 표 맨 아래에 추가하는 메소드
-* @param {object} testcase 테스트케이스 객체. ex) {params: [1, 2], return: "3" }
+* @param {object} testcase 테스트케이스 객체. ex) {params: [1, 2], returns: "3" }
 */
 export function addTestcase(table_props, testcase = null) {
     let root = document.querySelector(`#${table_props.id}`);
@@ -241,7 +245,7 @@ export function addTestcase(table_props, testcase = null) {
     for (let idx = 0; idx < getParamsCount(table_props); idx++) {
         new_tr.append(createElementWithElement('td', createTextInput('입력 값', is_init_params_valid ? testcase.params[idx] : '', 'put-input'), 'input-td'));
     }
-    new_tr.append(createElementWithElement('td', createTextInput('결과 값', is_init_params_valid ? testcase.return : '', 'return-input'), 'return-td'));
+    new_tr.append(createElementWithElement('td', createTextInput('결과 값', is_init_params_valid ? testcase.returns : '', 'return-input'), 'return-td'));
     if (table_props.table_mode !== table_mode.read) {
         new_tr.append(createElementWithElement('td', createTestcaseRemoveButton(table_props)));
     }

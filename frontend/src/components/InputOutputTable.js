@@ -1,7 +1,6 @@
 import React, { useEffect, useCallback } from 'react';
 import { table_mode } from 'constants/InputOutputTableMode';
 import { fillWithParametersAndTestcases, addParam, addTestcase, createReturnDiv, getParamsCount, getTestcaseCount } from 'utils/InputOutputTableUtil';
-import { data_types } from 'constants/DataTypes';
 import DataTypeTooltip from './DataTypeTooltip';
 /**
  * @param {*} props
@@ -13,7 +12,9 @@ import DataTypeTooltip from './DataTypeTooltip';
  *-table_mode: 테이블 모드 constants/InputOutputTableMode에 정의됨
  *
  *-init_value : 테이블을 처음에 채울 값 
- *                 ex)init_value={ {param_names: ['name1', 'name2'], testcases: [{ params: [13, 15], return: 28 }]} }
+ *                 ex)init_value={ {param_names: ['name1', 'name2'], testcases: [{ params: [13, 15], returns: 28 }]} }
+ * 
+ * -data_types: 자료형 목록
  * 
  * -onChangeParamNames: 파라미터가 바뀔 경우 호출되는 메소드
  */
@@ -41,18 +42,20 @@ function InputOutputTable(props) {
     }, [props.id]);
 
     const initTable = useCallback(() => {
-        createReturnDiv(props);
-        if (props.table_mode === table_mode.write.param_and_testcase) {
-            if (getParamsCount(props) < 1) {
-                addParam(props, { name: '', data_type: data_types.integer });
+        if (props.data_types) {
+            createReturnDiv(props);
+            if (props.table_mode === table_mode.write.param_and_testcase) {
+                if (getParamsCount(props) < 1) {
+                    addParam(props, { name: '', data_type: props.data_types[0] });
+                }
+                if (getTestcaseCount(props) < 1) {
+                    addTestcase(props);
+                }
             }
-            if (getTestcaseCount(props) < 1) {
-                addTestcase(props);
-            }
-        }
-        fillWithParametersAndTestcases(props);
+            fillWithParametersAndTestcases(props);
 
-        setTableEnabled(props.table_mode !== table_mode.read);
+            setTableEnabled(props.table_mode !== table_mode.read);
+        }
 
     }, [props, setTableEnabled]);
 

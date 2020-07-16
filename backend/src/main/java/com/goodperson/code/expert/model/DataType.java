@@ -7,10 +7,12 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
 @Entity
 public class DataType {
     @Id
@@ -19,4 +21,8 @@ public class DataType {
 
     @Column(nullable = false, length = 30)
     private String name;
+
+    public DataType(String name){
+        this.name = name;
+    }
 }

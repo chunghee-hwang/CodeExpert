@@ -11,13 +11,13 @@ export const input_names =
     // problem info
     problem_id: "problem_id",
     problem_title: "problem_title",
-    problem_type: "problem_type",
-    problem_explain: "problem_explain",
+    problem_type_id: "problem_type_id",
+    problem_explain: "problem_content",
     limit_explain: "limit_explain",
     time_limit: "time_limit",
     memory_limit: "memory_limit",
-    level: "level",
-    testcase_table: "testcase_table",
-    input_output_table: "input_output_table",
+    problem_level_id: "problem_level_id",
+    answer_table: "answer_table",
+    example_table: "example_table",
 
 }

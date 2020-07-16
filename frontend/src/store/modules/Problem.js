@@ -72,7 +72,7 @@ function* getProblemMetaDataSaga(action) {
         yield put({ type: GET_PROBLEM_META_DATA_SUCCESS, payload: response });
     }
     catch (e) {
-        yield put({ type: GET_PROBLEM_META_DATA_FAILURE, payload: e.message });
+        yield put({ type: GET_PROBLEM_META_DATA_FAILURE, payload: e.response.data.error_message ? e.response.data.error_message : e.message });
     }
 }
 function* getProblemDataSaga(action) {
@@ -82,7 +82,7 @@ function* getProblemDataSaga(action) {
         yield put({ type: GET_PROBLEM_DATA_SUCCESS, payload: response });
     }
     catch (e) {
-        yield put({ type: GET_PROBLEM_DATA_FAILURE, payload: e.message });
+        yield put({ type: GET_PROBLEM_DATA_FAILURE, payload: e.response.data.error_message ? e.response.data.error_message : e.message });
     }
 }
 
@@ -93,7 +93,7 @@ function* getProblemDataAndCodeSaga(action) {
         yield put({ type: GET_PROBLEM_DATA_AND_CODE_SUCCESS, payload: response });
     }
     catch (e) {
-        yield put({ type: GET_PROBLEM_DATA_AND_CODE_FAILURE, payload: e.message });
+        yield put({ type: GET_PROBLEM_DATA_AND_CODE_FAILURE, payload: e.response.data.error_message ? e.response.data.error_message : e.message });
     }
 }
 
@@ -104,7 +104,7 @@ function* registerProblemSaga(action) {
         yield put({ type: REGISTER_PROBLEM_SUCCESS, payload: response });
     }
     catch (e) {
-        yield put({ type: REGISTER_PROBLEM_FAILURE, payload: e.message });
+        yield put({ type: REGISTER_PROBLEM_FAILURE, payload: e.response.data.error_message ? e.response.data.error_message : e.message });
     }
 }
 
@@ -115,7 +115,7 @@ function* updateProblemSaga(action) {
         yield put({ type: UPDATE_PROBLEM_SUCCESS, payload: response });
     }
     catch (e) {
-        yield put({ type: UPDATE_PROBLEM_FAILURE, payload: e.message });
+        yield put({ type: UPDATE_PROBLEM_FAILURE, payload: e.response.data.error_message ? e.response.data.error_message : e.message });
     }
 }
 
@@ -126,7 +126,7 @@ function* deleteProblemSaga(action) {
         yield put({ type: DELETE_PROBLEM_SUCCESS, payload: response });
     }
     catch (e) {
-        yield put({ type: DELETE_PROBLEM_FAILURE, payload: e.message });
+        yield put({ type: DELETE_PROBLEM_FAILURE, payload: e.response.data.error_message ? e.response.data.error_message : e.message });
     }
 }
 
@@ -137,7 +137,7 @@ function* getNewProblemIdSaga(action) {
         yield put({ type: GET_NEW_PROBLEM_ID_SUCCESS, payload: response });
     }
     catch (e) {
-        yield put({ type: GET_NEW_PROBLEM_ID_FAILURE, payload: e.message });
+        yield put({ type: GET_NEW_PROBLEM_ID_FAILURE, payload: e.response.data.error_message ? e.response.data.error_message : e.message });
     }
 }
 
@@ -148,7 +148,7 @@ function* uploadProblemImageSaga(action) {
         yield put({ type: UPLOAD_PROBLEM_IMAGE_SUCCESS, payload: response });
     }
     catch (e) {
-        yield put({ type: UPLOAD_PROBLEM_IMAGE_FAILURE, payload: e.message });
+        yield put({ type: UPLOAD_PROBLEM_IMAGE_FAILURE, payload: e.response.data.error_message ? e.response.data.error_message : e.message });
     }
 }
 
@@ -159,7 +159,7 @@ function* submitProblemCodeSaga(action) {
         yield put({ type: SUBMIT_PROBLEM_CODE_SUCCESS, payload: response });
     }
     catch (e) {
-        yield put({ type: SUBMIT_PROBLEM_CODE_FAILURE, payload: e.message });
+        yield put({ type: SUBMIT_PROBLEM_CODE_FAILURE, payload: e.response.data.error_message ? e.response.data.error_message : e.message });
     }
 }
 
@@ -170,7 +170,7 @@ function* resetProblemCodeSaga(action) {
         yield put({ type: RESET_PROBLEM_CODE_SUCCESS, payload: response });
     }
     catch (e) {
-        yield put({ type: RESET_PROBLEM_CODE_FAILURE, payload: e.message });
+        yield put({ type: RESET_PROBLEM_CODE_FAILURE, payload: e.response.data.error_message ? e.response.data.error_message : e.message });
     }
 }
 
@@ -181,7 +181,7 @@ function* getProblemListSaga(action) {
         yield put({ type: GET_PROBLEM_LIST_SUCCESS, payload: response });
     }
     catch (e) {
-        yield put({ type: GET_PROBLEM_LIST_FAILURE, payload: e.message });
+        yield put({ type: GET_PROBLEM_LIST_FAILURE, payload: e.response.data.error_message ? e.response.data.error_message : e.message });
     }
 }
 

@@ -17,7 +17,7 @@ function ProblemItemBox(props) {
                     <span className="problem-type">{problem.type.name}</span>
                     <span> • </span>
                     <span className="problem-resolve-count">{problem.resolve_count}명 완료</span>
-                    <div className="problem-level">Level {problem.level}</div>
+                    <div className="problem-level">Level {problem.level.name}</div>
                 </div>
 
             </div>

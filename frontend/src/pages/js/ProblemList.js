@@ -63,16 +63,23 @@ function ProblemList(props) {
 
 
     let levels = data.problems_and_max_page.problems.reduce((accumulator, problem) => {
-        accumulator.add(problem.level);
+        if (accumulator.find(level => problem.level.id === level.id)) return accumulator;
+        accumulator.push(problem.level);
         return accumulator;
-    }, new Set());
+    }, []);
+    levels.sort(
+        (level1, level2) => {
+            if (level1.name > level2.name) return 1;
+            else if (level1.name === level2.name) return 0;
+            else return -1;
+        });
     if (levels) {
         Array.from(levels.values()).sort().forEach((level) => {
-            const tag_id = `level-checkbox-${level}`;
+            const tag_id = `level-checkbox-${level.id}`;
             level_checkboxes.push(
-                <div key={level}>
-                    <input type="checkbox" defaultChecked={level_filters.has(level)} className="form-check-input level-filter" id={tag_id} data-level={level} onChange={e => addOrRemoveLevelFilter(e.target)} />
-                    <label className="form-check-label" htmlFor={tag_id}>{level}</label>
+                <div key={level.id}>
+                    <input type="checkbox" defaultChecked={level_filters.has(level.id)} className="form-check-input level-filter" id={tag_id} data-level_id={level.id} onChange={e => addOrRemoveLevelFilter(e.target)} />
+                    <label className="form-check-label" htmlFor={tag_id}>{level.name}</label>
                 </div>
             );
         });
@@ -80,9 +87,9 @@ function ProblemList(props) {
 
     const addOrRemoveLevelFilter = (input) => {
         if (input.checked) {
-            setLevelFilters(level_filters => new Set(level_filters).add(Number(input.dataset.level)));
+            setLevelFilters(level_filters => new Set(level_filters).add(Number(input.dataset.level_id)));
         } else {
-            setLevelFilters(level_filters => new Set([...level_filters].filter(level_filter => level_filter !== Number(input.dataset.level))));
+            setLevelFilters(level_filters => new Set([...level_filters].filter(level_filter => level_filter !== Number(input.dataset.level_id))));
         }
         updateProblemList();
     }

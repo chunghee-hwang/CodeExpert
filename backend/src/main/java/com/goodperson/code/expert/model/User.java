@@ -14,9 +14,11 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
+@ToString
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 public class User {
@@ -27,7 +29,7 @@ public class User {
     @Column(nullable = false, unique = true, length = 45)
     private String email;
 
-    @Column(nullable = false, length = 30)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String password;
 
     // 영어가 아닌 글자 입력시 unescape 함수로 한글이 변환되서 넘어오기 때문에 6(인코딩된 한 글자 길이)X15(닉네임 최대 길이)로

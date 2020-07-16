@@ -4,25 +4,26 @@ import { table_mode } from 'constants/InputOutputTableMode';
 import LoadingScreen from './LoadingScreen';
 
 function ProblemInfoSection(props) {
-    const problem = props.problem;
+    const { problem, problem_meta_data } = props;
     const loading_screen = <LoadingScreen label="문제 정보를 불러오는 중입니다." />;
+
     return (
         <div className="problem-info-section">
-            {!problem ? loading_screen :
+            {(!problem || !problem_meta_data) ? loading_screen :
                 <>
                     <div className="problem-info-title text-center">
                         <h3>{problem.title}</h3>
                         <div className="problem-info-subtitle">문제 유형</div>
                         <div>{problem.type.name}</div>
                         <div className="problem-info-subtitle">난이도</div>
-                        <div>{`Level ${problem.level}`}</div>
+                        <div>{`Level ${problem.level.name}`}</div>
 
                     </div>
                     <div className="problem-info-content">
                         <div className="problem-info-subtitle">문제 설명</div>
                         <div dangerouslySetInnerHTML={{ __html: problem.explain }}></div>
                     </div>
-                    <InputOutputTable id="io-info-table" label_name="입출력 예시" table_mode={table_mode.read} init_value={problem.input_output_table} />
+                    <InputOutputTable id="io-info-table" label_name="입출력 예시" table_mode={table_mode.read} init_value={problem.input_output_table} data_types={problem_meta_data.data_types} />
                     <div className="problem-info-limit text-center">
                         <div className="problem-info-subtitle">제한 사항</div>
                         {problem.limit_explain}

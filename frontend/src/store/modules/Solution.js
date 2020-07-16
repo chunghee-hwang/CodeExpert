@@ -39,7 +39,7 @@ function* getOthersSolutionsSaga(action) {
         yield put({ type: GET_OTHERS_SOLUTIONS_SUCCESS, payload: response });
     }
     catch (e) {
-        yield put({ type: GET_OTHERS_SOLUTIONS_FAILURE, payload: e.message });
+        yield put({ type: GET_OTHERS_SOLUTIONS_FAILURE, payload: e.response.data.error_message ? e.response.data.error_message : e.message });
     }
 }
 function* registerCommentSaga(action) {
@@ -49,7 +49,7 @@ function* registerCommentSaga(action) {
         yield put({ type: REGISTER_COMMENT_SUCCESS, payload: response });
     }
     catch (e) {
-        yield put({ type: REGISTER_COMMENT_FAILURE, payload: e.message });
+        yield put({ type: REGISTER_COMMENT_FAILURE, payload: e.response.data.error_message ? e.response.data.error_message : e.message });
     }
 }
 
@@ -60,7 +60,7 @@ function* updateCommentSaga(action) {
         yield put({ type: UPDATE_COMMENT_SUCCESS, payload: response });
     }
     catch (e) {
-        yield put({ type: UPDATE_COMMENT_FAILURE, payload: e.message });
+        yield put({ type: UPDATE_COMMENT_FAILURE, payload: e.response.data.error_message ? e.response.data.error_message : e.message });
     }
 }
 
@@ -71,7 +71,7 @@ function* deleteCommentSaga(action) {
         yield put({ type: DELETE_COMMENT_SUCCESS, payload: response });
     }
     catch (e) {
-        yield put({ type: DELETE_COMMENT_FAILURE, payload: e.message });
+        yield put({ type: DELETE_COMMENT_FAILURE, payload: e.response.data.error_message ? e.response.data.error_message : e.message });
     }
 }
 
@@ -82,7 +82,7 @@ function* likeOrCancelLikeSaga(action) {
         yield put({ type: LIKE_OR_CANCEL_LIKE_SUCCESS, payload: response });
     }
     catch (e) {
-        yield put({ type: LIKE_OR_CANCEL_LIKE_FAILURE, payload: e.message });
+        yield put({ type: LIKE_OR_CANCEL_LIKE_FAILURE, payload: e.response.data.error_message ? e.response.data.error_message : e.message });
     }
 }
 

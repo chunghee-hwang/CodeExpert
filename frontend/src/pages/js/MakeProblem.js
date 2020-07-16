@@ -45,7 +45,7 @@ function MakeProblem(props) {
                     if (type_select_idx !== -1) type_select.selectedIndex = type_select_idx;
 
                     const level_select = document.querySelector('#problem-level-select');
-                    const level_select_idx = Array.from(level_select.children).findIndex(option => Number(option.dataset.level) === data.problem_data.level);
+                    const level_select_idx = Array.from(level_select.children).findIndex(option => Number(option.dataset.level_id) === data.problem_data.level.id);
                     if (level_select_idx !== -1) level_select.selectedIndex = level_select_idx;
                 }
             } else {
@@ -56,10 +56,9 @@ function MakeProblem(props) {
             }
 
             if (which === 'register_problem') {
-
                 if (is_success) {
                     showSuccessAlert({ success_what: "문제 등록" }).then(() => {
-                        moveToPage(props.history, paths.pages.problem_list);
+                        // moveToPage(props.history, paths.pages.problem_list);
                     });
                 }
                 else if (data.fail_cause) {
@@ -100,7 +99,7 @@ function MakeProblem(props) {
 
     const getLevelOptions = () => {
         return data.problem_meta_data.levels.reduce((accumulator, level) => {
-            accumulator.push(<option key={level} data-level={level}>{level}</option>);
+            accumulator.push(<option key={level.id} data-level_id={level.id}>{level.name}</option>);
             return accumulator;
         }, []);
 
@@ -108,7 +107,7 @@ function MakeProblem(props) {
 
 
     /* 입출력 예시 설정 테이블 */
-    let io_ex_table = <InputOutputTable id="io-ex-set-table" table_mode={table_mode.write.testcase} label_name='입출력 예시' init_value={data.problem_data ? data.problem_data.input_output_table : null} />;
+    let io_ex_table = <InputOutputTable id="io-ex-set-table" table_mode={table_mode.write.testcase} label_name='입출력 예시' init_value={data.problem_data ? data.problem_data.input_output_table : null} data_types={data.problem_meta_data ? data.problem_meta_data.data_types : null} />;
 
     /* 테스트케이스 설정 테이블 */
     let testcase_set_table = <InputOutputTable id="testcase-set-table" table_mode={table_mode.write.param_and_testcase} label_name='테스트 케이스'
@@ -119,7 +118,7 @@ function MakeProblem(props) {
                 init_value: table_value
             }
             fillWithParametersAndTestcases(new_props);
-        }} />
+        }} data_types={data.problem_meta_data ? data.problem_meta_data.data_types : null} />
 
     const registerProblem = () => {
         const testcase_table_info = getParamsAndTestcases(testcase_set_table.props);
@@ -176,10 +175,10 @@ function MakeProblem(props) {
                         <Form.Group className="my-5">
                             <Form.Label className="font-weight-bold">문제 유형</Form.Label>
 
-                            <Form.Control as="select" id="problem-type-select" custom className="form-control" onChange={e => e.target.form[input_names.problem_type].value = e.target.options[e.target.selectedIndex].dataset.id}>
+                            <Form.Control as="select" id="problem-type-select" custom className="form-control" onChange={e => e.target.form[input_names.problem_type_id].value = e.target.options[e.target.selectedIndex].dataset.id}>
                                 {data.problem_meta_data ? getProblemTypeOptions() : null}
                             </Form.Control>
-                            <input type="hidden" name={input_names.problem_type} value="1"></input>
+                            <input type="hidden" name={input_names.problem_type_id} value="1"></input>
                         </Form.Group>
                         <Form.Label className="font-weight-bold">문제 설명</Form.Label>
                         <ProblemExplainEditor content={data.problem_data ? data.problem_data.explain : null} problem_id={data.new_problem_id ? data.new_problem_id : problem_id} images={data.images} is_progressing={is_progressing} which={which} is_success={is_success} problem_actions={problem_actions} />
@@ -200,10 +199,10 @@ function MakeProblem(props) {
                         </Form.Group>
                         <Form.Group className="level-control-container my-5 align-center text-center">
                             <Form.Label className="font-weight-bold">난이도</Form.Label>
-                            <Form.Control id="problem-level-select" as="select" custom className="level-control form-control align-center" onChange={e => e.target.form[input_names.level].value = e.target.options[e.target.selectedIndex].dataset.level}>
+                            <Form.Control id="problem-level-select" as="select" custom className="level-control form-control align-center" onChange={e => e.target.form[input_names.problem_level_id].value = e.target.options[e.target.selectedIndex].dataset.level_id}>
                                 {data.problem_meta_data ? getLevelOptions() : null}
                             </Form.Control>
-                            <input type="hidden" name={input_names.level} value="1"></input>
+                            <input type="hidden" name={input_names.problem_level_id} value="1"></input>
                         </Form.Group>
                         {is_progressing ?
                             <Button variant="primary" block disabled>{is_registering_or_updating ? <Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true" /> : null}

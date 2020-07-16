@@ -1,5 +1,6 @@
 import { data_types } from 'constants/DataTypes';
 import languages from 'constants/Languages';
+import axios from 'axios';
 /**
  * 문제 유형, 레벨 목록 가져오기
  */
@@ -14,7 +15,27 @@ export const getProblemMetaData = () => {
             { id: 6, name: "힙" },
             { id: 7, name: "해시" },
             { id: 8, name: "기타" }],
-        levels: [1, 2, 3, 4],
+        levels: [
+            { id: 1, name: "1" },
+            { id: 2, name: "2" },
+            { id: 3, name: "3" },
+            { id: 4, name: "4" },
+        ],
+        data_types: [
+            { id: 1, name: "integer" },
+            { id: 2, name: "integer_array" },
+            { id: 3, name: "integer_2d_array" },
+            { id: 4, name: "long" },
+            { id: 5, name: "long_array" },
+            { id: 6, name: "long_2d_array" },
+            { id: 7, name: "double" },
+            { id: 8, name: "double_array" },
+            { id: 9, name: "double_2d_array" },
+            { id: 10, name: "boolean" },
+            { id: 11, name: "boolean_array" },
+            { id: 12, name: "string" },
+            { id: 13, name: "string_array" },
+        ]
     }
 }
 
@@ -34,41 +55,44 @@ export const getProblemData = ({ problem_id }) => {
         limit_explain: "array의 원소 x: 1<=x<=<1000 인 자연수",
         time_limit: 500,
         memory_limit: 256,
-        level: 3,
+        level: {
+            id: 1,
+            name: "1"
+        },
         // 테스트케이스 
         testcase_table: { // answer_table
             params: [
-                { name: 'array', data_type: 'integer_array' },
+                { name: 'array', data_type: { id: 2, name: "integer_array" }, },
             ],
-            return: {
-                data_type: 'string'
+            returns: {
+                data_type: { id: 12, name: "string" },
             },
             testcases: [
                 {
                     params: ['[1, 9, 7, 6]'],
-                    return: '"1-6-7-9"'
+                    returns: '"1-6-7-9"'
                 },
                 {
                     params: ['[2, 6, 3, 7]'],
-                    return: '"2-3-6-7"'
+                    returns: '"2-3-6-7"'
                 }
             ]
         },
         input_output_table: { //example_table
             params: [
-                { name: 'array', data_type: 'integer_array' },
+                { name: 'array', data_type: { id: 2, name: "integer_array" }, },
             ],
-            return: {
-                data_type: 'string'
+            returns: {
+                data_type: { id: 12, name: "string" },
             },
             testcases: [
                 {
                     params: ['[1, 9, 7, 6]'],
-                    return: '"1-6-7-9"'
+                    returns: '"1-6-7-9"'
                 },
                 {
                     params: ['[2, 6, 3, 7]'],
-                    return: '"2-3-6-7"'
+                    returns: '"2-3-6-7"'
                 }
             ]
         },
@@ -78,8 +102,7 @@ export const getProblemData = ({ problem_id }) => {
             nickname: 'Hwaaaaa',
         }
     }
-    addDateTypeDetailToTableValue(response.testcase_table);
-    addDateTypeDetailToTableValue(response.input_output_table);
+
 
     return response;
 }
@@ -129,22 +152,25 @@ export const getProblemDataAndCode = ({ problem_id }) => {
             limit_explain: "array의 원소 x: 1<=x<=<1000 인 자연수",
             time_limit: 500,
             memory_limit: 256,
-            level: 1,
+            level: {
+                id: 1,
+                name: "1"
+            },
             input_output_table: {
                 params: [
-                    { name: 'array', data_type: 'integer_array' },
+                    { name: 'array', data_type: { id: 2, name: "integer_array" }, },
                 ],
-                return: {
-                    data_type: 'string'
+                returns: {
+                    data_type: { id: 12, name: "string" },
                 },
                 testcases: [
                     {
                         params: ['[1, 9, 7, 6]'],
-                        return: '"1-6-7-9"'
+                        returns: '"1-6-7-9"'
                     },
                     {
                         params: ['[2, 6, 3, 7]'],
-                        return: '"2-3-6-7"'
+                        returns: '"2-3-6-7"'
                     }
                 ]
             },
@@ -171,18 +197,17 @@ export const getProblemDataAndCode = ({ problem_id }) => {
             }
         ]
     };
-    addDateTypeDetailToTableValue(response.problem.input_output_table);
     addLanguageDetailToCodes(response.codes);
     return response;
 
 }
 
-const addDateTypeDetailToTableValue = (input_output_table) => {
-    input_output_table.params.forEach(param => {
-        param.data_type = data_types[param.data_type];
-    });
-    input_output_table.return.data_type = data_types[input_output_table.return.data_type];
-}
+// const addDateTypeDetailToTableValue = (input_output_table) => {
+//     input_output_table.params.forEach(param => {
+//         param.data_type = data_types[param.data_type];
+//     });
+//     input_output_table.returns.data_type = data_types[input_output_table.returns.data_type];
+// }
 
 const addLanguageDetailToCodes = (codes) => {
     codes.forEach(code => {
@@ -194,6 +219,7 @@ const addLanguageDetailToCodes = (codes) => {
  * 만든 문제 등록
  */
 export const registerProblem = (data) => {
+    console.log(data);
     /*
     [input_names.problem_title],
     [input_names.problem_type],
@@ -206,10 +232,7 @@ export const registerProblem = (data) => {
     [input_names.testcase_table],
     [input_names.input_output_table],
     */
-
-    return {
-        register_success: true
-    }
+    return axios.post("/register_problem", data);
 
 }
 
@@ -294,7 +317,7 @@ export const getProblemList = ({ type, level, page }) => {
                 {
                     id: 1, name: "정렬"
                 },
-                level: 1,
+                level: { id: 1, name: "1" },
                 resolve_count: 51891,
                 created_by_me: true,
                 resolved: true,
@@ -305,7 +328,7 @@ export const getProblemList = ({ type, level, page }) => {
                 {
                     id: 2, name: "스택"
                 },
-                level: 3,
+                level: { id: 3, name: "3" },
                 resolve_count: 424,
                 created_by_me: false,
                 resolved: true,
@@ -316,7 +339,7 @@ export const getProblemList = ({ type, level, page }) => {
                 {
                     id: 4, name: "탐욕법"
                 },
-                level: 2,
+                level: { id: 2, name: "2" },
                 resolve_count: 7901,
                 created_by_me: false,
                 resolved: false,
@@ -327,7 +350,7 @@ export const getProblemList = ({ type, level, page }) => {
                 {
                     id: 7, name: "해시"
                 },
-                level: 1,
+                level: { id: 1, name: "1" },
                 resolve_count: 14791,
                 created_by_me: false,
                 resolved: false,
@@ -338,7 +361,7 @@ export const getProblemList = ({ type, level, page }) => {
                 {
                     id: 5, name: "완전 탐색"
                 },
-                level: 4,
+                level: { id: 4, name: "4" },
                 resolve_count: 11,
                 created_by_me: false,
                 resolved: false,
@@ -349,7 +372,7 @@ export const getProblemList = ({ type, level, page }) => {
                 {
                     id: 6, name: "힙"
                 },
-                level: 3,
+                level: { id: 3, name: "3" },
                 resolve_count: 5464,
                 created_by_me: false,
                 resolved: true,

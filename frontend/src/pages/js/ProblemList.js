@@ -21,7 +21,7 @@ function ProblemList(props) {
 
         //-request problem list and page info using type, level, page
         // fetch(`/problems?type=${type_ids.join(',')}&level=${levels.join(',')}&page=${page}`);
-        if (!data.problems_and_max_page) problem_actions.getProblemList({ type: Array.from(type_filters), level: Array.from(level_filters), page });
+        if (!data.problems_and_max_page) problem_actions.getProblemList({ type_ids: Array.from(type_filters), level_ids: Array.from(level_filters), page });
     }, [props.history, data.problems_and_max_page, user, page, level_filters, problem_actions, type_filters]);
 
     const updateProblemList = () => {

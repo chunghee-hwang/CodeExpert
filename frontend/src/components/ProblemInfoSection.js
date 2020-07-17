@@ -23,7 +23,7 @@ function ProblemInfoSection(props) {
                         <div className="problem-info-subtitle">문제 설명</div>
                         <div dangerouslySetInnerHTML={{ __html: problem.explain }}></div>
                     </div>
-                    <InputOutputTable id="io-info-table" label_name="입출력 예시" table_mode={table_mode.read} init_value={problem.input_output_table} data_types={problem_meta_data.data_types} />
+                    <InputOutputTable id="io-info-table" label_name="입출력 예시" table_mode={table_mode.read} init_value={problem.example_table} data_types={problem_meta_data.data_types} />
                     <div className="problem-info-limit text-center">
                         <div className="problem-info-subtitle">제한 사항</div>
                         {problem.limit_explain}

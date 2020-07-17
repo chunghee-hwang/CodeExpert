@@ -1,7 +1,7 @@
 import React from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import { FiHelpCircle } from 'react-icons/fi';
-// 문제 출제자가 테스트케이스 테이블 작성할 때, 입력 형식 도움말 표시.
+// 문제 출제자가 정답 테이블 작성할 때, 입력 형식 도움말 표시.
 
 const popover = (
     <Popover id="popover-basic">

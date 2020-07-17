@@ -107,11 +107,11 @@ function MakeProblem(props) {
 
 
     /* 입출력 예시 설정 테이블 */
-    let io_ex_table = <InputOutputTable id="io-ex-set-table" table_mode={table_mode.write.testcase} label_name='입출력 예시' init_value={data.problem_data ? data.problem_data.input_output_table : null} data_types={data.problem_meta_data ? data.problem_meta_data.data_types : null} />;
+    let io_ex_table = <InputOutputTable id="io-ex-set-table" table_mode={table_mode.write.testcase} label_name='입출력 예시' init_value={data.problem_data ? data.problem_data.example_table : null} data_types={data.problem_meta_data ? data.problem_meta_data.data_types : null} />;
 
     /* 테스트케이스 설정 테이블 */
     let testcase_set_table = <InputOutputTable id="testcase-set-table" table_mode={table_mode.write.param_and_testcase} label_name='테스트 케이스'
-        init_value={data.problem_data ? data.problem_data.testcase_table : null}
+        init_value={data.problem_data ? data.problem_data.answer_table : null}
         onChangeParamNames={table_value => {
             let new_props = {
                 ...io_ex_table.props,
@@ -121,11 +121,11 @@ function MakeProblem(props) {
         }} data_types={data.problem_meta_data ? data.problem_meta_data.data_types : null} />
 
     const registerProblem = () => {
-        const testcase_table_info = getParamsAndTestcases(testcase_set_table.props);
-        const io_table_info = getParamsAndTestcases(io_ex_table.props);
+        const answer_table_info = getParamsAndTestcases(testcase_set_table.props);
+        const example_table_info = getParamsAndTestcases(io_ex_table.props);
 
         let form = document.getElementById('make_problem_form');
-        let validation = validateMakeProblem(data.new_problem_id, form, testcase_table_info, io_table_info);
+        let validation = validateMakeProblem(data.new_problem_id, form, answer_table_info, example_table_info);
         if (validation.is_valid) {
             //- request register problem
             problem_actions.registerProblem(validation.values);
@@ -136,11 +136,11 @@ function MakeProblem(props) {
     }
 
     const updateProblem = () => {
-        const testcase_table_info = getParamsAndTestcases(testcase_set_table.props);
-        const io_table_info = getParamsAndTestcases(io_ex_table.props);
+        const answer_table_info = getParamsAndTestcases(testcase_set_table.props);
+        const example_table_info = getParamsAndTestcases(io_ex_table.props);
 
         let form = document.getElementById('make_problem_form');
-        let validation = validateUpdateProblem(user, data.problem_data, form, testcase_table_info, io_table_info);
+        let validation = validateUpdateProblem(user, data.problem_data, form, answer_table_info, example_table_info);
         if (validation.is_valid) {
             //- request update problem
             problem_actions.updateProblem(validation.values);

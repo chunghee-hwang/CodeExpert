@@ -1,6 +1,6 @@
 import { input_names } from 'constants/FormInputNames';
 import { data_type_regexs } from './Regexes';
-export function validateMakeProblem(new_problem_id, form, testcase_table_info, io_table_info) {
+export function validateMakeProblem(new_problem_id, form, answer_table_info, example_table_info) {
     const problem_explain_editor = form.querySelector('#problem-explain-editor');
     const values = {
         [input_names.problem_id]: new_problem_id,
@@ -12,8 +12,8 @@ export function validateMakeProblem(new_problem_id, form, testcase_table_info, i
         [input_names.time_limit]: form[input_names.time_limit].value.trim(),
         [input_names.memory_limit]: form[input_names.memory_limit].value.trim(),
         [input_names.problem_level_id]: form[input_names.problem_level_id].value.trim(),
-        [input_names.answer_table]: testcase_table_info,
-        [input_names.example_table]: io_table_info,
+        [input_names.answer_table]: answer_table_info,
+        [input_names.example_table]: example_table_info,
     };
     let validation = {
         is_valid: false,
@@ -22,8 +22,8 @@ export function validateMakeProblem(new_problem_id, form, testcase_table_info, i
         values
     }
 
-    const validation_testcase_table = validateIoTable(testcase_table_info);
-    const validation_io_table = validateIoTable(io_table_info);
+    const validation_answer_table = validateIoTable(answer_table_info);
+    const validation_example_table = validateIoTable(example_table_info);
     if (!values[input_names.problem_id]) {
         validation.fail_cause = '문제 정보가 유효하지 않습니다.';
     }
@@ -83,12 +83,12 @@ export function validateMakeProblem(new_problem_id, form, testcase_table_info, i
         validation.fail_cause = '난이도를 입력해주세요';
         validation.failed_element = form[input_names.problem_level_id];
     }
-    else if (!validation_testcase_table.is_valid) {
-        validation.fail_cause = '테스트 케이스 테이블: ' + validation_testcase_table.fail_cause;
+    else if (!validation_answer_table.is_valid) {
+        validation.fail_cause = '테스트 케이스 테이블: ' + validation_answer_table.fail_cause;
         validation.failed_element = document.getElementById('testcase-set-table');
     }
-    else if (!validation_io_table.is_valid) {
-        validation.fail_cause = '입출력 예시 테이블: ' + validation_io_table.fail_cause;
+    else if (!validation_example_table.is_valid) {
+        validation.fail_cause = '예시 테이블: ' + validation_example_table.fail_cause;
         validation.failed_element = document.getElementById('io-ex-set-table');
     }
     else {
@@ -97,7 +97,7 @@ export function validateMakeProblem(new_problem_id, form, testcase_table_info, i
     return validation;
 }
 
-export function validateUpdateProblem(user, problem, form, testcase_table_info, io_table_info) {
+export function validateUpdateProblem(user, problem, form, answer_table_info, example_table_info) {
     const problem_explain_editor = form.querySelector('#problem-explain-editor');
     const values = {
         [input_names.problem_id]: problem.id,
@@ -109,8 +109,8 @@ export function validateUpdateProblem(user, problem, form, testcase_table_info, 
         [input_names.time_limit]: form[input_names.time_limit].value.trim(),
         [input_names.memory_limit]: form[input_names.memory_limit].value.trim(),
         [input_names.problem_level_id]: form[input_names.problem_level_id].value.trim(),
-        [input_names.answer_table]: testcase_table_info,
-        [input_names.example_table]: io_table_info,
+        [input_names.answer_table]: answer_table_info,
+        [input_names.example_table]: example_table_info,
     };
     let validation = {
         is_valid: false,
@@ -119,8 +119,8 @@ export function validateUpdateProblem(user, problem, form, testcase_table_info, 
         values
     }
 
-    const validation_testcase_table = validateIoTable(testcase_table_info);
-    const validation_io_table = validateIoTable(io_table_info);
+    const validation_answer_table = validateIoTable(answer_table_info);
+    const validation_example_table = validateIoTable(example_table_info);
     if (!values[input_names.problem_id]) {
         validation.fail_cause = '문제 정보가 유효하지 않습니다.';
     } else if (!user || user.id !== problem.creator.id) {
@@ -182,12 +182,12 @@ export function validateUpdateProblem(user, problem, form, testcase_table_info, 
         validation.fail_cause = '난이도를 입력해주세요';
         validation.failed_element = form[input_names.problem_level_id];
     }
-    else if (!validation_testcase_table.is_valid) {
-        validation.fail_cause = '테스트 케이스 테이블: ' + validation_testcase_table.fail_cause;
+    else if (!validation_answer_table.is_valid) {
+        validation.fail_cause = '테스트 케이스 테이블: ' + validation_answer_table.fail_cause;
         validation.failed_element = document.getElementById('testcase-set-table');
     }
-    else if (!validation_io_table.is_valid) {
-        validation.fail_cause = '입출력 예시 테이블: ' + validation_io_table.fail_cause;
+    else if (!validation_example_table.is_valid) {
+        validation.fail_cause = '예시 테이블: ' + validation_example_table.fail_cause;
         validation.failed_element = document.getElementById('io-ex-set-table');
     }
     else {

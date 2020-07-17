@@ -75,7 +75,7 @@ export const getProblemData = ({ problem_id }) => {
             name: "1"
         },
         // 테스트케이스 
-        testcase_table: { // answer_table
+        answer_table: { // example_table
             params: [
                 { name: 'array', data_type: { id: 2, name: "integer_array" }, },
             ],
@@ -93,7 +93,7 @@ export const getProblemData = ({ problem_id }) => {
                 }
             ]
         },
-        input_output_table: { //example_table
+        example_table: { //example_table
             params: [
                 { name: 'array', data_type: { id: 2, name: "integer_array" }, },
             ],
@@ -135,24 +135,38 @@ export const getNewProblemId = () => {
  * 문제 이미지 업로드 요청
  */
 export const uploadProblemImage = ({ problem_id, files }) => {
-    return {
-        images: [
-            {
-                problem_id: 2, // 이미지가 속한 문제의 아이디
-                id: 13, // 이미지 아이디
-                url: 'https://image.shutterstock.com/image-photo/bright-spring-view-cameo-island-260nw-1048185397.jpg'
-            },
-            {
-                problem_id: 2,
-                id: 14,
-                url: 'https://www.codingfactory.net/wp-content/uploads/abc.jpg'
-            }
-        ]
-    }
+    console.log({ problem_id, files });
+    const formData = new FormData();
+    formData.append('problem_id', problem_id);
+    Array.from(files).forEach(file => {
+        formData.append('files[]', file);
+    });
+    return axios({
+        method: 'post',
+        url: '/upload_problem_image',
+        data: formData,
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    });
+    // return {
+    //     images: [
+    //         {
+    //             problem_id: 2, // 이미지가 속한 문제의 아이디
+    //             id: 13, // 이미지 아이디
+    //             url: 'https://image.shutterstock.com/image-photo/bright-spring-view-cameo-island-260nw-1048185397.jpg'
+    //         },
+    //         {
+    //             problem_id: 2,
+    //             id: 14,
+    //             url: 'https://www.codingfactory.net/wp-content/uploads/abc.jpg'
+    //         }
+    //     ]
+    // }
 }
 
 /**
- * 문제 정보와 최종 제출한 코드(또는 초기 코드) 정보가져오기 (테스트케이스 테이블 미포함)
+ * 문제 정보와 최종 제출한 코드(또는 초기 코드) 정보가져오기 (정답 테이블 미포함)
  */
 export const getProblemDataAndCode = ({ problem_id }) => {
     let response = {
@@ -171,7 +185,7 @@ export const getProblemDataAndCode = ({ problem_id }) => {
                 id: 1,
                 name: "1"
             },
-            input_output_table: {
+            example_table: {
                 params: [
                     { name: 'array', data_type: { id: 2, name: "integer_array" }, },
                 ],
@@ -248,8 +262,8 @@ export const registerProblem = (data) => {
     [input_names.time_limit],
     [input_names.memory_limit],
     [input_names.level],
-    [input_names.testcase_table],
-    [input_names.input_output_table],
+    [input_names.answer_table],
+    [input_names.example_table],
     */
     return axios.post("/register_problem", data);
 
@@ -269,8 +283,8 @@ export const updateProblem = (data) => {
     [input_names.time_limit],
     [input_names.memory_limit],
     [input_names.level],
-    [input_names.testcase_table],
-    [input_names.input_output_table],
+    [input_names.answer_table],
+    [input_names.example_table],
     */
 
     return {
@@ -316,16 +330,17 @@ export const submitProblemCode = ({ problem_id, submitted_code, language_id }) =
 /**
  * 코드 리셋
  */
-export const resetProblemCode = ({ problem_id }) => {
+export const resetProblemCode = ({ problem_id, language_id }) => {
     return {
         clear_code_success: true
     }
+
 }
 
 /**
  * 문제 목록 가져오기
  */
-export const getProblemList = ({ type, level, page }) => {
+export const getProblemList = ({ type_ids, level_ids, page }) => {
 
     return {
         //page가 0일때(지정되지 않았을 때) 데이터

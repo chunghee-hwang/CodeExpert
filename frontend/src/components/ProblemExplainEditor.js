@@ -95,7 +95,7 @@ function ProblemExplainEditor(props) {
          */
         if (files) {
             problem_actions.uploadProblemImage({ problem_id, files });
-            event.target.value = '';
+            // event.target.value = '';
         }
     }
 

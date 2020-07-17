@@ -107,7 +107,7 @@ function AlgorithmTest(props) {
         showWarningAlert({ title: '정말 코드를 초기화 할까요?', btn_text: '초기화' }).then((will_reset) => {
             if (will_reset) {
                 //- request reset problem code
-                problem_actions.resetProblemCode({ problem_id });
+                problem_actions.resetProblemCode({ problem_id, language_id: code.language.id });
                 let editor = window.ace.edit('code-editor');
                 editor.setValue(code.init_code);
                 editor.gotoLine(1);

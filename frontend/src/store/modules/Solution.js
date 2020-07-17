@@ -1,7 +1,7 @@
 import { delay, put, takeEvery, call } from 'redux-saga/effects';
 import { handleActions, createAction } from 'redux-actions';
 import * as SolutionApi from 'utils/api/SolutionApi';
-
+import { getErrorMessageFromResponse } from 'utils/ErrorHandler';
 // HTTP Requests
 const GET_OTHERS_SOLUTIONS = "GET_OTHERS_SOLUTIONS";
 const GET_OTHERS_SOLUTIONS_SUCCESS = "GET_OTHERS_SOLUTIONS_SUCCESS";
@@ -39,7 +39,7 @@ function* getOthersSolutionsSaga(action) {
         yield put({ type: GET_OTHERS_SOLUTIONS_SUCCESS, payload: response });
     }
     catch (e) {
-        yield put({ type: GET_OTHERS_SOLUTIONS_FAILURE, payload: e.response.data.error_message ? e.response.data.error_message : e.message });
+        yield put({ type: GET_OTHERS_SOLUTIONS_FAILURE, payload: getErrorMessageFromResponse(e) });
     }
 }
 function* registerCommentSaga(action) {
@@ -49,7 +49,7 @@ function* registerCommentSaga(action) {
         yield put({ type: REGISTER_COMMENT_SUCCESS, payload: response });
     }
     catch (e) {
-        yield put({ type: REGISTER_COMMENT_FAILURE, payload: e.response.data.error_message ? e.response.data.error_message : e.message });
+        yield put({ type: REGISTER_COMMENT_FAILURE, payload: getErrorMessageFromResponse(e) });
     }
 }
 
@@ -60,7 +60,7 @@ function* updateCommentSaga(action) {
         yield put({ type: UPDATE_COMMENT_SUCCESS, payload: response });
     }
     catch (e) {
-        yield put({ type: UPDATE_COMMENT_FAILURE, payload: e.response.data.error_message ? e.response.data.error_message : e.message });
+        yield put({ type: UPDATE_COMMENT_FAILURE, payload: getErrorMessageFromResponse(e) });
     }
 }
 
@@ -71,21 +71,21 @@ function* deleteCommentSaga(action) {
         yield put({ type: DELETE_COMMENT_SUCCESS, payload: response });
     }
     catch (e) {
-        yield put({ type: DELETE_COMMENT_FAILURE, payload: e.response.data.error_message ? e.response.data.error_message : e.message });
+        yield put({ type: DELETE_COMMENT_FAILURE, payload: getErrorMessageFromResponse(e) });
     }
 }
 
 function* likeOrCancelLikeSaga(action) {
     yield delay(1000);
     try {
+        debugger;
         const response = yield call(SolutionApi.likeOrCancelLike, action.payload);
         yield put({ type: LIKE_OR_CANCEL_LIKE_SUCCESS, payload: response });
     }
     catch (e) {
-        yield put({ type: LIKE_OR_CANCEL_LIKE_FAILURE, payload: e.response.data.error_message ? e.response.data.error_message : e.message });
+        yield put({ type: LIKE_OR_CANCEL_LIKE_FAILURE, payload: getErrorMessageFromResponse(e) });
     }
 }
-
 
 export function* solutionSaga() {
     yield takeEvery(GET_OTHERS_SOLUTIONS, getOthersSolutionsSaga);

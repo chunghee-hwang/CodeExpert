@@ -1,11 +1,10 @@
-import { data_types } from 'constants/DataTypes';
 import languages from 'constants/Languages';
 import axios from 'axios';
 /**
  * 문제 유형, 레벨 목록 가져오기
  */
 export const getProblemMetaData = () => {
-    return {
+    let response = {
         problem_types: [
             { id: 1, name: "정렬" },
             { id: 2, name: "스택/큐" },
@@ -35,8 +34,24 @@ export const getProblemMetaData = () => {
             { id: 11, name: "boolean_array" },
             { id: 12, name: "string" },
             { id: 13, name: "string_array" },
+        ],
+        languages: [
+            { id: 1, name: 'java' },
+            { id: 2, name: 'python3' },
+            { id: 3, name: 'cpp' }
         ]
     }
+    addLanguageDetailToMetaData(response)
+    return response;
+}
+
+const addLanguageDetailToMetaData = (response) => {
+    response.languages.forEach(language => {
+        let corresponding_language = languages[language.name]
+        language.ace_name = corresponding_language.ace_name;
+        language.file_extension = corresponding_language.file_extension;
+    });
+
 }
 
 /**
@@ -182,17 +197,26 @@ export const getProblemDataAndCode = ({ problem_id }) => {
         },
         codes: [
             {
-                language: 'java',
+                language: {
+                    id: 1,
+                    name: 'java'
+                },
                 init_code: "String solution(int[] array)\n{\n\treturn \"\";\n}",
             },
             {
-                language: 'python3',
+                language: {
+                    id: 2,
+                    name: 'python3'
+                },
                 init_code: "def solution(array):\n\treturn ''",
                 prev_code: "def solution(array):\n\treturn '-'.join(map(str, sorted(array)))"
 
             },
             {
-                language: 'cpp',
+                language: {
+                    id: 3,
+                    name: 'cpp'
+                },
                 init_code: "#include <vector>\n#include <string>\nusing namespace std;\nstring solution(vector<int> array)\n{\n\treturn \"\";\n}"
             }
         ]
@@ -202,16 +226,11 @@ export const getProblemDataAndCode = ({ problem_id }) => {
 
 }
 
-// const addDateTypeDetailToTableValue = (input_output_table) => {
-//     input_output_table.params.forEach(param => {
-//         param.data_type = data_types[param.data_type];
-//     });
-//     input_output_table.returns.data_type = data_types[input_output_table.returns.data_type];
-// }
-
 const addLanguageDetailToCodes = (codes) => {
     codes.forEach(code => {
-        code.language = languages[code.language];
+        let corresponding_language = languages[code.language.name]
+        code.language.ace_name = corresponding_language.ace_name;
+        code.language.file_extension = corresponding_language.file_extension;
     });
 }
 

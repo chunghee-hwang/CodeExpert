@@ -16,7 +16,10 @@ export const getOthersSolutions = ({ problem_id, language_id, page }) => {
                         name: '사용자2'
                     },
                     code: "int[] solution(String param1, String param2)\n{\n\treturn new int[]{50, 10}\n}",
-                    language: 'java',
+                    language: {
+                        id: 1,
+                        name: 'java'
+                    },
                     likes: {
                         like_count: 24,
                         is_like_pressed: false
@@ -40,7 +43,10 @@ export const getOthersSolutions = ({ problem_id, language_id, page }) => {
                         name: '사용자1'
                     },
                     code: "int[] solution(String param1, String param2)\n{\n\treturn new int[]{1, 2};\n}",
-                    language: 'java',
+                    language: {
+                        id: 1,
+                        name: 'java'
+                    },
                     likes: {
                         like_count: 24,
                         is_like_pressed: false
@@ -81,7 +87,10 @@ export const getOthersSolutions = ({ problem_id, language_id, page }) => {
                         name: '사용자2'
                     },
                     code: "int[] solution(String param1, String param2)\n{\n\treturn new int[]{50, 10}\n}",
-                    language: 'java',
+                    language: {
+                        id: 1,
+                        name: 'java'
+                    },
                     likes: {
                         like_count: 24,
                         is_like_pressed: false
@@ -143,6 +152,8 @@ export const likeOrCancelLike = ({ solution_id }) => {
 
 const addLanguageDetailToSolutions = (solutions) => {
     solutions.forEach(solution => {
-        solution.language = languages[solution.language];
+        let corresponding_language = languages[solution.language.name]
+        solution.language.ace_name = corresponding_language.ace_name;
+        solution.language.file_extension = corresponding_language.file_extension;
     });
 }

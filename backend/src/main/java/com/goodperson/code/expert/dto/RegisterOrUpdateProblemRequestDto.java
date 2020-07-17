@@ -1,11 +1,11 @@
-package com.goodperson.code.expert.requests;
+package com.goodperson.code.expert.dto;
 
 import java.io.Serializable;
 
 import lombok.Data;
 
 @Data
-public class RegisterOrUpdateProblemRequest implements Serializable {
+public class RegisterOrUpdateProblemRequestDto implements Serializable {
 
     private static final long serialVersionUID = 1000L;
 
@@ -25,8 +25,7 @@ public class RegisterOrUpdateProblemRequest implements Serializable {
 
     private Long problemLevelId;
 
-    private InputOutputTableRequest answerTable;
+    private InputOutputTableDto answerTable;
 
-    private InputOutputTableRequest exampleTable;
-
+    private InputOutputTableDto exampleTable;
 }

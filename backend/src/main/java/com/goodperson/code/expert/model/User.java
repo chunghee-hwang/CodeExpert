@@ -41,7 +41,7 @@ public class User {
     private String role;
 
     @CreatedDate
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdDate;
 
     @LastModifiedDate

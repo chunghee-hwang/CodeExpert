@@ -87,6 +87,11 @@
 			<artifactId>graphql-java-tools</artifactId>
 			<version>5.2.4</version>
 		</dependency> -->
+
+		<!-- MultipartFile upload -->
+		<!-- https://mvnrepository.com/artifact/commons-fileupload/commons-fileupload -->
+
+
 	</dependencies>
 
 	<build>

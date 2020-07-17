@@ -92,8 +92,8 @@ public class AccountApiTest {
 
     @Test
     public void testLogin() {
-        final String email = "korean@naver.com";
-        final String password = "3333";
+        // final String email = "korean@naver.com";
+        // final String password = "3333";
         // Optional<User> user = userRepository.findByEmailAndPassword(email,
         // passwordEncoder().encode(password));
         // assertNotNull(user.isPresent());

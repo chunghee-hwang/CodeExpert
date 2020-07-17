@@ -9,6 +9,9 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,10 +24,12 @@ public class ProblemResolvedUserInfo {
     private Long id;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.DETACH)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "resolved_problem_id", nullable = false)
     private Problem resolvedProblem;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.DETACH)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "resolved_user_id", nullable = false)
     private User resolvedUser;
 }

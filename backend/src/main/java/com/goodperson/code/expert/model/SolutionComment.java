@@ -12,6 +12,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
@@ -30,17 +32,19 @@ public class SolutionComment {
     private String content;
 
     @CreatedDate
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdDate;
 
     @LastModifiedDate
     private LocalDateTime modifiedDate;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.DETACH)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "solution_id", nullable = false)
     private Solution solution;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.DETACH)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "writer_id", nullable = false)
     private User writer;
 }

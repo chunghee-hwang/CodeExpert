@@ -10,6 +10,9 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -25,9 +28,10 @@ public class ProblemTestcase {
     private String returnValue;
 
     @Column(nullable = false, length = 1)
-    private Character answerOrExample;
+    private Character tableType;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.DETACH)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "problem_id", nullable = false)
     private Problem problem;
 }

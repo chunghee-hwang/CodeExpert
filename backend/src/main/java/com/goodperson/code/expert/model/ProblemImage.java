@@ -1,5 +1,7 @@
 package com.goodperson.code.expert.model;
 
+import java.time.LocalDateTime;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,6 +13,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -36,10 +40,11 @@ public class ProblemImage {
     private String contentType;
 
     @CreatedDate
-    @Column(nullable = false)
-    private String createdDate;
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdDate;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.DETACH)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "problem_id", nullable = false)
     private Problem problem;
 }

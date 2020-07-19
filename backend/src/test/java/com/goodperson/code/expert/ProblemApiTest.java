@@ -14,9 +14,11 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.goodperson.code.expert.dto.CodeDto;
 import com.goodperson.code.expert.dto.DataTypeDto;
 import com.goodperson.code.expert.dto.GetProblemDataResponseDto;
 import com.goodperson.code.expert.dto.InputOutputTableDto;
+import com.goodperson.code.expert.dto.LanguageDto;
 import com.goodperson.code.expert.dto.ParameterDto;
 import com.goodperson.code.expert.dto.ProblemDto;
 import com.goodperson.code.expert.dto.ProblemLevelDto;
@@ -101,15 +103,17 @@ public class ProblemApiTest {
     private SolutionRepository solutionRepository;
 
     @BeforeEach
-    private void executeBeforeTests() throws Exception {
+    public void executeBeforeTests() throws Exception {
         addUserSample();
         addProblemTypeAndLevelAndDataTypeAndLanguageSample();
         registerOrUpdateProblemSample(1L, 1L, false);
         registerOrUpdateProblemSample(2L, 1L, false);
 
         testUploadProblemImage();
-        submitProblemCode(1L, 1L);
-        submitProblemCode(1L, 2L);
+        submitProblemCode(1L, 1L, 1L);
+        submitProblemCode(2L, 1L, 2L);
+        submitProblemCode(1L, 2L, 1L);
+        submitProblemCode(2L, 2L, 3L);
     }
 
     private void registerOrUpdateProblemSample(Long problemId, Long creatorId, boolean isUpdate) throws Exception {
@@ -275,9 +279,8 @@ public class ProblemApiTest {
         // submitProblemCode(1L, 1L);
     }
 
-    private void submitProblemCode(Long creatorId, Long problemId) throws Exception {
+    private void submitProblemCode(Long creatorId, Long problemId, Long languageId) throws Exception {
         final String submittedCode = "def solution(array):\n\treturn '-'.join(map(str, sorted(array)))";
-        final Long languageId = 2L; // python3
 
         // 로그인되어있는 유저 정보
         final User authenticatedUser = userRepository.findById(creatorId).get();
@@ -330,7 +333,7 @@ public class ProblemApiTest {
     }
 
     @Test
-    public void testResetLanguage() throws Exception {
+    public void testResetCode() throws Exception {
         final Long problemId = 1L;
         final Long languageId = 2L;
         final Long creatorId = 1L;
@@ -361,8 +364,8 @@ public class ProblemApiTest {
         Long creatorId = 1L;
         // 로그인되어있는 유저 정보
         final User authenticatedUser = userRepository.findById(creatorId).get();
-        long myResolvedProblemCount = solutionRepository.countIdByCreator(authenticatedUser);
-        System.out.println(myResolvedProblemCount);
+        long userResolvedCount = solutionRepository.countProblemResolvedByCreator(authenticatedUser);
+        System.out.println(userResolvedCount);
     }
 
     @Test
@@ -382,7 +385,7 @@ public class ProblemApiTest {
                 PageRequest.of(page - 1, numberOfShow));
         List<ProblemDto> problemDtos = new ArrayList<>();
         for (Problem problem : problemPage.getContent()) {
-            long resolveCount = solutionRepository.countIdByProblem(problem);
+            long resolveCount = solutionRepository.countUserByResolvedProblem(problem);
             boolean createdByMe = problem.getCreator().getId() == authenticatedUser.getId();
             boolean resolved = solutionRepository.existsByProblemAndCreator(problem, authenticatedUser);
             ProblemDto problemDto = new ProblemDto();

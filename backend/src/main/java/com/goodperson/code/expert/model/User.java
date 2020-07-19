@@ -8,6 +8,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -29,6 +31,7 @@ public class User {
     @Column(nullable = false, unique = true, length = 45)
     private String email;
 
+    @JsonIgnore
     @Column(nullable = false, columnDefinition = "TEXT")
     private String password;
 
@@ -37,13 +40,16 @@ public class User {
     @Column(nullable = false, unique = true, length = 15)
     private String nickname;
 
+    @JsonIgnore
     @Column(nullable = false, length = 5)
     private String role;
 
+    @JsonIgnore
     @CreatedDate
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdDate;
 
+    @JsonIgnore
     @LastModifiedDate
     private LocalDateTime modifiedDate;
 }

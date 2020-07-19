@@ -11,7 +11,7 @@ public class ProblemDto implements Serializable {
     private String title;
     private ProblemTypeDto type;
     private ProblemLevelDto level;
-    private long resolveCount;
-    private boolean createdByMe;
-    private boolean resolved;
+    private Long resolveCount;
+    private Boolean createdByMe;
+    private Boolean resolved;
 }

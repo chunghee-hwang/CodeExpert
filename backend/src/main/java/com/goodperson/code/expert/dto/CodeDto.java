@@ -1,4 +1,4 @@
-package com.goodperson.code.expert;
+package com.goodperson.code.expert.dto;
 
 import java.io.Serializable;
 

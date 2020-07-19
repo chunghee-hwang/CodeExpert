@@ -104,16 +104,16 @@ public class ProblemApiTest {
 
     @BeforeEach
     public void executeBeforeTests() throws Exception {
-        addUserSample();
-        addProblemTypeAndLevelAndDataTypeAndLanguageSample();
-        registerOrUpdateProblemSample(1L, 1L, false);
-        registerOrUpdateProblemSample(2L, 1L, false);
+        // addUserSample();
+        // addProblemTypeAndLevelAndDataTypeAndLanguageSample();
+        // registerOrUpdateProblemSample(1L, 1L, false);
+        // registerOrUpdateProblemSample(2L, 1L, false);
 
-        testUploadProblemImage();
-        submitProblemCode(1L, 1L, 1L);
-        submitProblemCode(2L, 1L, 2L);
-        submitProblemCode(1L, 2L, 1L);
-        submitProblemCode(2L, 2L, 3L);
+        // testUploadProblemImage();
+        // submitProblemCode(1L, 1L, 1L);
+        // submitProblemCode(2L, 1L, 2L);
+        // submitProblemCode(1L, 2L, 1L);
+        // submitProblemCode(2L, 2L, 3L);
     }
 
     private void registerOrUpdateProblemSample(Long problemId, Long creatorId, boolean isUpdate) throws Exception {
@@ -439,7 +439,7 @@ public class ProblemApiTest {
             List<ProblemParameter> problemParameters = problemParameterRepository.findAllByProblemAndTableType(problem,
                     'a');
             ProblemReturn problemReturn = problemReturnRepository.findByProblemAndTableType(problem, 'a');
-            initCodeContent = makeInitCode(problem, problemParameters, problemReturn, language);
+            initCodeContent = makeInitCode(problemParameters, problemReturn, language);
 
             codeDto.setInitCode(initCodeContent);
             codeDto.setPrevCode(prevCodeContent);
@@ -455,9 +455,273 @@ public class ProblemApiTest {
         System.out.println(response);
     }
 
-    private String makeInitCode(Problem problem, List<ProblemParameter> problemParameters, ProblemReturn problemReturn,
+    private String makeInitCode(List<ProblemParameter> problemParameters, ProblemReturn problemReturn,
             Language language) {
-        return "def solution(array):\n\treturn ''";
+        switch (language.getName()) {
+            case "java":
+                return makeJavaInitCode(problemParameters, problemReturn);
+            case "cpp":
+                return makeCppInitCode(problemParameters, problemReturn);
+            case "python3":
+                return makePythonInitCode(problemParameters, problemReturn);
+        }
+        return "에러가 발생했습니다.";
+    }
+
+    private String makeCppInitCode(List<ProblemParameter> problemParameters, ProblemReturn problemReturn) {
+        StringBuilder stringBuilder = new StringBuilder(
+                "#include <string>\n#include <vector>\nusing namespace std;\n\n");
+        String returnDataTypeExpression = "";
+        String returnDataTypeName = problemReturn.getDataType().getName();
+        returnDataTypeExpression = getCppDataTypeExpression(returnDataTypeName);
+        stringBuilder.append(returnDataTypeExpression);
+        stringBuilder.append("solution(");
+        final int parameterCount = problemParameters.size();
+        for (int idx = 0; idx < parameterCount; idx++) {
+            ProblemParameter parameter = problemParameters.get(idx);
+            String paramDataTypeName = parameter.getDataType().getName();
+            stringBuilder.append(getCppDataTypeExpression(paramDataTypeName));
+            stringBuilder.append(parameter.getName());
+            if (idx != parameterCount - 1)
+                stringBuilder.append(", ");
+        }
+        stringBuilder.append(")\n{\n\t");
+        stringBuilder.append(returnDataTypeExpression);
+        stringBuilder.append("answer = ");
+        stringBuilder.append(getCppValueExpression(returnDataTypeName));
+        stringBuilder.append(";\n\treturn answer;\n}");
+        return stringBuilder.toString();
+    }
+
+    private String getCppDataTypeExpression(String dataTypeName) {
+        String dataTypeExpression;
+        switch (dataTypeName) {
+            case "integer":
+                dataTypeExpression = "int ";
+                break;
+            case "integer_array":
+                dataTypeExpression = "vector<int> ";
+                break;
+            case "integer_2d_array":
+                dataTypeExpression = "vector<vector<int>> ";
+                break;
+            case "long":
+                dataTypeExpression = "long ";
+                break;
+            case "long_array":
+                dataTypeExpression = "vector<long> ";
+                break;
+            case "long_2d_array":
+                dataTypeExpression = "vector<vector<long>> ";
+                break;
+            case "double":
+                dataTypeExpression = "double ";
+                break;
+            case "double_array":
+                dataTypeExpression = "vector<double> ";
+                break;
+            case "double_2d_array":
+                dataTypeExpression = "vector<vector<double>> ";
+                break;
+            case "boolean":
+                dataTypeExpression = "bool ";
+                break;
+            case "boolean_array":
+                dataTypeExpression = "vector<boolean> ";
+                break;
+            case "string":
+                dataTypeExpression = "string ";
+                break;
+            case "string_array":
+                dataTypeExpression = "vector<string> ";
+                break;
+            default:
+                dataTypeExpression = "void ";
+                break;
+        }
+        return dataTypeExpression;
+    }
+
+    private String getCppValueExpression(String dataTypeName) {
+        String dataTypeExpression;
+        if (dataTypeName.endsWith("2d_array")) {
+            dataTypeExpression = "{{}}";
+        } else if (dataTypeName.endsWith("_array")) {
+            dataTypeExpression = "{}";
+        }
+        switch (dataTypeName) {
+            case "integer":
+            case "long":
+            case "double":
+                dataTypeExpression = "0";
+                break;
+            case "boolean":
+                dataTypeExpression = "true";
+                break;
+            case "string":
+                dataTypeExpression = "\"\"";
+                break;
+            default:
+                dataTypeExpression = "nullptr";
+                break;
+        }
+        return dataTypeExpression;
+    }
+
+    private String makePythonInitCode(List<ProblemParameter> problemParameters, ProblemReturn problemReturn) {
+        StringBuilder stringBuilder = new StringBuilder("def solution(");
+        final int parameterCount = problemParameters.size();
+        for (int idx = 0; idx < parameterCount; idx++) {
+            stringBuilder.append(problemParameters.get(idx).getName());
+            if (idx != parameterCount - 1)
+                stringBuilder.append(", ");
+        }
+        stringBuilder.append("):\n\tanswer = ");
+        final String returnValueExpression;
+        final String returnDataTypeName = problemReturn.getDataType().getName();
+        if (returnDataTypeName.endsWith("2d_array")) {
+            returnValueExpression = "[[]]";
+        } else if (returnDataTypeName.endsWith("_array")) {
+            returnValueExpression = "[]";
+        } else {
+            switch (returnDataTypeName) {
+                case "integer":
+                case "long":
+                case "double":
+                    returnValueExpression = "0";
+                    break;
+                case "boolean":
+                    returnValueExpression = "true";
+                    break;
+                case "string":
+                    returnValueExpression = "''";
+                    break;
+                default:
+                    returnValueExpression = "";
+                    break;
+            }
+        }
+        stringBuilder.append(returnValueExpression);
+        stringBuilder.append("\n\treturn answer");
+        return stringBuilder.toString();
+    }
+
+    private String makeJavaInitCode(List<ProblemParameter> problemParameters, ProblemReturn problemReturn) {
+        StringBuilder stringBuilder = new StringBuilder();
+        String returnDataTypeExpression = "";
+        String returnDataTypeName = problemReturn.getDataType().getName();
+        returnDataTypeExpression = getJavaDataTypeExpression(returnDataTypeName);
+        stringBuilder.append(returnDataTypeExpression);
+        stringBuilder.append("solution(");
+        final int parameterCount = problemParameters.size();
+        for (int idx = 0; idx < parameterCount; idx++) {
+            ProblemParameter parameter = problemParameters.get(idx);
+            String paramDataTypeName = parameter.getDataType().getName();
+            stringBuilder.append(getJavaDataTypeExpression(paramDataTypeName));
+            stringBuilder.append(parameter.getName());
+            if (idx != parameterCount - 1)
+                stringBuilder.append(", ");
+        }
+        stringBuilder.append(")\n{\n\t");
+        stringBuilder.append(returnDataTypeExpression);
+        stringBuilder.append("answer = ");
+        stringBuilder.append(getJavaValueExpression(returnDataTypeName));
+        stringBuilder.append(";\nreturn answer;\n}");
+        return stringBuilder.toString();
+    }
+
+    private String getJavaValueExpression(String dataTypeName) {
+        String dataTypeValue;
+        switch (dataTypeName) {
+            case "integer":
+            case "long":
+            case "double":
+                dataTypeValue = "0";
+                break;
+            case "integer_array":
+                dataTypeValue = "new int[]{}";
+                break;
+            case "integer_2d_array":
+                dataTypeValue = "new int[][]{}";
+                break;
+            case "long_array":
+                dataTypeValue = "new long[]{}";
+                break;
+            case "long_2d_array":
+                dataTypeValue = "new long[][]{}";
+                break;
+            case "double_array":
+                dataTypeValue = "new double[]{}";
+                break;
+            case "double_2d_array":
+                dataTypeValue = "new double[][]{}";
+                break;
+            case "boolean":
+                dataTypeValue = "true";
+                break;
+            case "boolean_array":
+                dataTypeValue = "new boolean[]{}";
+                break;
+            case "string":
+                dataTypeValue = "\"\"";
+                break;
+            case "string_array":
+                dataTypeValue = "new String[]{}";
+                break;
+            default:
+                dataTypeValue = "null";
+                break;
+        }
+        return dataTypeValue;
+    }
+
+    private String getJavaDataTypeExpression(String dataTypeName) {
+        String dataTypeExpression;
+        switch (dataTypeName) {
+            case "integer":
+                dataTypeExpression = "int ";
+                break;
+            case "integer_array":
+                dataTypeExpression = "int[] ";
+                break;
+            case "integer_2d_array":
+                dataTypeExpression = "int[][] ";
+                break;
+            case "long":
+                dataTypeExpression = "long ";
+                break;
+            case "long_array":
+                dataTypeExpression = "long[] ";
+                break;
+            case "long_2d_array":
+                dataTypeExpression = "long[][] ";
+                break;
+            case "double":
+                dataTypeExpression = "double ";
+                break;
+            case "double_array":
+                dataTypeExpression = "double[] ";
+                break;
+            case "double_2d_array":
+                dataTypeExpression = "double[][] ";
+                break;
+            case "boolean":
+                dataTypeExpression = "boolean ";
+                break;
+            case "boolean_array":
+                dataTypeExpression = "boolean[] ";
+                break;
+            case "string":
+                dataTypeExpression = "String ";
+                break;
+            case "string_array":
+                dataTypeExpression = "String[] ";
+                break;
+            default:
+                dataTypeExpression = "void ";
+                break;
+        }
+        return dataTypeExpression;
     }
 
     private List<Map<String, Object>> markCode(String submittedCode, Problem problem, Language language)

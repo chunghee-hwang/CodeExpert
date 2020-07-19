@@ -122,14 +122,6 @@
 | problem_type_id(fk) | 문제 유형 아이디(problem_type)|
 | creator_id(fk) | 출제자 아이디(user) |
 
-###### problem_resolved_user_info
-알고리즘 문제를 해결한 사람들 정보 엔티티<br/>
-|속성 이름|속성 설명|
-|:---:|:---:|
-| id(pk) | 아이디 |
-| resolved_problem_id(fk) | 해결한 문제 아이디(problem) |
-| resolved_user_id(fk) | 문제 해결한 사용자의 아이디(user) |
-
 ###### problem_image
 알고리즘 문제에 첨부된 이미지 엔티티<br/>
 |속성 이름|속성 설명|

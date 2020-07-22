@@ -18,8 +18,6 @@ public class ProblemController {
     @PostMapping("/register_problem")
     public ResponseEntity<?> makeProblem(
             @RequestBody RegisterOrUpdateProblemRequestDto registerOrUpdateProblemRequestDto) {
-        System.out.println(registerOrUpdateProblemRequestDto);
-
         Map<String, Object> result = new HashMap<>();
         result.put("regiser_success", true);
         // result.put("error_message", "오류");

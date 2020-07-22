@@ -3,7 +3,16 @@ package com.goodperson.code.expert;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.InputStreamReader;
 import java.net.URLConnection;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,6 +24,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.goodperson.code.expert.dto.CodeDto;
+import com.goodperson.code.expert.dto.CompileResultDto;
 import com.goodperson.code.expert.dto.DataTypeDto;
 import com.goodperson.code.expert.dto.GetProblemDataResponseDto;
 import com.goodperson.code.expert.dto.InputOutputTableDto;
@@ -117,7 +127,7 @@ public class ProblemApiTest {
     }
 
     private void registerOrUpdateProblemSample(Long problemId, Long creatorId, boolean isUpdate) throws Exception {
-        RegisterOrUpdateProblemRequestDto request = createRegisterOrUpdateProblemRequestDto(problemId);
+        RegisterOrUpdateProblemRequestDto request = createRegisterOrUpdateProblemRequestDtoSample(problemId);
         // 로그인되어있는 유저 정보
         User authenticatedUser = userRepository.findById(creatorId).get();
 
@@ -189,10 +199,9 @@ public class ProblemApiTest {
                 new ProblemType("이분 탐색"), new ProblemType("그래프"), new ProblemType("기타") };
 
         final DataType[] dataTypes = new DataType[] { new DataType("integer"), new DataType("integer_array"),
-                new DataType("integer_2d_array"), new DataType("long"), new DataType("long_array"),
-                new DataType("long_2d_array"), new DataType("double"), new DataType("double_array"),
-                new DataType("double_2d_array"), new DataType("boolean"), new DataType("boolean_array"),
-                new DataType("string"), new DataType("string_array") };
+                new DataType("long"), new DataType("long_array"), new DataType("double"), new DataType("double_array"),
+                new DataType("boolean"), new DataType("boolean_array"), new DataType("string"),
+                new DataType("string_array") };
 
         final Language[] languages = new Language[] { new Language("cpp"), new Language("python3"),
                 new Language("java") };
@@ -217,7 +226,7 @@ public class ProblemApiTest {
 
     @Test
     public void testRegisterOrUpdateProblem() throws Exception {
-        registerOrUpdateProblemSample(1L, 1L, true);
+        // registerOrUpdateProblemSample(1L, 1L, true);
     }
 
     @Test
@@ -275,12 +284,11 @@ public class ProblemApiTest {
 
     @Test
     public void testSubmitProblemCode() throws Exception {
-        // submitProblemCode(3L, 1L);
-        // submitProblemCode(1L, 1L);
+        submitProblemCode(1L, 1L, 2L);
     }
 
     private void submitProblemCode(Long creatorId, Long problemId, Long languageId) throws Exception {
-        final String submittedCode = "def solution(array):\n\treturn '-'.join(map(str, sorted(array)))";
+        final String submittedCode = "def solution(array):\n\treturn '-'.join(map(str, array))";
 
         // 로그인되어있는 유저 정보
         final User authenticatedUser = userRepository.findById(creatorId).get();
@@ -294,8 +302,8 @@ public class ProblemApiTest {
         final Language language = languageOptional.get();
         final Problem problem = problemOptional.get();
         // 코드 생성 및 채점
-        List<Map<String, Object>> results = markCode(submittedCode, problem, language);
-        boolean isAnswer = results.stream().allMatch(result -> (boolean) result.get("success"));
+        List<CompileResultDto> results = markCode(submittedCode, problem, language);
+        boolean isAnswer = results.stream().allMatch(result -> result.getIsAnswer());
 
         // 정답이든 아니든 code 엔티티에 저장(코드 저장)
         Optional<Code> codeOptional = codeRepository.findByProblemAndLanguageAndCreator(problem, language,
@@ -724,25 +732,21 @@ public class ProblemApiTest {
         return dataTypeExpression;
     }
 
-    private List<Map<String, Object>> markCode(String submittedCode, Problem problem, Language language)
-            throws Exception {
-        List<Map<String, Object>> results = new ArrayList<>();
+    private List<CompileResultDto> markCode(String submittedCode, Problem problem, Language language) throws Exception {
+        List<CompileResultDto> results = new ArrayList<>();
 
         // 코드 생성
         List<ProblemParameter> problemParameters = problemParameterRepository.findAllByProblemAndTableType(problem,
                 'a');
         ProblemReturn problemReturn = problemReturnRepository.findByProblemAndTableType(problem, 'a');
         System.out.println(problemReturn.getDataType().getName());
-        for (ProblemParameter problemParameter : problemParameters) {
-            DataType paramDataType = problemParameter.getDataType();
-            System.out.println(paramDataType.getName());
-        }
 
         List<ProblemTestcase> problemTestcases = problemTestcaseRepository.findAllByProblemAndTableType(problem, 'a');
 
         // 채점 및 채점 결과 생성
         String languageName = language.getName();
         System.out.println(languageName);
+
         for (ProblemTestcase problemTestcase : problemTestcases) {
             List<ProblemParameterValue> problemParameterValues = problemParameterValueRepository
                     .findAllByProblemTestcase(problemTestcase);
@@ -750,11 +754,23 @@ public class ProblemApiTest {
 
             String returnValue = problemTestcase.getReturnValue();
             System.out.println(returnValue);
-            Map<String, Object> result = new HashMap<>();
-            result.put("success", true);
-            result.put("interval_time", 5.75);
-            result.put("used_memory", 50.9);
-            results.add(result);
+
+            CompileResultDto result = null;
+            List<String> compileOptions = makeCompileOptionCommands(problemParameters, problemReturn,
+                    problemParameterValues, problemTestcase, problem.getTimeLimit());
+            switch (languageName) {
+                case "java":
+                    result = null;
+                    break;
+                case "python3":
+                    result = compilePython(submittedCode, compileOptions);
+                    break;
+                case "cpp":
+                    result = null;
+                    break;
+            }
+            if (result != null)
+                results.add(result);
         }
 
         return results;
@@ -830,10 +846,10 @@ public class ProblemApiTest {
         }
     }
 
-    private RegisterOrUpdateProblemRequestDto createRegisterOrUpdateProblemRequestDto(Long problemId) {
+    private RegisterOrUpdateProblemRequestDto createRegisterOrUpdateProblemRequestDtoSample(Long problemId) {
         RegisterOrUpdateProblemRequestDto request = new RegisterOrUpdateProblemRequestDto();
         request.setProblemId(problemId);
-        request.setProblemTitle("더하기");
+        request.setProblemTitle("배열을 하이폰으로 구분해서 스트링으로 나타내기");
         request.setProblemTypeId(2L);
         request.setLimitExplain("제한 사항");
         request.setMemoryLimit(256);
@@ -844,7 +860,7 @@ public class ProblemApiTest {
         ParameterDto parameterDto1 = new ParameterDto();
 
         DataTypeDto paramDataTypeDto = new DataTypeDto();
-        paramDataTypeDto.setId(1L); // integer
+        paramDataTypeDto.setId(2L); // integer array
         parameterDto1.setDataType(paramDataTypeDto);
         parameterDto1.setName("param1");
         List<ParameterDto> parameterDtos = new ArrayList<>();
@@ -860,9 +876,9 @@ public class ProblemApiTest {
 
         TestcaseDto testcaseDto = new TestcaseDto();
         List<String> paramValues = new ArrayList<>();
-        paramValues.add("5555");
+        paramValues.add("[5, 5, 5, 5]");
         testcaseDto.setParams(paramValues);
-        testcaseDto.setReturns("5-5-5-5");
+        testcaseDto.setReturns("\"5-5-5-5\"");
         List<TestcaseDto> testcaseDtos = new ArrayList<>();
         testcaseDtos.add(testcaseDto);
         table.setTestcases(testcaseDtos);
@@ -950,6 +966,106 @@ public class ProblemApiTest {
         }
         table.setTestcases(testcaseDtos);
         return table;
+    }
+
+    private List<String> makeCompileOptionCommands(List<ProblemParameter> problemParameters,
+            ProblemReturn problemReturn, List<ProblemParameterValue> problemParameterValues,
+            ProblemTestcase problemTestcase, int timeOutInMilliseconds) {
+        List<String> compileOptions = new ArrayList<>();
+        // "timeout:" + 500,
+        // "integer_array:[1, 2, 3, 4]", "integer:10"
+
+        int paramLength = problemParameters.size();
+        compileOptions.add("timeout:" + timeOutInMilliseconds);
+        for (int paramIdx = 0; paramIdx < paramLength; paramIdx++) {
+            String paramDataType = problemParameters.get(paramIdx).getDataType().getName();
+            String paramValue = problemParameterValues.get(paramIdx).getValue();
+            compileOptions.add(paramDataType.concat(":").concat(paramValue));
+        }
+        String returnDataType = problemReturn.getDataType().getName();
+        String returnValue = problemTestcase.getReturnValue();
+        compileOptions.add(returnDataType.concat(":").concat(returnValue));
+
+        return compileOptions;
+    }
+
+    // python으로 컴파일 하기
+    private CompileResultDto compilePython(String code, List<String> compileOptions) throws Exception {
+        LocalDateTime now = LocalDateTime.now();
+        final Path validaterFilePath = Paths
+                .get("D:/Programming/CodeExpert/backend/src/test/java/com/goodperson/code/expert/python_compiler.py");
+
+        final String validateCode = Files.readString(validaterFilePath);
+        code = code + "\n" + validateCode;
+        File compileDirectory = new File("C:/code_expert/compile/", now.format(DateTimeFormatter.BASIC_ISO_DATE));
+        if (!compileDirectory.exists())
+            compileDirectory.mkdirs();
+
+        File compileFile = new File(compileDirectory,
+                now.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS")) + ".py");
+        compileFile.createNewFile();
+        try (FileWriter fileWriter = new FileWriter(compileFile, false);) {
+            fileWriter.write(code);
+        }
+
+        String pythonPath = "D:/Program files/Python3.8/python.exe";
+        String[] commands = null;
+        compileOptions.add(0, pythonPath);
+        compileOptions.add(1, compileFile.getAbsolutePath());
+        commands = compileOptions.toArray(String[]::new);
+        Runtime runtime = Runtime.getRuntime();
+
+        Process process = runtime.exec(commands);
+        process.waitFor();
+        try (BufferedReader error = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+                BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));) {
+            String line = "";
+            StringBuffer errorBuffer = new StringBuffer();
+            StringBuffer outputBuffer = new StringBuffer();
+            boolean isTimeOut = false;
+            boolean isAnswer = false;
+            Double timeElapsed = null;
+            String expected = null;
+            String actual = null;
+            String errorMessage = null;
+            String outputMessage = null;
+            while ((line = error.readLine()) != null) {
+                if (line.startsWith("$timeout|")) {
+                    isTimeOut = true;
+                    break;
+                } else {
+                    errorBuffer.append(line);
+                    errorBuffer.append("\n");
+                }
+            }
+            while ((line = input.readLine()) != null) {
+                if (line.equals("$answer")) {
+                    isAnswer = true;
+                } else if (line.startsWith("$not_answer|")) {
+                    String[] splitted = line.split("\\|");
+                    expected = splitted[1];
+                    actual = splitted[2];
+                } else if (line.startsWith("$time|")) {
+                    String[] splitted = line.split("\\|");
+                    timeElapsed = Double.valueOf(splitted[1]);
+                } else {
+                    outputBuffer.append(line);
+                    outputBuffer.append("\n");
+                }
+            }
+            errorMessage = errorBuffer.toString();
+            outputMessage = outputBuffer.toString();
+
+            CompileResultDto compileResultDto = new CompileResultDto();
+            compileResultDto.setActual(actual);
+            compileResultDto.setErrorMessage(errorMessage);
+            compileResultDto.setExpected(expected);
+            compileResultDto.setIsAnswer(isAnswer);
+            compileResultDto.setIsTimeOut(isTimeOut);
+            compileResultDto.setOutputMessage(outputMessage);
+            compileResultDto.setTimeElapsed(timeElapsed);
+            return compileResultDto;
+        }
     }
 
 }

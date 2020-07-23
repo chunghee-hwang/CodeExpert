@@ -1064,6 +1064,7 @@ public class ProblemApiTest {
             compileResultDto.setIsTimeOut(isTimeOut);
             compileResultDto.setOutputMessage(outputMessage);
             compileResultDto.setTimeElapsed(timeElapsed);
+            compileFile.deleteOnExit();
             return compileResultDto;
         }
     }

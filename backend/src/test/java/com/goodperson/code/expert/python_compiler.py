@@ -2,6 +2,7 @@ import sys
 import time
 from threading import Thread
 import functools
+import re
 
 
 def timeout(timeout_deco):
@@ -31,8 +32,7 @@ def timeout(timeout_deco):
 
 
 def split_array_value(array_value):
-    return array_value.replace(
-        '[', '').replace(']', '').replace(' ', '').split(',')
+    return re.sub('[\\[\\]\'\"\s+]', '', array_value).split(',')
 
 
 def argv_to_python_code(data_type_and_value):
@@ -48,7 +48,7 @@ def argv_to_python_code(data_type_and_value):
         value = int(value)
     elif data_type == 'double':
         value = float(value)
-    elif data_type == 'integer_array' or 'long_array':
+    elif data_type == 'integer_array' or data_type == 'long_array':
         value = list(map(int, split_array_value(value)))
     elif data_type == 'boolean_array':
         value = list(map(bool, split_array_value(value)))

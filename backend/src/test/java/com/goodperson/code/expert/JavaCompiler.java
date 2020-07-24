@@ -3,7 +3,6 @@ package com.goodperson.code.expert;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.concurrent.Callable;
@@ -171,9 +170,6 @@ public class JavaCompiler {
                 System.exit(0);
             }
         }
-    }
-
-    public JavaCompiler() {
     }
 
     private void printOutput(String str, BufferedWriter outputWriter) throws Exception {

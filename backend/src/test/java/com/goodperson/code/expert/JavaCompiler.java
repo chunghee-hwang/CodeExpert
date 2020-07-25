@@ -136,10 +136,10 @@ public class JavaCompiler {
             Future<Object> future = null;
             try {
                 int lenArgs = args.length;
-                int to = Integer.parseInt(args[0].split(":")[1]);
+                int to = Integer.parseInt(args[0]);
                 String[] parameters = Arrays.copyOfRange(args, 1, lenArgs - 1);
                 String answer = args[lenArgs - 1];
-                Method method = getClass().getMethod("solution", getClassArrayFromParameters(parameters));
+                Method method = getClass().getDeclaredMethod("solution", getClassArrayFromParameters(parameters));
                 Object[] parameterValues = getValueFromParameters(parameters);
 
                 ExecutorService executor = Executors.newCachedThreadPool();
@@ -156,7 +156,7 @@ public class JavaCompiler {
                 long timeElapsed = System.currentTimeMillis() - startTime;
                 Object answerValue = getParameterOrAnswerValue(answer);
                 if (answerValue.equals(userAnswer)) {
-                    printOutput("$answer", outputWriter);
+                    printOutput("$answer|", outputWriter);
                 } else {
                     printOutput("$not_answer|" + answerValue + "|" + String.valueOf(userAnswer), outputWriter);
                 }

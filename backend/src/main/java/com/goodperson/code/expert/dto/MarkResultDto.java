@@ -5,7 +5,7 @@ import java.io.Serializable;
 import lombok.Data;
 
 @Data
-public class CompileResultDto implements Serializable {
+public class MarkResultDto implements Serializable {
     private static final long serialVersionUID = 7996087437678280846L;
 
     private Boolean isTimeOut;

@@ -1,9 +1,11 @@
 package com.goodperson.code.expert;
 
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import com.goodperson.code.expert.model.User;
 import com.goodperson.code.expert.repository.UserRepository;
@@ -26,20 +28,22 @@ public class AccountApiTest {
 
     @BeforeEach()
     private void addUserSample() {
-        User user = new User();
-        user.setEmail("hch0821@naver.com");
-        String nickname = "가나다라마바사아자차카타파하호";
-        user.setNickname(nickname);
-        // user.setPassword(passwordEncoder().encode("1234"));
-        user.setRole("USER");
-        userRepository.save(user);
+        // User user = new User();
+        // user.setEmail("hch0821@naver.com");
+        // String nickname = "가나다라마바사아자차카타파하호";
+        // user.setNickname(nickname);
+        // // user.setPassword(passwordEncoder().encode("1234"));
+        // user.setPassword("1234");
+        // user.setRole("USER");
+        // userRepository.save(user);
 
-        User user2 = new User();
-        user2.setEmail("korean@naver.com");
-        user2.setNickname("호호호");
-        // user2.setPassword(passwordEncoder().encode("3333"));
-        user2.setRole("USER");
-        userRepository.save(user2);
+        // User user2 = new User();
+        // user2.setEmail("korean@naver.com");
+        // user2.setNickname("호호호");
+        // // user2.setPassword(passwordEncoder().encode("3333"));
+        // user2.setPassword("3333");
+        // user2.setRole("USER");
+        // userRepository.save(user2);
 
     }
 
@@ -92,11 +96,12 @@ public class AccountApiTest {
 
     @Test
     public void testLogin() {
-        // final String email = "korean@naver.com";
-        // final String password = "3333";
+        final String email = "korean@naver.com";
+        final String password = "3333";
         // Optional<User> user = userRepository.findByEmailAndPassword(email,
         // passwordEncoder().encode(password));
-        // assertNotNull(user.isPresent());
+        Optional<User> user = userRepository.findByEmailAndPassword(email, password);
+        assertNotNull(user.isPresent());
     }
 
     @Test

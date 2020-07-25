@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.goodperson.code.expert.dto.CodeDto;
-import com.goodperson.code.expert.dto.CompileResultDto;
+import com.goodperson.code.expert.dto.MarkResultDto;
 import com.goodperson.code.expert.dto.DataTypeDto;
 import com.goodperson.code.expert.dto.GetProblemDataResponseDto;
 import com.goodperson.code.expert.dto.InputOutputTableDto;
@@ -63,6 +63,9 @@ import com.goodperson.code.expert.repository.ProblemTestcaseRepository;
 import com.goodperson.code.expert.repository.ProblemTypeRepository;
 import com.goodperson.code.expert.repository.SolutionRepository;
 import com.goodperson.code.expert.repository.UserRepository;
+import com.goodperson.code.expert.utils.CodeGenerateManager;
+import com.goodperson.code.expert.utils.CompileManager;
+import com.goodperson.code.expert.utils.CompileOption;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -112,18 +115,20 @@ public class ProblemApiTest {
     @Autowired
     private SolutionRepository solutionRepository;
 
+    @Autowired
+    private CodeGenerateManager codeGenerateManager;
+
+    @Autowired
+    private CompileManager compileManager;
+
     @BeforeEach
     public void executeBeforeTests() throws Exception {
-        // addUserSample();
-        // addProblemTypeAndLevelAndDataTypeAndLanguageSample();
-        // registerOrUpdateProblemSample(1L, 1L, false);
-        // registerOrUpdateProblemSample(2L, 1L, false);
+        addUserSample();
+        addProblemTypeAndLevelAndDataTypeAndLanguageSample();
+        registerOrUpdateProblemSample(1L, 1L, false);
+        registerOrUpdateProblemSample(2L, 1L, false);
 
-        // testUploadProblemImage();
-        // submitProblemCode(1L, 1L, 1L);
-        // submitProblemCode(2L, 1L, 2L);
-        // submitProblemCode(1L, 2L, 1L);
-        // submitProblemCode(2L, 2L, 3L);
+        testUploadProblemImage();
     }
 
     private void registerOrUpdateProblemSample(Long problemId, Long creatorId, boolean isUpdate) throws Exception {
@@ -170,7 +175,8 @@ public class ProblemApiTest {
         }
     }
 
-    private void addUserSample() {
+    @Test
+    public void addUserSample() {
         User user = new User();
         user.setEmail("hch0821@naver.com");
         // 한글 escape
@@ -284,11 +290,33 @@ public class ProblemApiTest {
 
     @Test
     public void testSubmitProblemCode() throws Exception {
+        submitProblemCode(1L, 1L, 1L);
         submitProblemCode(1L, 1L, 2L);
+        submitProblemCode(1L, 1L, 3L);
+    }
+
+    private String getSubmittedProblemCodeSample(Language language) {
+        String submittedCode;
+        switch (language.getName()) {
+            case "java":
+                submittedCode = "import java.util.Arrays;\nimport java.util.stream.Collectors;\nString solution(int[] array){return Arrays.stream(array).mapToObj(String::valueOf).collect(Collectors.joining(\"-\"));}";
+                break;
+            case "python3":
+                submittedCode = "def solution(array):\n\treturn '-'.join(map(str, array))";
+                break;
+            case "cpp":
+                submittedCode = "#include <string>\n#include <vector>\n#include<iostream>\n#include <sstream>\n"
+                        + "using namespace std;\nstring solution(vector<int> array) {\n" + "stringstream ss;\n"
+                        + "for(size_t i = 0; i < array.size(); ++i)\n" + "{\n" + "if(i != 0)\n" + "{\n"
+                        + "ss << \"-\";\n" + "}\n" + "ss << array[i];\n" + "}return ss.str();}";
+                break;
+            default:
+                submittedCode = "";
+        }
+        return submittedCode;
     }
 
     private void submitProblemCode(Long creatorId, Long problemId, Long languageId) throws Exception {
-        final String submittedCode = "def solution(array):\n\treturn '-'.join(map(str, array))";
 
         // 로그인되어있는 유저 정보
         final User authenticatedUser = userRepository.findById(creatorId).get();
@@ -301,8 +329,24 @@ public class ProblemApiTest {
             throw new Exception("The language info is not correct");
         final Language language = languageOptional.get();
         final Problem problem = problemOptional.get();
+        final String submittedCode = getSubmittedProblemCodeSample(language);
         // 코드 생성 및 채점
-        List<CompileResultDto> results = markCode(submittedCode, problem, language);
+        List<ProblemParameter> problemParameters = problemParameterRepository.findAllByProblemAndTableType(problem,
+                'a');
+        ProblemReturn problemReturn = problemReturnRepository.findByProblemAndTableType(problem, 'a');
+        List<ProblemTestcase> problemTestcases = problemTestcaseRepository.findAllByProblemAndTableType(problem, 'a');
+        List<List<ProblemParameterValue>> parameterValues = new ArrayList<>();
+        List<String> returnValues = new ArrayList<>();
+
+        for (ProblemTestcase problemTestcase : problemTestcases) {
+            List<ProblemParameterValue> problemParameterValues = problemParameterValueRepository
+                    .findAllByProblemTestcase(problemTestcase);
+            parameterValues.add(problemParameterValues);
+            returnValues.add(problemTestcase.getReturnValue());
+        }
+
+        List<MarkResultDto> results = markCode(submittedCode, problem, language, problemParameters, problemReturn,
+                parameterValues, returnValues);
         boolean isAnswer = results.stream().allMatch(result -> result.getIsAnswer());
 
         // 정답이든 아니든 code 엔티티에 저장(코드 저장)
@@ -447,7 +491,7 @@ public class ProblemApiTest {
             List<ProblemParameter> problemParameters = problemParameterRepository.findAllByProblemAndTableType(problem,
                     'a');
             ProblemReturn problemReturn = problemReturnRepository.findByProblemAndTableType(problem, 'a');
-            initCodeContent = makeInitCode(problemParameters, problemReturn, language);
+            initCodeContent = codeGenerateManager.makeInitCode(problemParameters, problemReturn, language);
 
             codeDto.setInitCode(initCodeContent);
             codeDto.setPrevCode(prevCodeContent);
@@ -463,310 +507,35 @@ public class ProblemApiTest {
         System.out.println(response);
     }
 
-    private String makeInitCode(List<ProblemParameter> problemParameters, ProblemReturn problemReturn,
-            Language language) {
-        switch (language.getName()) {
-            case "java":
-                return makeJavaInitCode(problemParameters, problemReturn);
-            case "cpp":
-                return makeCppInitCode(problemParameters, problemReturn);
-            case "python3":
-                return makePythonInitCode(problemParameters, problemReturn);
-        }
-        return "에러가 발생했습니다.";
-    }
-
-    private String makeCppInitCode(List<ProblemParameter> problemParameters, ProblemReturn problemReturn) {
-        StringBuilder stringBuilder = new StringBuilder(
-                "#include <string>\n#include <vector>\nusing namespace std;\n\n");
-        String returnDataTypeExpression = "";
-        String returnDataTypeName = problemReturn.getDataType().getName();
-        returnDataTypeExpression = getCppDataTypeExpression(returnDataTypeName);
-        stringBuilder.append(returnDataTypeExpression);
-        stringBuilder.append("solution(");
-        final int parameterCount = problemParameters.size();
-        for (int idx = 0; idx < parameterCount; idx++) {
-            ProblemParameter parameter = problemParameters.get(idx);
-            String paramDataTypeName = parameter.getDataType().getName();
-            stringBuilder.append(getCppDataTypeExpression(paramDataTypeName));
-            stringBuilder.append(parameter.getName());
-            if (idx != parameterCount - 1)
-                stringBuilder.append(", ");
-        }
-        stringBuilder.append(")\n{\n\t");
-        stringBuilder.append(returnDataTypeExpression);
-        stringBuilder.append("answer = ");
-        stringBuilder.append(getCppValueExpression(returnDataTypeName));
-        stringBuilder.append(";\n\treturn answer;\n}");
-        return stringBuilder.toString();
-    }
-
-    private String getCppDataTypeExpression(String dataTypeName) {
-        String dataTypeExpression;
-        switch (dataTypeName) {
-            case "integer":
-                dataTypeExpression = "int ";
-                break;
-            case "integer_array":
-                dataTypeExpression = "vector<int> ";
-                break;
-            case "integer_2d_array":
-                dataTypeExpression = "vector<vector<int>> ";
-                break;
-            case "long":
-                dataTypeExpression = "long ";
-                break;
-            case "long_array":
-                dataTypeExpression = "vector<long> ";
-                break;
-            case "long_2d_array":
-                dataTypeExpression = "vector<vector<long>> ";
-                break;
-            case "double":
-                dataTypeExpression = "double ";
-                break;
-            case "double_array":
-                dataTypeExpression = "vector<double> ";
-                break;
-            case "double_2d_array":
-                dataTypeExpression = "vector<vector<double>> ";
-                break;
-            case "boolean":
-                dataTypeExpression = "bool ";
-                break;
-            case "boolean_array":
-                dataTypeExpression = "vector<boolean> ";
-                break;
-            case "string":
-                dataTypeExpression = "string ";
-                break;
-            case "string_array":
-                dataTypeExpression = "vector<string> ";
-                break;
-            default:
-                dataTypeExpression = "void ";
-                break;
-        }
-        return dataTypeExpression;
-    }
-
-    private String getCppValueExpression(String dataTypeName) {
-        String dataTypeExpression;
-        if (dataTypeName.endsWith("2d_array")) {
-            dataTypeExpression = "{{}}";
-        } else if (dataTypeName.endsWith("_array")) {
-            dataTypeExpression = "{}";
-        }
-        switch (dataTypeName) {
-            case "integer":
-            case "long":
-            case "double":
-                dataTypeExpression = "0";
-                break;
-            case "boolean":
-                dataTypeExpression = "true";
-                break;
-            case "string":
-                dataTypeExpression = "\"\"";
-                break;
-            default:
-                dataTypeExpression = "nullptr";
-                break;
-        }
-        return dataTypeExpression;
-    }
-
-    private String makePythonInitCode(List<ProblemParameter> problemParameters, ProblemReturn problemReturn) {
-        StringBuilder stringBuilder = new StringBuilder("def solution(");
-        final int parameterCount = problemParameters.size();
-        for (int idx = 0; idx < parameterCount; idx++) {
-            stringBuilder.append(problemParameters.get(idx).getName());
-            if (idx != parameterCount - 1)
-                stringBuilder.append(", ");
-        }
-        stringBuilder.append("):\n\tanswer = ");
-        final String returnValueExpression;
-        final String returnDataTypeName = problemReturn.getDataType().getName();
-        if (returnDataTypeName.endsWith("2d_array")) {
-            returnValueExpression = "[[]]";
-        } else if (returnDataTypeName.endsWith("_array")) {
-            returnValueExpression = "[]";
-        } else {
-            switch (returnDataTypeName) {
-                case "integer":
-                case "long":
-                case "double":
-                    returnValueExpression = "0";
-                    break;
-                case "boolean":
-                    returnValueExpression = "true";
-                    break;
-                case "string":
-                    returnValueExpression = "''";
-                    break;
-                default:
-                    returnValueExpression = "";
-                    break;
-            }
-        }
-        stringBuilder.append(returnValueExpression);
-        stringBuilder.append("\n\treturn answer");
-        return stringBuilder.toString();
-    }
-
-    private String makeJavaInitCode(List<ProblemParameter> problemParameters, ProblemReturn problemReturn) {
-        StringBuilder stringBuilder = new StringBuilder();
-        String returnDataTypeExpression = "";
-        String returnDataTypeName = problemReturn.getDataType().getName();
-        returnDataTypeExpression = getJavaDataTypeExpression(returnDataTypeName);
-        stringBuilder.append(returnDataTypeExpression);
-        stringBuilder.append("solution(");
-        final int parameterCount = problemParameters.size();
-        for (int idx = 0; idx < parameterCount; idx++) {
-            ProblemParameter parameter = problemParameters.get(idx);
-            String paramDataTypeName = parameter.getDataType().getName();
-            stringBuilder.append(getJavaDataTypeExpression(paramDataTypeName));
-            stringBuilder.append(parameter.getName());
-            if (idx != parameterCount - 1)
-                stringBuilder.append(", ");
-        }
-        stringBuilder.append(")\n{\n\t");
-        stringBuilder.append(returnDataTypeExpression);
-        stringBuilder.append("answer = ");
-        stringBuilder.append(getJavaValueExpression(returnDataTypeName));
-        stringBuilder.append(";\nreturn answer;\n}");
-        return stringBuilder.toString();
-    }
-
-    private String getJavaValueExpression(String dataTypeName) {
-        String dataTypeValue;
-        switch (dataTypeName) {
-            case "integer":
-            case "long":
-            case "double":
-                dataTypeValue = "0";
-                break;
-            case "integer_array":
-                dataTypeValue = "new int[]{}";
-                break;
-            case "integer_2d_array":
-                dataTypeValue = "new int[][]{}";
-                break;
-            case "long_array":
-                dataTypeValue = "new long[]{}";
-                break;
-            case "long_2d_array":
-                dataTypeValue = "new long[][]{}";
-                break;
-            case "double_array":
-                dataTypeValue = "new double[]{}";
-                break;
-            case "double_2d_array":
-                dataTypeValue = "new double[][]{}";
-                break;
-            case "boolean":
-                dataTypeValue = "true";
-                break;
-            case "boolean_array":
-                dataTypeValue = "new boolean[]{}";
-                break;
-            case "string":
-                dataTypeValue = "\"\"";
-                break;
-            case "string_array":
-                dataTypeValue = "new String[]{}";
-                break;
-            default:
-                dataTypeValue = "null";
-                break;
-        }
-        return dataTypeValue;
-    }
-
-    private String getJavaDataTypeExpression(String dataTypeName) {
-        String dataTypeExpression;
-        switch (dataTypeName) {
-            case "integer":
-                dataTypeExpression = "int ";
-                break;
-            case "integer_array":
-                dataTypeExpression = "int[] ";
-                break;
-            case "integer_2d_array":
-                dataTypeExpression = "int[][] ";
-                break;
-            case "long":
-                dataTypeExpression = "long ";
-                break;
-            case "long_array":
-                dataTypeExpression = "long[] ";
-                break;
-            case "long_2d_array":
-                dataTypeExpression = "long[][] ";
-                break;
-            case "double":
-                dataTypeExpression = "double ";
-                break;
-            case "double_array":
-                dataTypeExpression = "double[] ";
-                break;
-            case "double_2d_array":
-                dataTypeExpression = "double[][] ";
-                break;
-            case "boolean":
-                dataTypeExpression = "boolean ";
-                break;
-            case "boolean_array":
-                dataTypeExpression = "boolean[] ";
-                break;
-            case "string":
-                dataTypeExpression = "String ";
-                break;
-            case "string_array":
-                dataTypeExpression = "String[] ";
-                break;
-            default:
-                dataTypeExpression = "void ";
-                break;
-        }
-        return dataTypeExpression;
-    }
-
-    private List<CompileResultDto> markCode(String submittedCode, Problem problem, Language language) throws Exception {
-        List<CompileResultDto> results = new ArrayList<>();
+    private List<MarkResultDto> markCode(String submittedCode, Problem problem, Language language,
+            List<ProblemParameter> problemParameters, ProblemReturn problemReturn,
+            List<List<ProblemParameterValue>> parameterValues, List<String> returnValues) throws Exception {
+        List<MarkResultDto> results = new ArrayList<>();
 
         // 코드 생성
-        List<ProblemParameter> problemParameters = problemParameterRepository.findAllByProblemAndTableType(problem,
-                'a');
-        ProblemReturn problemReturn = problemReturnRepository.findByProblemAndTableType(problem, 'a');
-        System.out.println(problemReturn.getDataType().getName());
-
-        List<ProblemTestcase> problemTestcases = problemTestcaseRepository.findAllByProblemAndTableType(problem, 'a');
-
         // 채점 및 채점 결과 생성
         String languageName = language.getName();
         System.out.println(languageName);
-
-        for (ProblemTestcase problemTestcase : problemTestcases) {
-            List<ProblemParameterValue> problemParameterValues = problemParameterValueRepository
-                    .findAllByProblemTestcase(problemTestcase);
+        final int testcaseSize = parameterValues.size();
+        for (int idx = 0; idx < testcaseSize; idx++) {
+            List<ProblemParameterValue> problemParameterValues = parameterValues.get(idx);
             System.out.println(problemParameterValues);
 
-            String returnValue = problemTestcase.getReturnValue();
+            String returnValue = returnValues.get(idx);
             System.out.println(returnValue);
 
-            CompileResultDto result = null;
-            List<String> compileOptions = makeCompileOptionCommands(problemParameters, problemReturn,
-                    problemParameterValues, problemTestcase, problem.getTimeLimit());
+            MarkResultDto result = null;
+            CompileOption compileOption = compileManager.makeCompileOptionCommands(problemParameters, problemReturn,
+                    problemParameterValues, returnValue, problem.getTimeLimit());
             switch (languageName) {
                 case "java":
-                    result = null;
+                    result = compileManager.compileJava(submittedCode, compileOption);
                     break;
                 case "python3":
-                    result = compilePython(submittedCode, compileOptions);
+                    result = compileManager.compilePython(submittedCode, compileOption);
                     break;
                 case "cpp":
-                    result = null;
+                    result = compileManager.compileCpp(submittedCode, compileOption);
                     break;
             }
             if (result != null)
@@ -810,7 +579,7 @@ public class ProblemApiTest {
     }
 
     private void addParamterAndReturnAndTestcaseInfoFromTableInfo(Problem problem, InputOutputTableDto table,
-            char tableType) {
+            char tableType) throws Exception {
         List<ParameterDto> params = table.getParams();
 
         for (ParameterDto parameterDto : params) {
@@ -825,7 +594,11 @@ public class ProblemApiTest {
         ReturnDto returnDto = table.getReturns();
         ProblemReturn problemReturn = new ProblemReturn();
         problemReturn.setTableType(tableType);
-        problemReturn.setDataType(new DataType(returnDto.getDataType().getId()));
+        Optional<DataType> dataTypeOptional = dataTypeRepository.findById(returnDto.getDataType().getId());
+        if (!dataTypeOptional.isPresent()) {
+            throw new Exception("The data type info is not correct.");
+        }
+        problemReturn.setDataType(dataTypeOptional.get());
         problemReturn.setProblem(problem);
         problemReturnRepository.save(problemReturn);
 
@@ -870,7 +643,7 @@ public class ProblemApiTest {
         ReturnDto returnDto = new ReturnDto();
 
         DataTypeDto returnDataTypeDto = new DataTypeDto();
-        returnDataTypeDto.setId(12L); // string
+        returnDataTypeDto.setId(9L); // string
         returnDto.setDataType(returnDataTypeDto);
         table.setReturns(returnDto);
 
@@ -967,106 +740,4 @@ public class ProblemApiTest {
         table.setTestcases(testcaseDtos);
         return table;
     }
-
-    private List<String> makeCompileOptionCommands(List<ProblemParameter> problemParameters,
-            ProblemReturn problemReturn, List<ProblemParameterValue> problemParameterValues,
-            ProblemTestcase problemTestcase, int timeOutInMilliseconds) {
-        List<String> compileOptions = new ArrayList<>();
-        // "timeout:" + 500,
-        // "integer_array:[1, 2, 3, 4]", "integer:10"
-
-        int paramLength = problemParameters.size();
-        compileOptions.add("timeout:" + timeOutInMilliseconds);
-        for (int paramIdx = 0; paramIdx < paramLength; paramIdx++) {
-            String paramDataType = problemParameters.get(paramIdx).getDataType().getName();
-            String paramValue = problemParameterValues.get(paramIdx).getValue();
-            compileOptions.add(paramDataType.concat(":").concat(paramValue));
-        }
-        String returnDataType = problemReturn.getDataType().getName();
-        String returnValue = problemTestcase.getReturnValue();
-        compileOptions.add(returnDataType.concat(":").concat(returnValue));
-
-        return compileOptions;
-    }
-
-    // python으로 컴파일 하기
-    private CompileResultDto compilePython(String code, List<String> compileOptions) throws Exception {
-        LocalDateTime now = LocalDateTime.now();
-        final Path validaterFilePath = Paths
-                .get("D:/Programming/CodeExpert/backend/src/test/java/com/goodperson/code/expert/python_compiler.py");
-
-        final String validateCode = Files.readString(validaterFilePath);
-        code = code + "\n" + validateCode;
-        File compileDirectory = new File("C:/code_expert/compile/", now.format(DateTimeFormatter.BASIC_ISO_DATE));
-        if (!compileDirectory.exists())
-            compileDirectory.mkdirs();
-
-        File compileFile = new File(compileDirectory,
-                now.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS")) + ".py");
-        compileFile.createNewFile();
-        try (FileWriter fileWriter = new FileWriter(compileFile, false);) {
-            fileWriter.write(code);
-        }
-
-        String pythonPath = "D:/Program files/Python3.8/python.exe";
-        String[] commands = null;
-        compileOptions.add(0, pythonPath);
-        compileOptions.add(1, compileFile.getAbsolutePath());
-        commands = compileOptions.toArray(String[]::new);
-        Runtime runtime = Runtime.getRuntime();
-
-        Process process = runtime.exec(commands);
-        process.waitFor();
-        try (BufferedReader error = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-                BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));) {
-            String line = "";
-            StringBuffer errorBuffer = new StringBuffer();
-            StringBuffer outputBuffer = new StringBuffer();
-            boolean isTimeOut = false;
-            boolean isAnswer = false;
-            Double timeElapsed = null;
-            String expected = null;
-            String actual = null;
-            String errorMessage = null;
-            String outputMessage = null;
-            while ((line = error.readLine()) != null) {
-                if (line.startsWith("$timeout|")) {
-                    isTimeOut = true;
-                    break;
-                } else {
-                    errorBuffer.append(line);
-                    errorBuffer.append("\n");
-                }
-            }
-            while ((line = input.readLine()) != null) {
-                if (line.equals("$answer")) {
-                    isAnswer = true;
-                } else if (line.startsWith("$not_answer|")) {
-                    String[] splitted = line.split("\\|");
-                    expected = splitted[1];
-                    actual = splitted[2];
-                } else if (line.startsWith("$time|")) {
-                    String[] splitted = line.split("\\|");
-                    timeElapsed = Double.valueOf(splitted[1]);
-                } else {
-                    outputBuffer.append(line);
-                    outputBuffer.append("\n");
-                }
-            }
-            errorMessage = errorBuffer.toString();
-            outputMessage = outputBuffer.toString();
-
-            CompileResultDto compileResultDto = new CompileResultDto();
-            compileResultDto.setActual(actual);
-            compileResultDto.setErrorMessage(errorMessage);
-            compileResultDto.setExpected(expected);
-            compileResultDto.setIsAnswer(isAnswer);
-            compileResultDto.setIsTimeOut(isTimeOut);
-            compileResultDto.setOutputMessage(outputMessage);
-            compileResultDto.setTimeElapsed(timeElapsed);
-            compileFile.deleteOnExit();
-            return compileResultDto;
-        }
-    }
-
 }

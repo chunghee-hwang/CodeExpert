@@ -62,7 +62,7 @@ def argv_to_python_code(data_type_and_value):
 if __name__ == '__main__':
     argv = sys.argv
     len_argv = len(argv)
-    to = int(argv[1].split(":")[1])
+    to = int(argv[1])
     parameters = argv[2:len_argv-1]
     answer = argv[len_argv-1]
     parameters = [argv_to_python_code(parameter) for parameter in parameters]
@@ -73,9 +73,8 @@ if __name__ == '__main__':
         user_answer = solution(*parameters)
         time_elapsed = round((time.monotonic() - start_time)*1000, 2)
         if answer == user_answer:
-            print('$answer')
+            print('$answer|')
         else:
-            print('answer:', answer)
             print('user_answer:', user_answer)
             print('$not_answer|'+str(answer)+'|' + str(user_answer))
         print('$time|'+str(time_elapsed))

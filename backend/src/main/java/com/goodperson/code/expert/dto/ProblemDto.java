@@ -1,12 +1,9 @@
 package com.goodperson.code.expert.dto;
 
-import java.io.Serializable;
-
 import lombok.Data;
 
 @Data
-public class ProblemDto implements Serializable {
-    private static final long serialVersionUID = 1009L;
+public class ProblemDto {
     private Long id;
     private String title;
     private ProblemTypeDto type;

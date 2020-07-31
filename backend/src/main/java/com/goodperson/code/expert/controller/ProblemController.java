@@ -21,7 +21,7 @@ public class ProblemController {
         Map<String, Object> result = new HashMap<>();
         result.put("regiser_success", true);
         // result.put("error_message", "오류");
-        return new ResponseEntity<>(result, HttpStatus.OK);
+        return new ResponseEntity<>(registerOrUpdateProblemRequestDto, HttpStatus.OK);
 
     }
 

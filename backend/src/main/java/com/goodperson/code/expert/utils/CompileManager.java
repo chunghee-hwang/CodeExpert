@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import com.goodperson.code.expert.dto.MarkResultDto;
 import com.goodperson.code.expert.model.ProblemParameter;
@@ -19,6 +20,8 @@ import com.goodperson.code.expert.model.ProblemParameterValue;
 import com.goodperson.code.expert.model.ProblemReturn;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -27,9 +30,11 @@ public class CompileManager {
     @Autowired
     private CodeGenerateManager codeGenerateManager;
 
-    public CompileOption makeCompileOptionCommands(List<ProblemParameter> problemParameters,
-            ProblemReturn problemReturn, List<ProblemParameterValue> problemParameterValues, String returnValue,
-            int timeOutInMilliseconds) {
+    @Autowired
+    private FileUtils fileUtils;
+
+    public CompileOption makeCompileOption(List<ProblemParameter> problemParameters, ProblemReturn problemReturn,
+            List<ProblemParameterValue> problemParameterValues, String returnValue, int timeOutInMilliseconds) {
         CompileOption compileOption = new CompileOption();
         List<String> parameters = new ArrayList<>();
         // 500(timeout),
@@ -75,22 +80,22 @@ public class CompileManager {
         return compileFile;
     }
 
-    public MarkResultDto compilePython(String code, CompileOption compileOption) throws Exception {
-        LocalDateTime now = LocalDateTime.now();
+    @Async
+    public CompletableFuture<MarkResultDto> compilePython(String code, CompileOption compileOption) throws Exception {
         final String validateCode = getValidateCode("/src/test/java/com/goodperson/code/expert/python_compiler.py");
         code = code + "\n" + validateCode;
         File compileDirectory = makeCompileDirectory();
-        File compileFile = makeCompileFile(compileDirectory, code, now, "py");
+        File compileFile = makeCompileFile(compileDirectory, code, LocalDateTime.now(), "py");
+        compileOption.setCompileFile(compileFile);
         List<String> commands = new ArrayList<>();
-        final int timeOutInMilliseconds = compileOption.getTimeOutInMilliseconds();
         commands.add("python3");
         commands.add(compileFile.getAbsolutePath());
-        commands.add(String.valueOf(timeOutInMilliseconds));
+        commands.add(String.valueOf(compileOption.getTimeOutInMilliseconds()));
         commands.addAll(compileOption.getParameters());
         commands.add(compileOption.getAnswer());
-        MarkResultDto markResultDto = execCodeAndGetMarkResult(commands.toArray(String[]::new), timeOutInMilliseconds);
+        MarkResultDto markResultDto = execCodeAndGetMarkResult(commands.toArray(String[]::new), compileOption);
         deleteCompiledOrExecFile(compileFile);
-        return markResultDto;
+        return new AsyncResult<>(markResultDto).completable();
     }
 
     // "import java.util.Arrays;\nimport java.util.stream.Collectors;\n
@@ -116,25 +121,25 @@ public class CompileManager {
         return removedCode.delete(removedCode.lastIndexOf("}"), removedCode.length()).toString();
     }
 
-    public MarkResultDto compileJava(String code, CompileOption compileOption) throws Exception {
-        LocalDateTime now = LocalDateTime.now();
+    @Async
+    public CompletableFuture<MarkResultDto> compileJava(String code, CompileOption compileOption) throws Exception {
         final String validateCode = removePackageCodeFromValidateCode(
                 getValidateCode("/src/test/java/com/goodperson/code/expert/JavaCompiler.java"));
         String[] codeParts = splitJavaCodeToImportPartAndImplementCodePart(code);
-
         code = codeParts[0].concat("\n").concat(validateCode).concat("\n").concat(codeParts[1]).concat("\n}");
         File compileDirectory = makeCompileDirectory();
-        File compileFile = makeCompileFile(compileDirectory, code, now, "java");
+        File compileFile = makeCompileFile(compileDirectory, code, LocalDateTime.now(), "java");
+        compileOption.setCompileFile(compileFile);
         List<String> commands = new ArrayList<>();
-        final int timeOutInMilliseconds = compileOption.getTimeOutInMilliseconds();
         commands.add("java");
         commands.add(compileFile.getAbsolutePath());
-        commands.add(String.valueOf(timeOutInMilliseconds));
+        commands.add("--illegal-access=warn");
+        commands.add(String.valueOf(compileOption.getTimeOutInMilliseconds()));
         commands.addAll(compileOption.getParameters());
         commands.add(compileOption.getAnswer());
-        MarkResultDto markResultDto = execCodeAndGetMarkResult(commands.toArray(String[]::new), timeOutInMilliseconds);
+        MarkResultDto markResultDto = execCodeAndGetMarkResult(commands.toArray(String[]::new), compileOption);
         deleteCompiledOrExecFile(compileFile);
-        return markResultDto;
+        return new AsyncResult<>(markResultDto).completable();
     }
 
     private void deleteCompiledOrExecFile(File... files) {
@@ -167,21 +172,25 @@ public class CompileManager {
                 .replace("{{answerValue}}", answerValue).replace("{{parameterValues}}", parameterValues.toString());
     }
 
-    public MarkResultDto compileCpp(String code, CompileOption compileOption) throws Exception {
-
+    @Async
+    public CompletableFuture<MarkResultDto> compileCpp(String code, CompileOption compileOption) throws Exception {
         LocalDateTime now = LocalDateTime.now();
         final String validateCode = applyDetailToCppValidateCode(
                 getValidateCode("/src/test/java/com/goodperson/code/expert/CppCompiler.cpp"),
                 compileOption.getParameters(), compileOption.getAnswer());
-        code = code.concat("\n").concat(validateCode);
+        final String compileFileExtension = "cpp";
         File compileDirectory = makeCompileDirectory();
-        File compileFile = makeCompileFile(compileDirectory, code, now, "cpp");
+
         final String execFileName = now.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS")) + "_exec.out";
+        code = code.concat("\n").concat(validateCode);
+        File compileFile = makeCompileFile(compileDirectory, code, now, compileFileExtension);
         File execFile = new File(compileDirectory, execFileName);
-        final int timeOutInMilliseconds = compileOption.getTimeOutInMilliseconds();
+        final String compileFileFullPath = compileFile.getAbsolutePath();
+        compileOption.setCompileFile(compileFile);
         String[] compileCommands = new String[] { "clang++", "-pthread", "-std=c++1z", compileFile.getAbsolutePath(),
                 "-o", execFile.getAbsolutePath() };
-        String[] execCommands = new String[] { execFile.getAbsolutePath(), String.valueOf(timeOutInMilliseconds) };
+        String[] execCommands = new String[] { execFile.getAbsolutePath(),
+                String.valueOf(compileOption.getTimeOutInMilliseconds()) };
         Runtime runtime = Runtime.getRuntime();
 
         Process compileProcess = runtime.exec(compileCommands);
@@ -196,6 +205,7 @@ public class CompileManager {
             String line = "";
             StringBuffer errorBuffer = new StringBuffer();
             while ((line = compileError.readLine()) != null) {
+                line = line.replaceAll(compileFileFullPath, "solution.".concat(compileFileExtension));
                 errorBuffer.append(line);
                 errorBuffer.append("\n");
             }
@@ -203,21 +213,25 @@ public class CompileManager {
                 markResultDto.setIsAnswer(false);
                 markResultDto.setErrorMessage(errorBuffer.toString());
                 deleteCompiledOrExecFile(compileFile);
-                return markResultDto;
+                return new AsyncResult<>(markResultDto).completable();
             }
         }
 
         // 실행
-        MarkResultDto markResultDto = execCodeAndGetMarkResult(execCommands, timeOutInMilliseconds);
+        MarkResultDto markResultDto = execCodeAndGetMarkResult(execCommands, compileOption);
         deleteCompiledOrExecFile(compileFile, execFile);
-        return markResultDto;
+        return new AsyncResult<>(markResultDto).completable();
     }
 
     // 코드 실행 결과 가져오는 메소드
-    private MarkResultDto execCodeAndGetMarkResult(String[] command, final int timeOutInMilliseconds) throws Exception {
+    private MarkResultDto execCodeAndGetMarkResult(String[] command, CompileOption compileOption) throws Exception {
         final Runtime runtime = Runtime.getRuntime();
         MarkResultDto markResultDto = new MarkResultDto();
         final Process execProcess = runtime.exec(command);
+        final File compileFile = compileOption.getCompileFile();
+        final int timeOutInMilliseconds = compileOption.getTimeOutInMilliseconds();
+        final String compileFileFullPath = compileFile.getAbsolutePath();
+        final String compileFileExtension = fileUtils.getFileExtension(compileFileFullPath);
         execProcess.waitFor();
         try (BufferedReader execInput = new BufferedReader(new InputStreamReader(execProcess.getInputStream()));
                 BufferedReader execError = new BufferedReader(new InputStreamReader(execProcess.getErrorStream()));) {
@@ -233,6 +247,7 @@ public class CompileManager {
             String outputMessage = null;
 
             while ((line = execError.readLine()) != null) {
+                line = line.replaceAll(compileFileFullPath, "solution".concat(compileFileExtension));
                 if (line.startsWith("$timeout|")) {
                     isTimeOut = true;
                     timeElapsed = (double) timeOutInMilliseconds;
@@ -243,6 +258,7 @@ public class CompileManager {
                 }
             }
             while ((line = execInput.readLine()) != null) {
+                line = line.replaceAll(compileFileFullPath, "solution".concat(compileFileExtension));
                 if (line.equals("$answer|")) {
                     isAnswer = true;
                 } else if (line.startsWith("$not_answer|")) {

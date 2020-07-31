@@ -3,32 +3,22 @@ package com.goodperson.code.expert;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.InputStreamReader;
-import java.net.URLConnection;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.goodperson.code.expert.dto.CodeDto;
-import com.goodperson.code.expert.dto.MarkResultDto;
 import com.goodperson.code.expert.dto.DataTypeDto;
 import com.goodperson.code.expert.dto.GetProblemDataResponseDto;
 import com.goodperson.code.expert.dto.InputOutputTableDto;
 import com.goodperson.code.expert.dto.LanguageDto;
+import com.goodperson.code.expert.dto.MarkResultDto;
 import com.goodperson.code.expert.dto.ParameterDto;
 import com.goodperson.code.expert.dto.ProblemDto;
 import com.goodperson.code.expert.dto.ProblemLevelDto;
@@ -66,6 +56,7 @@ import com.goodperson.code.expert.repository.UserRepository;
 import com.goodperson.code.expert.utils.CodeGenerateManager;
 import com.goodperson.code.expert.utils.CompileManager;
 import com.goodperson.code.expert.utils.CompileOption;
+import com.goodperson.code.expert.utils.FileUtils;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -73,6 +64,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.scheduling.annotation.Async;
 
 @SpringBootTest
 public class ProblemApiTest {
@@ -120,6 +112,9 @@ public class ProblemApiTest {
 
     @Autowired
     private CompileManager compileManager;
+
+    @Autowired
+    private FileUtils fileUtils;
 
     @BeforeEach
     public void executeBeforeTests() throws Exception {
@@ -247,12 +242,12 @@ public class ProblemApiTest {
         Long problemId = 1L;
         String originalFileName = "sample.jpg";
 
-        String matchedContentType = getContentTypeFromFileName(originalFileName);
+        String matchedContentType = fileUtils.getContentTypeFromFileName(originalFileName);
         Optional<ProblemImage> sameFileNameProblemImageOptional = problemImageRepository
                 .findByFileName(originalFileName);
         String saveFileName;
         if (sameFileNameProblemImageOptional.isPresent()) {
-            saveFileName = getUniqueSaveFileName(sameFileNameProblemImageOptional.get().getSaveFileName());
+            saveFileName = fileUtils.getUniqueSaveFileName(sameFileNameProblemImageOptional.get().getSaveFileName());
         } else {
             saveFileName = originalFileName;
         }
@@ -299,7 +294,7 @@ public class ProblemApiTest {
         String submittedCode;
         switch (language.getName()) {
             case "java":
-                submittedCode = "import java.util.Arrays;\nimport java.util.stream.Collectors;\nString solution(int[] array){return Arrays.stream(array).mapToObj(String::valueOf).collect(Collectors.joining(\"-\"));}";
+                submittedCode = "import java.util.Arrays;\nimport java.util.stream.Collectors;\nString solution(int[] array){try{Thread.sleep(10000);}catch(Exception e){}return Arrays.stream(array).mapToObj(String::valueOf).collect(Collectors.joining(\"-\"));}";
                 break;
             case "python3":
                 submittedCode = "def solution(array):\n\treturn '-'.join(map(str, array))";
@@ -345,43 +340,10 @@ public class ProblemApiTest {
             returnValues.add(problemTestcase.getReturnValue());
         }
 
-        List<MarkResultDto> results = markCode(submittedCode, problem, language, problemParameters, problemReturn,
-                parameterValues, returnValues);
-        boolean isAnswer = results.stream().allMatch(result -> result.getIsAnswer());
+        List<MarkResultDto> markResultDtos = markCode(submittedCode, problem, language, problemParameters,
+                problemReturn, parameterValues, returnValues, authenticatedUser);
+        System.out.println(markResultDtos);
 
-        // 정답이든 아니든 code 엔티티에 저장(코드 저장)
-        Optional<Code> codeOptional = codeRepository.findByProblemAndLanguageAndCreator(problem, language,
-                authenticatedUser);
-        Code code = null;
-        // 이전에 작성한 코드가 있으면 덮어쓴다.
-        if (codeOptional.isPresent()) {
-            code = codeOptional.get();
-        } else {
-            code = new Code();
-            code.setProblem(problem);
-            code.setLanguage(language);
-        }
-        code.setContent(submittedCode);
-        code.setCreator(authenticatedUser);
-        codeRepository.save(code);
-
-        // 정답일 경우 solution 엔티티에 저장
-        if (isAnswer) {
-            Optional<Solution> solutionOptional = solutionRepository.findByCode(code);
-            Solution solution = null;
-            // 이전에 작성된 솔루션이 있으면 덮어쓴다.
-            if (solutionOptional.isPresent()) {
-                solution = solutionOptional.get();
-                if (!solution.getCreator().getId().equals(authenticatedUser.getId()))
-                    throw new Exception("You are not the creator of this problem.");
-            } else {
-                solution = new Solution();
-                solution.setProblem(problem);
-                solution.setCreator(authenticatedUser);
-            }
-            solution.setCode(code);
-            solutionRepository.save(solution);
-        }
     }
 
     @Test
@@ -509,73 +471,96 @@ public class ProblemApiTest {
 
     private List<MarkResultDto> markCode(String submittedCode, Problem problem, Language language,
             List<ProblemParameter> problemParameters, ProblemReturn problemReturn,
-            List<List<ProblemParameterValue>> parameterValues, List<String> returnValues) throws Exception {
-        List<MarkResultDto> results = new ArrayList<>();
+            List<List<ProblemParameterValue>> parameterValues, List<String> returnValues, User authenticatedUser)
+            throws Exception {
+        List<MarkResultDto> markResults = new ArrayList<>();
 
         // 코드 생성
         // 채점 및 채점 결과 생성
         String languageName = language.getName();
-        System.out.println(languageName);
         final int testcaseSize = parameterValues.size();
+
         for (int idx = 0; idx < testcaseSize; idx++) {
             List<ProblemParameterValue> problemParameterValues = parameterValues.get(idx);
-            System.out.println(problemParameterValues);
-
             String returnValue = returnValues.get(idx);
-            System.out.println(returnValue);
-
-            MarkResultDto result = null;
-            CompileOption compileOption = compileManager.makeCompileOptionCommands(problemParameters, problemReturn,
+            CompileOption compileOption = compileManager.makeCompileOption(problemParameters, problemReturn,
                     problemParameterValues, returnValue, problem.getTimeLimit());
+            final Consumer<? super MarkResultDto> resultHandler = res -> {
+                markResults.add(res);
+            };
             switch (languageName) {
                 case "java":
-                    result = compileManager.compileJava(submittedCode, compileOption);
+                    compileManager.compileJava(submittedCode, compileOption).thenAccept(resultHandler);
                     break;
                 case "python3":
-                    result = compileManager.compilePython(submittedCode, compileOption);
+                    compileManager.compilePython(submittedCode, compileOption).thenAccept(resultHandler);
                     break;
                 case "cpp":
-                    result = compileManager.compileCpp(submittedCode, compileOption);
+                    compileManager.compileCpp(submittedCode, compileOption).thenAccept(resultHandler);
                     break;
             }
-            if (result != null)
-                results.add(result);
+            Thread.sleep(10);
         }
 
-        return results;
-    }
+        /** Busy waiting */
+        waitForAllTestcasesMarked(testcaseSize, markResults).get();
 
-    // 파일명이 중복되어 db에 저장되지 않도록 유니크한 파일명을 만드는 메소드
-    private String getUniqueSaveFileName(String sameFileName) throws Exception {
-        final String prefix = getFileNameExceptExtension(sameFileName);
-        final String suffix = getFileExtension(sameFileName);
-        Matcher matcher = Pattern.compile("\\d+$").matcher(prefix);
-        String uniqueName = "";
-        if (matcher.find()) {
-            uniqueName = prefix.substring(0, matcher.start()) + (Integer.parseInt(matcher.group()) + 1) + suffix;
+        if (markResults.size() == testcaseSize) {
+            saveMarkCodeResult(markResults, submittedCode, authenticatedUser, problem, language);
         } else {
-            uniqueName = prefix + "2" + suffix;
+            throw new Exception("An error occured when marking the codes");
         }
-        return uniqueName;
-
+        return markResults;
     }
 
-    private String getContentTypeFromFileName(String fileName) {
-        return URLConnection.guessContentTypeFromName(fileName);
+    @Async
+    private CompletableFuture<Boolean> waitForAllTestcasesMarked(int testcaseSize, List<MarkResultDto> markResults) {
+        while (markResults.size() != testcaseSize) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ie) {
+                break;
+            }
+        }
+        return CompletableFuture.completedFuture(true);
     }
 
-    private String getFileExtension(String fileName) throws Exception {
-        int idx = fileName.lastIndexOf('.');
-        if (idx == -1)
-            throw new Exception("The file info is not correct.");
-        return fileName.substring(idx, fileName.length());
-    }
+    private void saveMarkCodeResult(List<MarkResultDto> results, String submittedCode, User authenticatedUser,
+            Problem problem, Language language) {
+        boolean isAnswer = results.stream().allMatch(result -> result.getIsAnswer());
+        // 정답이든 아니든 code 엔티티에 저장(코드 저장)
+        Optional<Code> codeOptional = codeRepository.findByProblemAndLanguageAndCreator(problem, language,
+                authenticatedUser);
+        Code code = null;
+        // 이전에 작성한 코드가 있으면 덮어쓴다.
+        if (codeOptional.isPresent()) {
+            code = codeOptional.get();
+        } else {
+            code = new Code();
+            code.setProblem(problem);
+            code.setLanguage(language);
+        }
+        code.setContent(submittedCode);
+        code.setCreator(authenticatedUser);
+        codeRepository.save(code);
 
-    private String getFileNameExceptExtension(String fileName) throws Exception {
-        int idx = fileName.lastIndexOf('.');
-        if (idx == -1)
-            throw new Exception("The file info is not correct.");
-        return fileName.substring(0, idx);
+        // 정답일 경우 solution 엔티티에 저장
+        if (isAnswer) {
+            Optional<Solution> solutionOptional = solutionRepository.findByCode(code);
+            Solution solution = null;
+            // 이전에 작성된 솔루션이 있으면 덮어쓴다.
+            if (solutionOptional.isPresent()) {
+                solution = solutionOptional.get();
+                if (!solution.getCreator().getId().equals(authenticatedUser.getId()))
+                    return;
+            } else {
+                solution = new Solution();
+                solution.setProblem(problem);
+                solution.setCreator(authenticatedUser);
+            }
+            solution.setCode(code);
+            solutionRepository.save(solution);
+        }
     }
 
     private void addParamterAndReturnAndTestcaseInfoFromTableInfo(Problem problem, InputOutputTableDto table,
@@ -627,7 +612,7 @@ public class ProblemApiTest {
         request.setLimitExplain("제한 사항");
         request.setMemoryLimit(256);
         request.setProblemLevelId(1L);
-        request.setTimeLimit(100);
+        request.setTimeLimit(1000);
         request.setProblemContent("문제 설명");
         InputOutputTableDto table = new InputOutputTableDto();
         ParameterDto parameterDto1 = new ParameterDto();
@@ -647,13 +632,20 @@ public class ProblemApiTest {
         returnDto.setDataType(returnDataTypeDto);
         table.setReturns(returnDto);
 
+        List<TestcaseDto> testcaseDtos = new ArrayList<>();
         TestcaseDto testcaseDto = new TestcaseDto();
         List<String> paramValues = new ArrayList<>();
         paramValues.add("[5, 5, 5, 5]");
         testcaseDto.setParams(paramValues);
         testcaseDto.setReturns("\"5-5-5-5\"");
-        List<TestcaseDto> testcaseDtos = new ArrayList<>();
         testcaseDtos.add(testcaseDto);
+
+        TestcaseDto testcaseDto2 = new TestcaseDto();
+        List<String> paramValues2 = new ArrayList<>();
+        paramValues2.add("[46, 13, 6, 79]");
+        testcaseDto2.setParams(paramValues2);
+        testcaseDto2.setReturns("\"46-13-6-79\"");
+        testcaseDtos.add(testcaseDto2);
         table.setTestcases(testcaseDtos);
 
         request.setAnswerTable(table);

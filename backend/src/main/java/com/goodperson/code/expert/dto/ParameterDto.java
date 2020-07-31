@@ -1,7 +1,5 @@
 package com.goodperson.code.expert.dto;
 
-import java.io.Serializable;
-
 import lombok.Data;
 
 @Data

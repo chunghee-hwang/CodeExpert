@@ -53,16 +53,16 @@ public class Problem {
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.DETACH)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "problem_level_id", nullable = false)
+    @JoinColumn(name = "problem_level_id", nullable = true)
     private ProblemLevel problemLevel;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.DETACH)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "problem_type_id", nullable = false)
+    @JoinColumn(name = "problem_type_id", nullable = true)
     private ProblemType problemType;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.DETACH)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "creator_id", nullable = false)
+    @JoinColumn(name = "creator_id", nullable = true)
     private User creator;
 }

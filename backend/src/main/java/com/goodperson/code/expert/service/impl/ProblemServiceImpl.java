@@ -1,7 +1,4 @@
-package com.goodperson.code.expert;
-
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+package com.goodperson.code.expert.service.impl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,18 +7,17 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.goodperson.code.expert.dto.CodeDto;
 import com.goodperson.code.expert.dto.DataTypeDto;
-import com.goodperson.code.expert.dto.ProblemDataResponseDto;
 import com.goodperson.code.expert.dto.InputOutputTableDto;
 import com.goodperson.code.expert.dto.LanguageDto;
 import com.goodperson.code.expert.dto.MarkResultDto;
 import com.goodperson.code.expert.dto.ParameterDto;
+import com.goodperson.code.expert.dto.ProblemDataResponseDto;
 import com.goodperson.code.expert.dto.ProblemDto;
 import com.goodperson.code.expert.dto.ProblemLevelDto;
+import com.goodperson.code.expert.dto.ProblemMetaDataDto;
 import com.goodperson.code.expert.dto.ProblemTypeDto;
 import com.goodperson.code.expert.dto.RegisterOrUpdateProblemRequestDto;
 import com.goodperson.code.expert.dto.ReturnDto;
@@ -52,25 +48,21 @@ import com.goodperson.code.expert.repository.ProblemReturnRepository;
 import com.goodperson.code.expert.repository.ProblemTestcaseRepository;
 import com.goodperson.code.expert.repository.ProblemTypeRepository;
 import com.goodperson.code.expert.repository.SolutionRepository;
-import com.goodperson.code.expert.repository.UserRepository;
+import com.goodperson.code.expert.service.ProblemService;
 import com.goodperson.code.expert.utils.CodeGenerateManager;
 import com.goodperson.code.expert.utils.CompileManager;
 import com.goodperson.code.expert.utils.CompileOption;
 import com.goodperson.code.expert.utils.FileUtils;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-@SpringBootTest
-public class ProblemApiTest {
-    @Autowired
-    private UserRepository userRepository;
-
+@Service
+public class ProblemServiceImpl implements ProblemService {
     @Autowired
     private ProblemTypeRepository problemTypeRepository;
 
@@ -116,21 +108,48 @@ public class ProblemApiTest {
     @Autowired
     private FileUtils fileUtils;
 
-    @BeforeEach
-    public void executeBeforeTests() throws Exception {
-        addUserSample();
-        addProblemTypeAndLevelAndDataTypeAndLanguageSample();
-        registerOrUpdateProblemSample(1L, 1L, false);
-        registerOrUpdateProblemSample(2L, 1L, false);
-
-        testUploadProblemImage();
+    @Override
+    public ProblemMetaDataDto getProblemMetaData() throws Exception {
+        List<ProblemType> problemTypes = problemTypeRepository.findAll();
+        List<ProblemLevel> problemLevels = problemLevelRepository.findAll();
+        List<DataType> dataTypes = dataTypeRepository.findAll();
+        List<Language> languages = languageRepository.findAll();
+        ProblemMetaDataDto problemMetaDataDto = new ProblemMetaDataDto();
+        problemMetaDataDto.setDataTypes(dataTypes);
+        problemMetaDataDto.setLanguages(languages);
+        problemMetaDataDto.setProblemLevels(problemLevels);
+        problemMetaDataDto.setProblemTypes(problemTypes);
+        return problemMetaDataDto;
     }
 
-    private void registerOrUpdateProblemSample(Long problemId, Long creatorId, boolean isUpdate) throws Exception {
-        RegisterOrUpdateProblemRequestDto request = createRegisterOrUpdateProblemRequestDtoSample(problemId);
-        // 로그인되어있는 유저 정보
-        User authenticatedUser = userRepository.findById(creatorId).get();
+    @Override
+    public long getNewProblemId() throws Exception {
+        Problem lastProblem = problemRepository.findFirstByOrderByIdDesc();
+        long nextProblemId;
+        if (lastProblem == null) {
+            nextProblemId = 1;
+        } else {
+            nextProblemId = lastProblem.getId() + 1;
+        }
 
+        Problem reservedProblem = new Problem();
+        reservedProblem.setId(nextProblemId);
+        reservedProblem.setContent("");
+        reservedProblem.setCreator(null);
+        reservedProblem.setLimitExplain("");
+        reservedProblem.setMemoryLimit(0);
+        reservedProblem.setProblemLevel(null);
+        reservedProblem.setProblemType(null);
+        reservedProblem.setTimeLimit(0);
+        reservedProblem.setTitle("");
+        problemRepository.save(reservedProblem);
+        return nextProblemId;
+    }
+
+    @Override
+    public Problem registerOrUpdateProblem(RegisterOrUpdateProblemRequestDto request, boolean isUpdate,
+            User authenticatedUser) throws Exception {
+        final Long problemId = request.getProblemId();
         if (isUpdate) {
             // 문제를 수정할 땐 문제를 만든 사람이 일치하는지 확인한다.
             boolean isCreator = problemRepository.existsByIdAndCreator(problemId, authenticatedUser);
@@ -142,7 +161,7 @@ public class ProblemApiTest {
         type.setId(1L);
 
         Problem problem = new Problem();
-        problem.setId(request.getProblemId());
+        problem.setId(problemId);
         problem.setTitle(request.getProblemTitle());
         problem.setContent(request.getProblemContent());
         problem.setLimitExplain(request.getLimitExplain());
@@ -163,127 +182,44 @@ public class ProblemApiTest {
         addParamterAndReturnAndTestcaseInfoFromTableInfo(problem, answerTable, 'a');
         addParamterAndReturnAndTestcaseInfoFromTableInfo(problem, exampleTable, 'e');
 
-        Optional<Problem> result = problemRepository.findById(1L);
-        if (result.isPresent()) {
-            Problem resultProblem = result.get();
-            assertNotNull(resultProblem);
-        }
+        return problem;
     }
 
-    @Test
-    public void addUserSample() {
-        User user = new User();
-        user.setEmail("hch0821@naver.com");
-        // 한글 escape
-        String nickname = "가나다라마바사아자차카타파하호";
-        user.setNickname(nickname);
-        user.setPassword("1234");
-        user.setRole("USER");
-        userRepository.save(user);
+    @Override
+    public String uploadProblemImage(Long problemId, MultipartFile[] files) throws Exception {
+        String urls = "";
+        for (MultipartFile file : files) {
+            String originalFileName = file.getOriginalFilename();
+            String matchedContentType = fileUtils.getContentTypeFromFileName(originalFileName);
+            Optional<ProblemImage> sameFileNameProblemImageOptional = problemImageRepository
+                    .findByFileName(originalFileName);
+            String saveFileName;
+            if (sameFileNameProblemImageOptional.isPresent()) {
+                saveFileName = fileUtils
+                        .getUniqueSaveFileName(sameFileNameProblemImageOptional.get().getSaveFileName());
+            } else {
+                saveFileName = originalFileName;
+            }
 
-        User user2 = new User();
-        user2.setEmail("korean@naver.com");
-        user2.setNickname("호호호");
-        user2.setPassword("3333");
-        user2.setRole("USER");
-        userRepository.save(user2);
+            if (!matchedContentType.startsWith("image/"))
+                throw new Exception("The file(s) is(are) not image format.");
 
-    }
+            ProblemImage problemImage = new ProblemImage();
+            Problem problem = new Problem();
+            problem.setId(problemId);
 
-    private void addProblemTypeAndLevelAndDataTypeAndLanguageSample() {
-        final ProblemLevel[] problemLevels = new ProblemLevel[] { new ProblemLevel(1), new ProblemLevel(2),
-                new ProblemLevel(3), new ProblemLevel(4) };
-
-        final ProblemType[] problemTypes = new ProblemType[] { new ProblemType("동적 계획법(Dynamic Programming)"),
-                new ProblemType("해시"), new ProblemType("정렬"), new ProblemType("완전 탐색"), new ProblemType("탐욕법"),
-                new ProblemType("힙(Heap)"), new ProblemType("스택/큐"), new ProblemType("깊이/너비 우선탐색(DFS/BFS)"),
-                new ProblemType("이분 탐색"), new ProblemType("그래프"), new ProblemType("기타") };
-
-        final DataType[] dataTypes = new DataType[] { new DataType("integer"), new DataType("integer_array"),
-                new DataType("long"), new DataType("long_array"), new DataType("double"), new DataType("double_array"),
-                new DataType("boolean"), new DataType("boolean_array"), new DataType("string"),
-                new DataType("string_array") };
-
-        final Language[] languages = new Language[] { new Language("cpp"), new Language("python3"),
-                new Language("java") };
-
-        problemLevelRepository.saveAll(Stream.of(problemLevels).collect(Collectors.toList()));
-        problemTypeRepository.saveAll(Stream.of(problemTypes).collect(Collectors.toList()));
-        dataTypeRepository.saveAll(Stream.of(dataTypes).collect(Collectors.toList()));
-        languageRepository.saveAll(Stream.of(languages).collect(Collectors.toList()));
-    }
-
-    @Test
-    public void testGetProblemMetaData() {
-        List<ProblemType> problemTypes = problemTypeRepository.findAll();
-        List<ProblemLevel> problemLevels = problemLevelRepository.findAll();
-        List<DataType> dataTypes = dataTypeRepository.findAll();
-        List<Language> languages = languageRepository.findAll();
-        assertTrue(problemTypes.size() > 0);
-        assertTrue(problemLevels.size() > 0);
-        assertTrue(dataTypes.size() > 0);
-        assertTrue(languages.size() > 0);
-    }
-
-    @Test
-    public void testRegisterOrUpdateProblem() throws Exception {
-        // registerOrUpdateProblemSample(1L, 1L, true);
-    }
-
-    @Test
-    public void testGetNewProblemId() {
-        Problem lastProblem = problemRepository.findFirstByOrderByIdDesc();
-        assertNotNull(lastProblem);
-        long nextProblemId = lastProblem.getId() + 1;
-        Problem reservedProblem = new Problem();
-        reservedProblem.setId(nextProblemId);
-        reservedProblem.setContent("");
-        reservedProblem.setCreator(null);
-        reservedProblem.setLimitExplain("");
-        reservedProblem.setMemoryLimit(0);
-        reservedProblem.setProblemLevel(null);
-        reservedProblem.setProblemType(null);
-        reservedProblem.setTimeLimit(0);
-        reservedProblem.setTitle("");
-        problemRepository.save(reservedProblem);
-        System.out.println("newId: " + nextProblemId);
-    }
-
-    @Test
-    public void testUploadProblemImage() throws Exception {
-        Long problemId = 1L;
-        String originalFileName = "sample.jpg";
-
-        String matchedContentType = fileUtils.getContentTypeFromFileName(originalFileName);
-        Optional<ProblemImage> sameFileNameProblemImageOptional = problemImageRepository
-                .findByFileName(originalFileName);
-        String saveFileName;
-        if (sameFileNameProblemImageOptional.isPresent()) {
-            saveFileName = fileUtils.getUniqueSaveFileName(sameFileNameProblemImageOptional.get().getSaveFileName());
-        } else {
-            saveFileName = originalFileName;
+            problemImage.setContentType(matchedContentType);
+            problemImage.setFileName(originalFileName);
+            problemImage.setSaveFileName(saveFileName);
+            problemImage.setProblem(problem);
+            problemImageRepository.save(problemImage);
         }
 
-        assertTrue(matchedContentType.startsWith("image/"));
-
-        ProblemImage problemImage = new ProblemImage();
-        Problem problem = new Problem();
-        problem.setId(problemId);
-
-        problemImage.setContentType(matchedContentType);
-        problemImage.setFileName(originalFileName);
-        problemImage.setSaveFileName(saveFileName);
-        problemImage.setProblem(problem);
-        problemImageRepository.save(problemImage);
+        return urls;
     }
 
-    @Test
-    public void testDeleteProblem() throws Exception {
-        Long problemId = 1L;
-        Long creatorId = 1L;
-        // 로그인되어있는 유저 정보
-        User authenticatedUser = userRepository.findById(creatorId).get();
-
+    @Override
+    public void deleteProblem(Long problemId, User authenticatedUser) throws Exception {
         // 문제를 만든 사람이 삭제하려는 사람과 일치하는지 확인한다.
         boolean isCreator = problemRepository.existsByIdAndCreator(problemId, authenticatedUser);
         if (!isCreator)
@@ -295,42 +231,11 @@ public class ProblemApiTest {
         List<ProblemImage> problemImages = problemImageRepository.findAllByProblem(problem);
         problemImages.stream().forEach(problemImage -> problemImage.getSaveFileName()/* delete file */);
         problemRepository.delete(problem);
-
     }
 
-    @Test
-    public void testSubmitProblemCode() throws Exception {
-        submitProblemCode(1L, 1L, 1L);
-        submitProblemCode(1L, 1L, 2L);
-        submitProblemCode(1L, 1L, 3L);
-    }
-
-    private String getSubmittedProblemCodeSample(Language language) {
-        String submittedCode;
-        switch (language.getName()) {
-            case "java":
-                submittedCode = "import java.util.Arrays;\nimport java.util.stream.Collectors;\nString solution(int[] array){try{Thread.sleep(10000);}catch(Exception e){}return Arrays.stream(array).mapToObj(String::valueOf).collect(Collectors.joining(\"-\"));}";
-                break;
-            case "python3":
-                submittedCode = "def solution(array):\n\treturn '-'.join(map(str, array))";
-                break;
-            case "cpp":
-                submittedCode = "#include <string>\n#include <vector>\n#include<iostream>\n#include <sstream>\n"
-                        + "using namespace std;\nstring solution(vector<int> array) {\n" + "stringstream ss;\n"
-                        + "for(size_t i = 0; i < array.size(); ++i)\n" + "{\n" + "if(i != 0)\n" + "{\n"
-                        + "ss << \"-\";\n" + "}\n" + "ss << array[i];\n" + "}return ss.str();}";
-                break;
-            default:
-                submittedCode = "";
-        }
-        return submittedCode;
-    }
-
-    private List<MarkResultDto> submitProblemCode(Long creatorId, Long problemId, Long languageId) throws Exception {
-
-        // 로그인되어있는 유저 정보
-        final User authenticatedUser = userRepository.findById(creatorId).get();
-
+    @Override
+    public List<MarkResultDto> submitProblemCode(Long problemId, Long languageId, String submittedCode,
+            User authenticatedUser) throws Exception {
         Optional<Language> languageOptional = languageRepository.findById(languageId);
         Optional<Problem> problemOptional = problemRepository.findById(problemId);
         if (!problemOptional.isPresent())
@@ -339,7 +244,7 @@ public class ProblemApiTest {
             throw new Exception("The language info is not correct");
         final Language language = languageOptional.get();
         final Problem problem = problemOptional.get();
-        final String submittedCode = getSubmittedProblemCodeSample(language);
+
         // 코드 생성 및 채점
         List<ProblemParameter> problemParameters = problemParameterRepository.findAllByProblemAndTableType(problem,
                 'a');
@@ -357,17 +262,11 @@ public class ProblemApiTest {
 
         List<MarkResultDto> markResultDtos = markCode(submittedCode, problem, language, problemParameters,
                 problemReturn, parameterValues, returnValues, authenticatedUser);
-        System.out.println(markResultDtos);
         return markResultDtos;
     }
 
-    @Test
-    public void testResetCode() throws Exception {
-        final Long problemId = 1L;
-        final Long languageId = 2L;
-        final Long creatorId = 1L;
-        // 로그인되어있는 유저 정보
-        final User authenticatedUser = userRepository.findById(creatorId).get();
+    @Override
+    public void resetCode(Long problemId, Long languageId, User authenticatedUser) throws Exception {
         // 코드 초기화시 솔루션과 코드 엔티티에 있는 내용 모두 삭제한다.
         // 코드 삭제하면 솔루션도 cascade로 삭제된다.
         Optional<Language> languageOptional = languageRepository.findById(languageId);
@@ -384,31 +283,21 @@ public class ProblemApiTest {
             Code code = codeOptional.get();
             codeRepository.delete(code);
         }
-
     }
 
-    // 내가 푼 문제 수 가져오기
-    @Test
-    public void testGetMyResolveCount() {
-        Long creatorId = 1L;
-        // 로그인되어있는 유저 정보
-        final User authenticatedUser = userRepository.findById(creatorId).get();
-        long userResolvedCount = solutionRepository.countProblemResolvedByCreator(authenticatedUser);
-        System.out.println(userResolvedCount);
+    @Override
+    public long getUserResolvedCount(User authenticatedUser) throws Exception {
+        return solutionRepository.countProblemResolvedByCreator(authenticatedUser);
     }
 
-    @Test
-    public void testGetProblemList() {
-        Map<String, Object> response = new HashMap<>();
-        Long creatorId = 1L;
-        // 로그인되어있는 유저 정보
-        final User authenticatedUser = userRepository.findById(creatorId).get();
+    @Override
+    public Map<String, Object> getProblemList(List<Long> typeIds, List<Long> levelIds, Integer page,
+            User authenticatedUser) throws Exception {
+        Map<String, Object> data = new HashMap<>();
         final String initValue = "";
-        final List<Long> typeIds = Stream.of(new Long[] { 1L }).collect(Collectors.toList());
-        final List<Long> levelIds = Stream.of(new Long[] { 1L, 2L, 3L, 4L }).collect(Collectors.toList());
-        final Integer page = 1;
-
-        assertTrue(page > 0);
+        if (page <= 0) {
+            throw new Exception("The page should > 0");
+        }
         final int numberOfShow = 5;
         Page<Problem> problemPage = problemRepository.findAllByProblemTypeIdInOrProblemLevelIdInAndContentNot(typeIds,
                 levelIds, initValue, PageRequest.of(page - 1, numberOfShow));
@@ -435,17 +324,14 @@ public class ProblemApiTest {
             problemDto.setLevel(problemLevelDto);
             problemDtos.add(problemDto);
         }
-        response.put("problems", problemDtos);
-        response.put("max_page", problemPage.getTotalPages());
+        data.put("problems", problemDtos);
+        data.put("max_page", problemPage.getTotalPages());
+        return data;
     }
 
-    @Test
-    public void testGetProblemDataAndCode() throws Exception {
-        final Long problemId = 1L;
-        final Long creatorId = 1L;
-        Map<String, Object> response = new HashMap<>();
-        // 로그인되어있는 유저 정보
-        final User authenticatedUser = userRepository.findById(creatorId).get();
+    @Override
+    public Map<String, Object> getProblemDataAndCode(Long problemId, User authenticatedUser) throws Exception {
+        Map<String, Object> data = new HashMap<>();
 
         Optional<Problem> problemOptional = problemRepository.findById(problemId);
         if (!problemOptional.isPresent())
@@ -478,9 +364,50 @@ public class ProblemApiTest {
             codeDtos.add(codeDto);
         }
 
-        response.put("problem", ProblemDataResponseDto);
-        response.put("codes", codeDtos);
-        System.out.println(response);
+        data.put("problem", ProblemDataResponseDto);
+        data.put("codes", codeDtos);
+        return null;
+    }
+
+    private void addParamterAndReturnAndTestcaseInfoFromTableInfo(Problem problem, InputOutputTableDto table,
+            char tableType) throws Exception {
+        List<ParameterDto> params = table.getParams();
+
+        for (ParameterDto parameterDto : params) {
+            ProblemParameter problemParameter = new ProblemParameter();
+            problemParameter.setTableType(tableType);
+            problemParameter.setDataType(new DataType(parameterDto.getDataType().getId()));
+            problemParameter.setName(parameterDto.getName());
+            problemParameter.setProblem(problem);
+            problemParameterRepository.save(problemParameter);
+        }
+
+        ReturnDto returnDto = table.getReturns();
+        ProblemReturn problemReturn = new ProblemReturn();
+        problemReturn.setTableType(tableType);
+        Optional<DataType> dataTypeOptional = dataTypeRepository.findById(returnDto.getDataType().getId());
+        if (!dataTypeOptional.isPresent()) {
+            throw new Exception("The data type info is not correct.");
+        }
+        problemReturn.setDataType(dataTypeOptional.get());
+        problemReturn.setProblem(problem);
+        problemReturnRepository.save(problemReturn);
+
+        List<TestcaseDto> testcases = table.getTestcases();
+        for (TestcaseDto testcase : testcases) {
+            ProblemTestcase problemTestcase = new ProblemTestcase();
+            problemTestcase.setTableType(tableType);
+            problemTestcase.setReturnValue(testcase.getReturns());
+            problemTestcase.setProblem(problem);
+            problemTestcaseRepository.save(problemTestcase);
+            for (String param : testcase.getParams()) {
+                ProblemParameterValue problemParameterValue = new ProblemParameterValue();
+                problemParameterValue.setValue(param);
+                problemParameterValue.setProblemTestcase(problemTestcase);
+                problemParameterValueRepository.save(problemParameterValue);
+            }
+
+        }
     }
 
     private List<MarkResultDto> markCode(String submittedCode, Problem problem, Language language,
@@ -577,96 +504,6 @@ public class ProblemApiTest {
         }
     }
 
-    private void addParamterAndReturnAndTestcaseInfoFromTableInfo(Problem problem, InputOutputTableDto table,
-            char tableType) throws Exception {
-        List<ParameterDto> params = table.getParams();
-
-        for (ParameterDto parameterDto : params) {
-            ProblemParameter problemParameter = new ProblemParameter();
-            problemParameter.setTableType(tableType);
-            problemParameter.setDataType(new DataType(parameterDto.getDataType().getId()));
-            problemParameter.setName(parameterDto.getName());
-            problemParameter.setProblem(problem);
-            problemParameterRepository.save(problemParameter);
-        }
-
-        ReturnDto returnDto = table.getReturns();
-        ProblemReturn problemReturn = new ProblemReturn();
-        problemReturn.setTableType(tableType);
-        Optional<DataType> dataTypeOptional = dataTypeRepository.findById(returnDto.getDataType().getId());
-        if (!dataTypeOptional.isPresent()) {
-            throw new Exception("The data type info is not correct.");
-        }
-        problemReturn.setDataType(dataTypeOptional.get());
-        problemReturn.setProblem(problem);
-        problemReturnRepository.save(problemReturn);
-
-        List<TestcaseDto> testcases = table.getTestcases();
-        for (TestcaseDto testcase : testcases) {
-            ProblemTestcase problemTestcase = new ProblemTestcase();
-            problemTestcase.setTableType(tableType);
-            problemTestcase.setReturnValue(testcase.getReturns());
-            problemTestcase.setProblem(problem);
-            problemTestcaseRepository.save(problemTestcase);
-            for (String param : testcase.getParams()) {
-                ProblemParameterValue problemParameterValue = new ProblemParameterValue();
-                problemParameterValue.setValue(param);
-                problemParameterValue.setProblemTestcase(problemTestcase);
-                problemParameterValueRepository.save(problemParameterValue);
-            }
-
-        }
-    }
-
-    private RegisterOrUpdateProblemRequestDto createRegisterOrUpdateProblemRequestDtoSample(Long problemId) {
-        RegisterOrUpdateProblemRequestDto request = new RegisterOrUpdateProblemRequestDto();
-        request.setProblemId(problemId);
-        request.setProblemTitle("배열을 하이폰으로 구분해서 스트링으로 나타내기");
-        request.setProblemTypeId(2L);
-        request.setLimitExplain("제한 사항");
-        request.setMemoryLimit(256);
-        request.setProblemLevelId(1L);
-        request.setTimeLimit(1000);
-        request.setProblemContent("문제 설명");
-        InputOutputTableDto table = new InputOutputTableDto();
-        ParameterDto parameterDto1 = new ParameterDto();
-
-        DataTypeDto paramDataTypeDto = new DataTypeDto();
-        paramDataTypeDto.setId(2L); // integer array
-        parameterDto1.setDataType(paramDataTypeDto);
-        parameterDto1.setName("param1");
-        List<ParameterDto> parameterDtos = new ArrayList<>();
-        parameterDtos.add(parameterDto1);
-        table.setParams(parameterDtos);
-
-        ReturnDto returnDto = new ReturnDto();
-
-        DataTypeDto returnDataTypeDto = new DataTypeDto();
-        returnDataTypeDto.setId(9L); // string
-        returnDto.setDataType(returnDataTypeDto);
-        table.setReturns(returnDto);
-
-        List<TestcaseDto> testcaseDtos = new ArrayList<>();
-        TestcaseDto testcaseDto = new TestcaseDto();
-        List<String> paramValues = new ArrayList<>();
-        paramValues.add("[5, 5, 5, 5]");
-        testcaseDto.setParams(paramValues);
-        testcaseDto.setReturns("\"5-5-5-5\"");
-        testcaseDtos.add(testcaseDto);
-
-        TestcaseDto testcaseDto2 = new TestcaseDto();
-        List<String> paramValues2 = new ArrayList<>();
-        paramValues2.add("[46, 13, 6, 79]");
-        testcaseDto2.setParams(paramValues2);
-        testcaseDto2.setReturns("\"46-13-6-79\"");
-        testcaseDtos.add(testcaseDto2);
-        table.setTestcases(testcaseDtos);
-
-        request.setAnswerTable(table);
-        request.setExampleTable(table);
-        return request;
-    }
-
     private ProblemDataResponseDto createProblemDataResponseDto(Problem problem, User creator) {
         ProblemDataResponseDto response = new ProblemDataResponseDto();
         response.setId(problem.getId());
@@ -746,4 +583,5 @@ public class ProblemApiTest {
         table.setTestcases(testcaseDtos);
         return table;
     }
+
 }

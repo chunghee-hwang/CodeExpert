@@ -21,7 +21,7 @@ public class CodeGenerateManager {
             case "python3":
                 return makePythonInitCode(problemParameters, problemReturn);
         }
-        return "에러가 발생했습니다.";
+        return "An error occurred while the code is initialized.";
     }
 
     private String makeCppInitCode(List<ProblemParameter> problemParameters, ProblemReturn problemReturn) {

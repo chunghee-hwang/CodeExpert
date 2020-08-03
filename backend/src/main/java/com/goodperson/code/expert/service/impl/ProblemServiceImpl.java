@@ -1,5 +1,8 @@
 package com.goodperson.code.expert.service.impl;
 
+import java.io.File;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -118,6 +121,7 @@ public class ProblemServiceImpl implements ProblemService {
     @Autowired
     private AccountService accountService;
 
+
     @Override
     @GraphQLQuery(name = "problemMetaData")
     public ProblemMetaDataDto getProblemMetaData() throws Exception {
@@ -131,31 +135,6 @@ public class ProblemServiceImpl implements ProblemService {
         problemMetaDataDto.setProblemLevels(problemLevels);
         problemMetaDataDto.setProblemTypes(problemTypes);
         return problemMetaDataDto;
-    }
-
-    @Override
-    @GraphQLQuery(name = "newProblemId")
-    public long getNewProblemId() throws Exception {
-        Problem lastProblem = problemRepository.findFirstByOrderByIdDesc();
-        long nextProblemId;
-        if (lastProblem == null) {
-            nextProblemId = 1;
-        } else {
-            nextProblemId = lastProblem.getId() + 1;
-        }
-
-        Problem reservedProblem = new Problem();
-        reservedProblem.setId(nextProblemId);
-        reservedProblem.setContent("");
-        reservedProblem.setCreator(null);
-        reservedProblem.setLimitExplain("");
-        reservedProblem.setMemoryLimit(0);
-        reservedProblem.setProblemLevel(null);
-        reservedProblem.setProblemType(null);
-        reservedProblem.setTimeLimit(0);
-        reservedProblem.setTitle("");
-        problemRepository.save(reservedProblem);
-        return nextProblemId;
     }
 
     @Override
@@ -184,7 +163,9 @@ public class ProblemServiceImpl implements ProblemService {
         ProblemLevel problemLevel = problemLevelOptional.get();
 
         Problem problem = new Problem();
-        problem.setId(problemId);
+        if(isUpdate){
+            problem.setId(problemId);
+        }
         problem.setTitle(request.getProblemTitle());
         problem.setContent(request.getProblemContent());
         problem.setLimitExplain(request.getLimitExplain());
@@ -200,40 +181,35 @@ public class ProblemServiceImpl implements ProblemService {
         InputOutputTableDto exampleTable = request.getExampleTable();
         addParamterAndReturnAndTestcaseInfoFromTableInfo(problem, answerTable, 'a');
         addParamterAndReturnAndTestcaseInfoFromTableInfo(problem, exampleTable, 'e');
-
         return problem;
     }
 
     @Override
-    public String uploadProblemImage(Long problemId, MultipartFile[] files) throws Exception {
-        String urls = "";
-        for (MultipartFile file : files) {
-            String originalFileName = file.getOriginalFilename();
+    public List<String> uploadProblemImage(MultipartFile[] files) throws Exception {
+        List<String> urls = new ArrayList<>();
+        File uploadedDirectory = fileUtils.getImageUploadDirectory();
+        for (MultipartFile multipartFile : files) {
+            String originalFileName = multipartFile.getOriginalFilename();
+            String savedFileName = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME) + fileUtils.getFileExtension(originalFileName);
             String matchedContentType = fileUtils.getContentTypeFromFileName(originalFileName);
             Optional<ProblemImage> sameFileNameProblemImageOptional = problemImageRepository
-                    .findByFileName(originalFileName);
-            String saveFileName;
+                    .findBySavedFileName(savedFileName);
             if (sameFileNameProblemImageOptional.isPresent()) {
-                saveFileName = fileUtils
-                        .getUniqueSaveFileName(sameFileNameProblemImageOptional.get().getSaveFileName());
-            } else {
-                saveFileName = originalFileName;
+                savedFileName = fileUtils
+                        .getUniqueSaveFileName(sameFileNameProblemImageOptional.get().getSavedFileName());
             }
-
             if (!matchedContentType.startsWith("image/"))
                 throw new Exception("The file(s) is(are) not image format.");
 
             ProblemImage problemImage = new ProblemImage();
-            Problem problem = new Problem();
-            problem.setId(problemId);
-
             problemImage.setContentType(matchedContentType);
             problemImage.setFileName(originalFileName);
-            problemImage.setSaveFileName(saveFileName);
-            problemImage.setProblem(problem);
+            problemImage.setSavedFileName(savedFileName);
             problemImageRepository.save(problemImage);
+            File savedFile = new File(uploadedDirectory, savedFileName);
+            multipartFile.transferTo(savedFile); // 파일 서버에 저장
+            urls.add("/images/"+savedFileName);
         }
-
         return urls;
     }
 
@@ -248,8 +224,8 @@ public class ProblemServiceImpl implements ProblemService {
         if (!problemOptional.isPresent())
             throw new Exception("The problem info is not correct.");
         Problem problem = problemOptional.get();
-        List<ProblemImage> problemImages = problemImageRepository.findAllByProblem(problem);
-        problemImages.stream().forEach(problemImage -> problemImage.getSaveFileName()/* delete file */);
+        // List<ProblemImage> problemImages = problemImageRepository.findAllByProblem(problem);
+        // problemImages.stream().forEach(problemImage -> problemImage.getSaveFileName()/* delete file */);
         problemRepository.delete(problem);
     }
 
@@ -307,8 +283,10 @@ public class ProblemServiceImpl implements ProblemService {
         }
     }
 
+    @GraphQLQuery(name="userResolvedProblemCount")
     @Override
-    public long getUserResolvedCount(User authenticatedUser) throws Exception {
+    public long getUserResolvedProblemCount() throws Exception {
+        User authenticatedUser = accountService.getAuthenticatedUser();
         return solutionRepository.countProblemResolvedByCreator(authenticatedUser);
     }
 
@@ -347,7 +325,7 @@ public class ProblemServiceImpl implements ProblemService {
             problemDtos.add(problemDto);
         }
         data.put("problems", problemDtos);
-        data.put("max_page", problemPage.getTotalPages());
+        data.put("maxPage", problemPage.getTotalPages());
         return data;
     }
 

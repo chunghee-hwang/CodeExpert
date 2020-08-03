@@ -1,9 +1,7 @@
 package com.goodperson.code.expert.controller.account;
 
-import java.util.Collections;
 import java.util.Objects;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
 import com.goodperson.code.expert.dto.UserRequestDto;
@@ -14,6 +12,7 @@ import com.goodperson.code.expert.security.JwtTokenRequest;
 import com.goodperson.code.expert.security.JwtTokenUtil;
 import com.goodperson.code.expert.service.AccountService;
 import com.goodperson.code.expert.utils.ErrorResponseManager;
+import com.goodperson.code.expert.utils.TokenCookieManager;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,19 +29,12 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class AccountController {
     @Value("${jwt.http.request.header}")
     private String tokenHeader;
-
-    @Value("${token.cookie.name}")
-    private String tokenCookieName;
-
-    @Value("${token.cookie.expiration.in.seconds}")
-    private int tokenCookieExpirationTime;
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -54,6 +46,8 @@ public class AccountController {
     @Autowired
     private ErrorResponseManager errorResponseManager;
 
+    @Autowired
+    private TokenCookieManager tokenCookieManager;
     //login
     @RequestMapping(value = "${jwt.get.token.url}", method = RequestMethod.POST)
     public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtTokenRequest authenticationRequest,
@@ -62,7 +56,7 @@ public class AccountController {
             authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
             final UserDetails userDetails = accountService.loadUserByUsername(authenticationRequest.getUsername());
             final String token = jwtTokenUtil.generateToken(userDetails);
-            addTokenToCookie(response, token);
+            tokenCookieManager.addTokenToCookie(response, token);
             UserResponseDto userDto = accountService.convertUserToResponseDto((User)userDetails);
             return new ResponseEntity<>(userDto, HttpStatus.OK);
         }
@@ -73,7 +67,7 @@ public class AccountController {
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletResponse response) throws Exception{
-        deleteTokenFromCookie(response);
+        tokenCookieManager.deleteTokenFromCookie(response);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -113,24 +107,11 @@ public class AccountController {
     public ResponseEntity<?> deleteAccount(HttpServletResponse response) throws Exception{
         try{
             accountService.deleteAccount();
-            deleteTokenFromCookie(response);
+            tokenCookieManager.deleteTokenFromCookie(response);
             return new ResponseEntity<>(HttpStatus.OK);
         }catch(Exception e){
             return new ResponseEntity<>(errorResponseManager.makeErrorResponse(e), HttpStatus.BAD_REQUEST);
         }
-    }
-
-    private void addTokenToCookie(HttpServletResponse response, String token) {
-        Cookie tokenCookie = new Cookie(tokenCookieName, token);
-        tokenCookie.setMaxAge(tokenCookieExpirationTime);
-        tokenCookie.setPath("/");
-        response.addCookie(tokenCookie);
-    }
-    private void deleteTokenFromCookie(HttpServletResponse response) {
-        Cookie tokenCookie = new Cookie(tokenCookieName, null);
-        tokenCookie.setMaxAge(0);
-        tokenCookie.setPath("/");
-        response.addCookie(tokenCookie);
     }
 
     @ExceptionHandler({ AuthenticationException.class })

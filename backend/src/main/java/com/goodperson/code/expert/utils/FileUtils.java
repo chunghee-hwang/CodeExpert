@@ -1,13 +1,18 @@
 package com.goodperson.code.expert.utils;
 
+import java.io.File;
 import java.net.URLConnection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 public class FileUtils {
+
+    @Value("${file.upload.directory.name}")
+    private String fileUploadDirectoryName;
 
     public String getContentTypeFromFileName(String fileName) {
         return URLConnection.guessContentTypeFromName(fileName);
@@ -31,14 +36,24 @@ public class FileUtils {
     public String getUniqueSaveFileName(String sameFileName) throws Exception {
         final String prefix = getFileNameExceptExtension(sameFileName);
         final String suffix = getFileExtension(sameFileName);
-        Matcher matcher = Pattern.compile("\\d+$").matcher(prefix);
+        Matcher matcher = Pattern.compile("_-_\\d+$").matcher(prefix);
         String uniqueName = "";
         if (matcher.find()) {
-            uniqueName = prefix.substring(0, matcher.start()) + (Integer.parseInt(matcher.group()) + 1) + suffix;
+            uniqueName = prefix.substring(0, matcher.start()+3) + (Integer.parseInt(matcher.group().replace("_-_","")) + 1) + suffix;
         } else {
-            uniqueName = prefix + "2" + suffix;
+            uniqueName = prefix + "_-_2" + suffix;
         }
         return uniqueName;
 
+    }
+
+    public File getImageUploadDirectory(){
+        final String homeDirectoryPath = System.getProperty("user.home");
+        File uploadedDirectory = new File(homeDirectoryPath, fileUploadDirectoryName);
+        if(!uploadedDirectory.exists())
+        {
+            uploadedDirectory.mkdirs();
+        }
+        return uploadedDirectory;
     }
 }

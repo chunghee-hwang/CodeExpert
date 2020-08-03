@@ -125,6 +125,7 @@ public class AccountServiceImpl implements AccountService
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<User> userOptional = userRepository.findByEmail(username);
         if (!userOptional.isPresent()) {
+            
             throw new UsernameNotFoundException(String.format("The user info or password is not correct: '%s'.", username));
         }
         return userOptional.get();

@@ -8,7 +8,7 @@ import { showErrorAlert } from 'utils/AlertManager';
 // 참고: http://spectrumdig.blogspot.com/2015/06/contenteditable-html-wyswyg.html
 function ProblemExplainEditor(props) {
     const [range, setRange] = useState(null);
-    const { problem_id, is_success, is_progressing, images, which, problem_actions } = props;
+    const { is_success, is_progressing, urls, which, problem_actions } = props;
 
     // 이미지가 추가될 경우 커서 위치 다시 불러옴
     const loadRange = useCallback(() => {
@@ -17,45 +17,42 @@ function ProblemExplainEditor(props) {
         window.getSelection().addRange(range);
     }, [range]);
 
-    const addImages = useCallback((images) => {
+    const addImages = useCallback(urls => 
+    {
         const editor = document.querySelector('#problem-explain-editor');
-        if (images) {
-            let span = document.createElement('span');
-
-            for (let i = 0; i < images.length; i++) {
-                const url = images[i].url;
-                let img = document.createElement('img');
-                img.setAttribute('src', url);
-                img.setAttribute('class', 'attached_pic');
-                span.append(img);
-                span.appendChild(document.createTextNode('  '))
-            }
-
-            editor.focus();
-            // editor 태그에 focus가 잡힐 때까지 기다리기 위해 이벤트큐에 이 코드 push
-            setTimeout(() => {
-                loadRange();
-                if (window.getSelection) {
-                    let sel = window.getSelection();
-                    if (sel.getRangeAt && sel.rangeCount) {
-                        let range = sel.getRangeAt(0);
-                        range.insertNode(span);
-                        window.getSelection().removeAllRanges();
-                    }
-                }
-            }, 10);
+        let span = document.createElement('span');
+        for (let i = 0; i < urls.length; i++) {
+            const url = urls[i];
+            console.log(url);
+            let img = document.createElement('img');
+            img.setAttribute('src', url);
+            img.setAttribute('class', 'attached_pic');
+            span.append(img);
+            span.appendChild(document.createTextNode('\n'))
         }
+
+        editor.focus();
+        // editor 태그에 focus가 잡힐 때까지 기다리기 위해 이벤트큐에 이 코드 push
+        setTimeout(() => {
+            loadRange();
+            if (window.getSelection) {
+                let sel = window.getSelection();
+                if (sel.getRangeAt && sel.rangeCount) {
+                    let range = sel.getRangeAt(0);
+                    range.insertNode(span);
+                    window.getSelection().removeAllRanges();
+                }
+            }
+            
+        }, 10);
+        
     }, [loadRange]);
     useEffect(() => {
-        // const editor = document.querySelector('#problem-explain-editor');
-        // editor.addEventListener('blur', (e) => {
-        //     saveRange();
-        // });
         if (which === 'upload_problem_image') {
             if (!is_progressing) {
                 if (is_success) {
-                    if (images) {
-                        addImages(images);
+                    if(urls) {
+                        addImages(urls);
                         problem_actions.clearProblemImageCache();
                     }
                 } else {
@@ -64,7 +61,7 @@ function ProblemExplainEditor(props) {
             }
 
         }
-    }, [addImages, images, is_progressing, is_success, which, problem_actions]);
+    }, [addImages, urls, is_progressing, is_success, which, problem_actions]);
     return (
         <div className="editor_container">
             <div className="pic_control text-right">
@@ -94,7 +91,7 @@ function ProblemExplainEditor(props) {
          fetch(서버 업로드) 후 url 생성 
          */
         if (files) {
-            problem_actions.uploadProblemImage({ problem_id, files });
+            problem_actions.uploadProblemImage({ files });
             // event.target.value = '';
         }
     }

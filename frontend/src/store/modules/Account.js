@@ -1,6 +1,7 @@
-import { put, takeEvery, call } from 'redux-saga/effects';
-import { handleActions, createAction } from 'redux-actions';
+import { createAction, handleActions } from 'redux-actions';
+import { call, put, takeEvery } from 'redux-saga/effects';
 import * as AccountApi from 'utils/api/AccountApi';
+import {USER_NAME_SESSION_ATTRIBUTE_NAME} from 'utils/AuthenticateManager';
 import { getErrorMessageFromResponse } from 'utils/ErrorHandler';
 const CHANGE_NICKNAME = 'CHANGE_NICKNAME';
 const CHANGE_NICKNAME_SUCCESS = 'CHANGE_NICKNAME_SUCCESS';
@@ -37,9 +38,10 @@ export const signup = createAction(SIGNUP);
 export const clearWhich = createAction(CLEAR_WHICH);
 
 function* changeNicknameSaga(action) {
-    yield 
+    yield
     try {
         const response = yield call(AccountApi.changeNickname, action.payload);
+        yield call(saveUserDataToSessionStorage, response.data);
         yield put({ type: CHANGE_NICKNAME_SUCCESS, payload: response.data });
     }
     catch (e) {
@@ -48,7 +50,7 @@ function* changeNicknameSaga(action) {
 }
 
 function* changePasswordSaga(action) {
-    yield 
+    yield
     try {
         const response = yield call(AccountApi.changePassword, action.payload);
         yield put({ type: CHANGE_PASSWORD_SUCCESS, payload: response.data });
@@ -58,9 +60,9 @@ function* changePasswordSaga(action) {
 }
 
 function* deleteAccountSaga(action) {
-    yield 
     try {
         const response = yield call(AccountApi.deleteAccount, action.payload);
+        yield call(removeUserDataFromSessionStorage);
         yield put({ type: DELETE_ACCOUNT_SUCCESS, payload: response.data });
     } catch (e) {
         yield put({ type: DELETE_ACCOUNT_FAILURE, payload: getErrorMessageFromResponse(e) });
@@ -68,10 +70,10 @@ function* deleteAccountSaga(action) {
 }
 
 function* loginSaga(action) {
-    yield 
+    yield
     try {
         const response = yield call(AccountApi.login, action.payload);
-        yield sessionStorage.setItem('user', JSON.stringify(response.data));
+        yield call(saveUserDataToSessionStorage, response.data);
         yield put({ type: LOGIN_SUCCESS, payload: response.data });
     } catch (e) {
         yield put({ type: LOGIN_FAILURE, payload: getErrorMessageFromResponse(e) });
@@ -79,10 +81,9 @@ function* loginSaga(action) {
 }
 
 function* logoutSaga(action) {
-    yield 
+    yield
     try {
         const response = yield call(AccountApi.logout, action.payload);
-        yield sessionStorage.removeItem('user');
         yield put({ type: LOGOUT_SUCCESS, payload: response.data });
     } catch (e) {
         yield put({ type: LOGOUT_FAILURE, payload: getErrorMessageFromResponse(e) });
@@ -90,7 +91,7 @@ function* logoutSaga(action) {
 }
 
 function* signupSaga(action) {
-    yield 
+    yield
     try {
         const response = yield call(AccountApi.signUp, action.payload);
         yield put({ type: SIGNUP_SUCCESS, payload: response.data });
@@ -108,8 +109,18 @@ export function* accountSaga() {
     yield takeEvery(SIGNUP, signupSaga);
 }
 
+const saveUserDataToSessionStorage = user => {
+    sessionStorage.setItem(USER_NAME_SESSION_ATTRIBUTE_NAME, JSON.stringify(user));
+}
+const removeUserDataFromSessionStorage = () => {
+    sessionStorage.removeItem(USER_NAME_SESSION_ATTRIBUTE_NAME);
+}
+const getUserDataFromSessionStorage = ()=>{
+    return sessionStorage.getItem(USER_NAME_SESSION_ATTRIBUTE_NAME);
+}
+
 // 새로 고침하면 유저 데이터가 store에서 날아가는 거 방지. 세션 스토리지기 때문에 서버의 세션이 만료되면 같이 만료됨.
-let user_in_storage = sessionStorage.getItem('user');
+let user_in_storage = getUserDataFromSessionStorage();
 const initial_state = {
     is_progressing: false,
     is_success: false,

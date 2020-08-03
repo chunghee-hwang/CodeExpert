@@ -26,10 +26,6 @@ const DELETE_PROBLEM = "DELETE_PROBLEM"; // 만든 문제 삭제
 const DELETE_PROBLEM_SUCCESS = "DELETE_PROBLEM_SUCCESS";
 const DELETE_PROBLEM_FAILURE = "DELETE_PROBLEM_FAILURE";
 
-const GET_NEW_PROBLEM_ID = "GET_NEW_PROBLEM_ID" // 문제 새로 등록 시, 새 문제 아이디 가져오기
-const GET_NEW_PROBLEM_ID_SUCCESS = "GET_NEW_PROBLEM_ID_SUCCESS";
-const GET_NEW_PROBLEM_ID_FAILURE = "GET_NEW_PROBLEM_ID_FAILURE";
-
 const UPLOAD_PROBLEM_IMAGE = "UPLOAD_PROBLEM_IMAGE"; // 문제 이미지 업로드
 const UPLOAD_PROBLEM_IMAGE_SUCCESS = "UPLOAD_PROBLEM_IMAGE_SUCCESS";
 const UPLOAD_PROBLEM_IMAGE_FAILURE = "UPLOAD_PROBLEM_IMAGE_FAILURE";
@@ -49,6 +45,10 @@ const GET_PROBLEM_LIST = "GET_PROBLEM_LIST"; //문제 목록 가져오기
 const GET_PROBLEM_LIST_SUCCESS = "GET_PROBLEM_LIST_SUCCESS";
 const GET_PROBLEM_LIST_FAILURE = "GET_PROBLEM_LIST_FAILURE";
 
+const GET_USER_RESOLVED_PROBLEM_COUNT = "GET_USER_RESOLVED_PROBLEM_COUNT"; //사용자가 푼 문제 수 가져오기
+const GET_USER_RESOLVED_PROBLEM_COUNT_SUCCESS = "GET_USER_RESOLVED_PROBLEM_COUNT_SUCCESS";
+const GET_USER_RESOLVED_PROBLEM_COUNT_FAILURE = "GET_USER_RESOLVED_PROBLEM_COUNT_FAILURE";
+
 const CLEAR_PROBLEM_LIST = "CLEAR_PROBLEM_LIST"; // 문제 목록 초기화
 
 
@@ -58,11 +58,11 @@ export const getProblemDataAndCode = createAction(GET_PROBLEM_DATA_AND_CODE, dat
 export const registerProblem = createAction(REGISTER_PROBLEM, data => data);
 export const updateProblem = createAction(UPDATE_PROBLEM, data => data);
 export const deleteProblem = createAction(DELETE_PROBLEM, data => data);
-export const getNewProblemId = createAction(GET_NEW_PROBLEM_ID);
 export const uploadProblemImage = createAction(UPLOAD_PROBLEM_IMAGE, data => data);
 export const submitProblemCode = createAction(SUBMIT_PROBLEM_CODE, data => data);
 export const resetProblemCode = createAction(RESET_PROBLEM_CODE, data => data);
 export const getProblemList = createAction(GET_PROBLEM_LIST, data => data);
+export const getUserResolvedProblemCount = createAction(GET_USER_RESOLVED_PROBLEM_COUNT);
 export const clearProblemImageCache = createAction(CLEAR_PROBLEM_IMAGE_CACHE);
 export const clearProblemList = createAction(CLEAR_PROBLEM_LIST);
 export const clearSubmitResults = createAction(CLEAR_SUBMIT_RESULTS);
@@ -131,17 +131,6 @@ function* deleteProblemSaga(action) {
     }
 }
 
-function* getNewProblemIdSaga(action) {
-    yield 
-    try {
-        const response = yield call(ProblemApi.getNewProblemId, action.payload);
-        yield put({ type: GET_NEW_PROBLEM_ID_SUCCESS, payload: response });
-    }
-    catch (e) {
-        yield put({ type: GET_NEW_PROBLEM_ID_FAILURE, payload: getErrorMessageFromResponse(e) });
-    }
-}
-
 function* uploadProblemImageSaga(action) {
     yield 
     try {
@@ -176,13 +165,20 @@ function* resetProblemCodeSaga(action) {
 }
 
 function* getProblemListSaga(action) {
-    yield 
     try {
         const response = yield call(ProblemApi.getProblemList, action.payload);
         yield put({ type: GET_PROBLEM_LIST_SUCCESS, payload: response });
     }
     catch (e) {
         yield put({ type: GET_PROBLEM_LIST_FAILURE, payload: getErrorMessageFromResponse(e) });
+    }
+}
+function* getUserResolvedProblemCountSaga(action){
+    try{
+        const response = yield call(ProblemApi.getUserResolvedProblemCount);
+        yield put({ type: GET_USER_RESOLVED_PROBLEM_COUNT_SUCCESS, payload: response });
+    }catch(e){
+        yield put({ type: GET_USER_RESOLVED_PROBLEM_COUNT_FAILURE, payload: getErrorMessageFromResponse(e) });
     }
 }
 
@@ -193,11 +189,11 @@ export function* problemSaga() {
     yield takeEvery(REGISTER_PROBLEM, registerProblemSaga);
     yield takeEvery(UPDATE_PROBLEM, updateProblemSaga);
     yield takeEvery(DELETE_PROBLEM, deleteProblemSaga);
-    yield takeEvery(GET_NEW_PROBLEM_ID, getNewProblemIdSaga);
     yield takeEvery(UPLOAD_PROBLEM_IMAGE, uploadProblemImageSaga);
     yield takeEvery(SUBMIT_PROBLEM_CODE, submitProblemCodeSaga);
     yield takeEvery(RESET_PROBLEM_CODE, resetProblemCodeSaga);
     yield takeEvery(GET_PROBLEM_LIST, getProblemListSaga);
+    yield takeEvery(GET_USER_RESOLVED_PROBLEM_COUNT, getUserResolvedProblemCountSaga);
 }
 
 const initial_state = {
@@ -374,37 +370,6 @@ export default handleActions({
         };
     },
 
-    [GET_NEW_PROBLEM_ID]: (state, action) => {
-        return {
-            ...state,
-            is_progressing: true,
-            is_success: false,
-            which: 'get_new_problem_id'
-        }
-    },
-    [GET_NEW_PROBLEM_ID_SUCCESS]: (state, action) => {
-        return {
-            is_progressing: false,
-            is_success: true,
-            which: 'get_new_problem_id',
-            data: {
-                ...state.data,
-                new_problem_id: action.payload.problem_id
-            }
-        };
-    },
-    [GET_NEW_PROBLEM_ID_FAILURE]: (state, action) => {
-        return {
-            is_progressing: false,
-            is_success: false,
-            which: 'get_new_problem_id',
-            data: {
-                ...state.data,
-                fail_cause: action.payload
-            },
-        };
-    },
-
     [UPLOAD_PROBLEM_IMAGE]: (state, action) => {
         return {
             ...state,
@@ -420,7 +385,7 @@ export default handleActions({
             which: 'upload_problem_image',
             data: {
                 ...state.data,
-                images: action.payload.images
+                urls: action.payload.data.urls
             }
         };
     },
@@ -442,7 +407,7 @@ export default handleActions({
             which: 'upload_problem_image',
             data: {
                 ...state.data,
-                images: null
+                urls: null
             }
         };
     },
@@ -530,6 +495,33 @@ export default handleActions({
         };
     },
     [GET_PROBLEM_LIST_FAILURE]: (state, action) => {
+        return {
+            ...state,
+            is_progressing: false,
+            is_success: false,
+        };
+    },
+    [GET_USER_RESOLVED_PROBLEM_COUNT]: (state, action) => {
+        return {
+            ...state,
+            is_progressing: true,
+            is_success: false,
+            data: {
+                ...state.data,
+            }
+        }
+    },
+    [GET_USER_RESOLVED_PROBLEM_COUNT_SUCCESS]: (state, action) => {
+        return {
+            is_progressing: false,
+            is_success: true,
+            data: {
+                ...state.data,
+                user_resolved_problem_count: action.payload.userResolvedProblemCount
+            }
+        };
+    },
+    [GET_USER_RESOLVED_PROBLEM_COUNT_FAILURE]: (state, action) => {
         return {
             ...state,
             is_progressing: false,

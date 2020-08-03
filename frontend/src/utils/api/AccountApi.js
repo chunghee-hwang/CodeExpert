@@ -29,10 +29,7 @@ export const login = ({ email, password }) => {
 }
 
 export const logout = () => {
-    return axios.post("/logout").then((response)=>{
-        AuthenticateManager.logout();
-        return response;
-    });
+    return axios.post("/logout");
 }
 
 export const signUp = (data) => {

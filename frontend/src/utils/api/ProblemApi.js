@@ -1,5 +1,6 @@
 import languages from 'constants/Languages';
 import axios from 'axios';
+import {graphQLFetch} from 'utils/GraphQLFetchManager';
 /**
  * 문제 유형, 레벨 목록 가져오기
  */
@@ -123,45 +124,24 @@ export const getProblemData = ({ problem_id }) => {
 }
 
 /**
- * 문제 새로 등록 시, 새 문제 아이디 가져오기
- */
-export const getNewProblemId = () => {
-    return {
-        problem_id: 2
-    }
-}
-
-/**
  * 문제 이미지 업로드 요청
  */
-export const uploadProblemImage = ({ problem_id, files }) => {
-    console.log({ problem_id, files });
+export const uploadProblemImage = ({ files }) => {
+    console.log({ files });
     const formData = new FormData();
-    formData.append('problem_id', problem_id);
     Array.from(files).forEach(file => {
         formData.append('files[]', file);
     });
     return axios({
         method: 'post',
-        url: '/upload_problem_image',
+        url: '/uploadProblemImage',
         data: formData,
         headers: {
             'Content-Type': 'multipart/form-data'
         }
     });
     // return {
-    //     images: [
-    //         {
-    //             problem_id: 2, // 이미지가 속한 문제의 아이디
-    //             id: 13, // 이미지 아이디
-    //             url: 'https://image.shutterstock.com/image-photo/bright-spring-view-cameo-island-260nw-1048185397.jpg'
-    //         },
-    //         {
-    //             problem_id: 2,
-    //             id: 14,
-    //             url: 'https://www.codingfactory.net/wp-content/uploads/abc.jpg'
-    //         }
-    //     ]
+    //     urls: "/images/example.png, /images/example2.png,"
     // }
 }
 
@@ -415,4 +395,8 @@ export const getProblemList = ({ type_ids, level_ids, page }) => {
         max_page: 10
 
     }
+}
+
+export const getUserResolvedProblemCount=()=>{
+    return graphQLFetch("{ userResolvedProblemCount }", "POST");
 }

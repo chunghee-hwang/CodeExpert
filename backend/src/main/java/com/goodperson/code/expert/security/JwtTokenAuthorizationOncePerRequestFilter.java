@@ -8,10 +8,11 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.goodperson.code.expert.utils.TokenCookieManager;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -33,27 +34,19 @@ public class JwtTokenAuthorizationOncePerRequestFilter extends OncePerRequestFil
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
 
-    @Value("${jwt.http.request.header}")
-    private String tokenHeader;
-
-    @Value("${token.cookie.name}")
-    private String tokenCookieName;
+    @Autowired
+    private TokenCookieManager tokenCookieManager;
 
     // 쿠키에서 토큰을 불러오는 방식
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         logger.debug("Authentication Request for '{}'", request.getRequestURL());
-        Cookie[] cookies = request.getCookies();
+        Cookie tokenCookie = tokenCookieManager.getTokenCookie(request);
         String username = null;
         String jwtToken = null;
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals(tokenCookieName)) {
-                    jwtToken = cookie.getValue();
-                    break;
-                }
-            }
+        if(tokenCookie !=null){
+            jwtToken = tokenCookie.getValue();
         }
         if (jwtToken != null) {
             try {
@@ -69,14 +62,21 @@ public class JwtTokenAuthorizationOncePerRequestFilter extends OncePerRequestFil
         logger.debug("JWT_TOKEN_USERNAME_VALUE '{}'", username);
         UserDetails userDetails = null;
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            userDetails = this.accountService.loadUserByUsername(username);
-            if (jwtTokenUtil.validateToken(jwtToken, userDetails)) {
-                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities());
-                usernamePasswordAuthenticationToken
-                        .setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+            try{
+                userDetails = this.accountService.loadUserByUsername(username);
+                if (jwtTokenUtil.validateToken(jwtToken, userDetails)) {
+                    UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
+                            userDetails, null, userDetails.getAuthorities());
+                    usernamePasswordAuthenticationToken
+                            .setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+                }
             }
+            catch(Exception e){
+                tokenCookieManager.deleteTokenFromCookie(response);
+                response.sendError(400, "The token is invalid. Please refresh page.");
+            }
+            
         }
         filterChain.doFilter(request, response);
 

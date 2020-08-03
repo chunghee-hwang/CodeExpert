@@ -15,11 +15,11 @@ import java.util.stream.Stream;
 
 import com.goodperson.code.expert.dto.CodeDto;
 import com.goodperson.code.expert.dto.DataTypeDto;
-import com.goodperson.code.expert.dto.ProblemDataResponseDto;
 import com.goodperson.code.expert.dto.InputOutputTableDto;
 import com.goodperson.code.expert.dto.LanguageDto;
 import com.goodperson.code.expert.dto.MarkResultDto;
 import com.goodperson.code.expert.dto.ParameterDto;
+import com.goodperson.code.expert.dto.ProblemDataResponseDto;
 import com.goodperson.code.expert.dto.ProblemDto;
 import com.goodperson.code.expert.dto.ProblemLevelDto;
 import com.goodperson.code.expert.dto.ProblemTypeDto;
@@ -194,10 +194,10 @@ public class ProblemApiTest {
                 new ProblemType(8L, "깊이/너비 우선탐색(DFS/BFS)"), new ProblemType(9L, "이분 탐색"), new ProblemType(10L, "그래프"),
                 new ProblemType(11L, "기타") };
 
-        final DataType[] dataTypes = new DataType[] { new DataType(1L, "integer"), new DataType(2L, "integer_array"),
-                new DataType(3L, "long"), new DataType(4L, "long_array"), new DataType(5L, "double"),
-                new DataType(6L, "double_array"), new DataType(7L, "boolean"), new DataType(8L, "boolean_array"),
-                new DataType(9L, "string"), new DataType(10L, "string_array") };
+        final DataType[] dataTypes = new DataType[] { new DataType(1L, "integer"), new DataType(2L, "integerArray"),
+                new DataType(3L, "long"), new DataType(4L, "longArray"), new DataType(5L, "double"),
+                new DataType(6L, "doubleArray"), new DataType(7L, "boolean"), new DataType(8L, "booleanArray"),
+                new DataType(9L, "string"), new DataType(10L, "stringArray") };
 
         final Language[] languages = new Language[] { new Language(1L, "cpp"), new Language(2L, "python3"),
                 new Language(3L, "java") };
@@ -251,10 +251,10 @@ public class ProblemApiTest {
 
         String matchedContentType = fileUtils.getContentTypeFromFileName(originalFileName);
         Optional<ProblemImage> sameFileNameProblemImageOptional = problemImageRepository
-                .findByFileName(originalFileName);
+                .findBySavedFileName(originalFileName);
         String saveFileName;
         if (sameFileNameProblemImageOptional.isPresent()) {
-            saveFileName = fileUtils.getUniqueSaveFileName(sameFileNameProblemImageOptional.get().getSaveFileName());
+            saveFileName = fileUtils.getUniqueSaveFileName(sameFileNameProblemImageOptional.get().getSavedFileName());
         } else {
             saveFileName = originalFileName;
         }
@@ -267,8 +267,7 @@ public class ProblemApiTest {
 
         problemImage.setContentType(matchedContentType);
         problemImage.setFileName(originalFileName);
-        problemImage.setSaveFileName(saveFileName);
-        problemImage.setProblem(problem);
+        problemImage.setSavedFileName(saveFileName);
         problemImageRepository.save(problemImage);
     }
 
@@ -287,8 +286,8 @@ public class ProblemApiTest {
         if (!problemOptional.isPresent())
             throw new Exception("The problem info is not correct.");
         Problem problem = problemOptional.get();
-        List<ProblemImage> problemImages = problemImageRepository.findAllByProblem(problem);
-        problemImages.stream().forEach(problemImage -> problemImage.getSaveFileName()/* delete file */);
+        // List<ProblemImage> problemImages = problemImageRepository.findAllByProblem(problem);
+        // problemImages.stream().forEach(problemImage -> problemImage.getSaveFileName()/* delete file */);
         problemRepository.delete(problem);
 
     }
@@ -388,8 +387,8 @@ public class ProblemApiTest {
         Long creatorId = 1L;
         // 로그인되어있는 유저 정보
         final User authenticatedUser = userRepository.findById(creatorId).get();
-        long userResolvedCount = solutionRepository.countProblemResolvedByCreator(authenticatedUser);
-        System.out.println(userResolvedCount);
+        long userResolvedProblemCount = solutionRepository.countProblemResolvedByCreator(authenticatedUser);
+        System.out.println(userResolvedProblemCount);
     }
 
     @Test
@@ -431,7 +430,7 @@ public class ProblemApiTest {
             problemDtos.add(problemDto);
         }
         response.put("problems", problemDtos);
-        response.put("max_page", problemPage.getTotalPages());
+        response.put("maxPage", problemPage.getTotalPages());
     }
 
     @Test

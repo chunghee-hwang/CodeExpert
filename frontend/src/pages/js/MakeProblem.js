@@ -51,11 +51,6 @@ function MakeProblem(props) {
                     const level_select_idx = Array.from(level_select.children).findIndex(option => Number(option.dataset.level_id) === data.problem_data.level.id);
                     if (level_select_idx !== -1) level_select.selectedIndex = level_select_idx;
                 }
-            } else {
-                //- request new problem id if problem id is null
-                if (!data.new_problem_id) {
-                    problem_actions.getNewProblemId();
-                }
             }
 
             if (which === 'register_problem') {
@@ -184,7 +179,7 @@ function MakeProblem(props) {
                             <input type="hidden" name={input_names.problem_type_id} value="1"></input>
                         </Form.Group>
                         <Form.Label className="font-weight-bold">문제 설명</Form.Label>
-                        <ProblemExplainEditor content={data.problem_data ? data.problem_data.explain : null} problem_id={data.new_problem_id ? data.new_problem_id : problem_id} images={data.images} is_progressing={is_progressing} which={which} is_success={is_success} problem_actions={problem_actions} />
+                        <ProblemExplainEditor content={data.problem_data ? data.problem_data.explain : null} problem_id={data.new_problem_id ? data.new_problem_id : problem_id} urls={data.urls} is_progressing={is_progressing} which={which} is_success={is_success} problem_actions={problem_actions} />
                         {testcase_set_table}
                         {io_ex_table}
 

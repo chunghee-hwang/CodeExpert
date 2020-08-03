@@ -23,7 +23,8 @@ function ProblemList(props) {
         //-request problem list and page info using type, level, page
         // fetch(`/problems?type=${type_ids.join(',')}&level=${levels.join(',')}&page=${page}`);
         if (!data.problems_and_max_page) problem_actions.getProblemList({ type_ids: Array.from(type_filters), level_ids: Array.from(level_filters), page });
-    }, [props.history, data.problems_and_max_page, user, page, level_filters, problem_actions, type_filters]);
+        if(!data.user_resolved_problem_count) problem_actions.getUserResolvedProblemCount();
+    }, [props.history, data.problems_and_max_page, data.user_resolved_problem_count, user, page, level_filters, problem_actions, type_filters]);
 
     const updateProblemList = () => {
         problem_actions.clearProblemList();
@@ -102,13 +103,12 @@ function ProblemList(props) {
         }
         updateProblemList();
     }
-
     return (
         <div className="problem-page align-center">
             <div className="left-panel">
                 <div className="user-info">
                     <div className="panel-title">{user ? unescape(user.nickname) : 'N/A'}</div>
-                    <h6>해결한 문제 수: {user ? user.resolved_problem_count : 'N/A'}</h6>
+                    <h6>해결한 문제 수: {data.user_resolved_problem_count}</h6>
                 </div>
 
                 <div className="problem-types">

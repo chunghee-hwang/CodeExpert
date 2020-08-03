@@ -76,17 +76,24 @@
 			<version>1.8</version>
 		</dependency>
 
-		<!-- <dependency>
-			<groupId>io.leangen.graphql</groupId>
-			<artifactId>graphql-spqr-spring-boot-starter</artifactId>
-			<version>0.0.4</version>
+		<!-- graphql -->
+		<dependency>
+			<groupId>com.graphql-java</groupId>
+			<artifactId>graphql-spring-boot-starter</artifactId>
+			<version>5.0.2</version>
 		</dependency>
-
 		<dependency>
 			<groupId>com.graphql-java</groupId>
 			<artifactId>graphql-java-tools</artifactId>
 			<version>5.2.4</version>
-		</dependency> -->
+		</dependency>
+		<!-- graphql -->
+		  <dependency>
+			<groupId>io.leangen.graphql</groupId>
+			<artifactId>graphql-spqr-spring-boot-starter</artifactId>
+			<version>0.0.4</version>
+		  </dependency>
+
 
 		<!-- MultipartFile upload -->
 		<!-- https://mvnrepository.com/artifact/commons-fileupload/commons-fileupload -->

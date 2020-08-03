@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 import com.goodperson.code.expert.dto.CodeDto;
@@ -57,11 +56,18 @@ import com.goodperson.code.expert.utils.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import io.leangen.graphql.annotations.GraphQLMutation;
+import io.leangen.graphql.annotations.GraphQLQuery;
+import io.leangen.graphql.metadata.strategy.query.AnnotatedResolverBuilder;
+import io.leangen.graphql.spqr.spring.annotations.GraphQLApi;
+import io.leangen.graphql.spqr.spring.annotations.WithResolverBuilder;
+
 @Service
+@GraphQLApi
+@WithResolverBuilder(AnnotatedResolverBuilder.class)
 public class ProblemServiceImpl implements ProblemService {
     @Autowired
     private ProblemTypeRepository problemTypeRepository;
@@ -109,6 +115,7 @@ public class ProblemServiceImpl implements ProblemService {
     private FileUtils fileUtils;
 
     @Override
+    @GraphQLQuery(name = "problemMetaData")
     public ProblemMetaDataDto getProblemMetaData() throws Exception {
         List<ProblemType> problemTypes = problemTypeRepository.findAll();
         List<ProblemLevel> problemLevels = problemLevelRepository.findAll();
@@ -123,6 +130,7 @@ public class ProblemServiceImpl implements ProblemService {
     }
 
     @Override
+    @GraphQLQuery(name = "newProblemId")
     public long getNewProblemId() throws Exception {
         Problem lastProblem = problemRepository.findFirstByOrderByIdDesc();
         long nextProblemId;
@@ -147,6 +155,7 @@ public class ProblemServiceImpl implements ProblemService {
     }
 
     @Override
+    @GraphQLMutation(name = "registerOrUpdateProblem")
     public Problem registerOrUpdateProblem(RegisterOrUpdateProblemRequestDto request, boolean isUpdate,
             User authenticatedUser) throws Exception {
         final Long problemId = request.getProblemId();
@@ -157,8 +166,17 @@ public class ProblemServiceImpl implements ProblemService {
                 throw new Exception("You are not the creator of this problem.");
         }
 
-        ProblemType type = new ProblemType();
-        type.setId(1L);
+        Optional<ProblemType> problemTypeOptional = problemTypeRepository.findById(request.getProblemTypeId());
+        Optional<ProblemLevel> problemLevelOptional = problemLevelRepository.findById(request.getProblemLevelId());
+
+        if (!problemTypeOptional.isPresent()) {
+            throw new Exception("The problem type info is not correct");
+        }
+        if (!problemLevelOptional.isPresent()) {
+            throw new Exception("The problem level info is not correct");
+        }
+        ProblemType problemType = problemTypeOptional.get();
+        ProblemLevel problemLevel = problemLevelOptional.get();
 
         Problem problem = new Problem();
         problem.setId(problemId);
@@ -167,11 +185,7 @@ public class ProblemServiceImpl implements ProblemService {
         problem.setLimitExplain(request.getLimitExplain());
         problem.setTimeLimit(request.getTimeLimit());
         problem.setMemoryLimit(request.getMemoryLimit());
-        ProblemLevel problemLevel = new ProblemLevel();
-        problemLevel.setId(request.getProblemLevelId());
         problem.setProblemLevel(problemLevel);
-        ProblemType problemType = new ProblemType();
-        problemType.setId(request.getProblemTypeId());
         problem.setProblemType(problemType);
         problem.setCreator(authenticatedUser);
 
@@ -376,7 +390,11 @@ public class ProblemServiceImpl implements ProblemService {
         for (ParameterDto parameterDto : params) {
             ProblemParameter problemParameter = new ProblemParameter();
             problemParameter.setTableType(tableType);
-            problemParameter.setDataType(new DataType(parameterDto.getDataType().getId()));
+            Optional<DataType> dataTypeOptional = dataTypeRepository.findById(parameterDto.getDataType().getId());
+            if (!dataTypeOptional.isPresent()) {
+                throw new Exception("The datatype info is not correct.");
+            }
+            problemParameter.setDataType(dataTypeOptional.get());
             problemParameter.setName(parameterDto.getName());
             problemParameter.setProblem(problem);
             problemParameterRepository.save(problemParameter);
@@ -444,18 +462,7 @@ public class ProblemServiceImpl implements ProblemService {
         }
 
         /** Busy waiting */
-        waitForAllTestcasesMarked(testcaseSize, markResults).get();
-
-        if (markResults.size() == testcaseSize) {
-            saveCodeMarkResult(markResults, submittedCode, authenticatedUser, problem, language);
-        } else {
-            throw new Exception("An error occured when marking the codes");
-        }
-        return markResults;
-    }
-
-    @Async
-    private CompletableFuture<Boolean> waitForAllTestcasesMarked(int testcaseSize, List<MarkResultDto> markResults) {
+        // waitForAllTestcasesMarked(testcaseSize, markResults).get();
         while (markResults.size() != testcaseSize) {
             try {
                 Thread.sleep(1000);
@@ -463,7 +470,12 @@ public class ProblemServiceImpl implements ProblemService {
                 break;
             }
         }
-        return CompletableFuture.completedFuture(true);
+        if (markResults.size() == testcaseSize) {
+            saveCodeMarkResult(markResults, submittedCode, authenticatedUser, problem, language);
+        } else {
+            throw new Exception("An error occured when marking the codes");
+        }
+        return markResults;
     }
 
     private void saveCodeMarkResult(List<MarkResultDto> results, String submittedCode, User authenticatedUser,
@@ -583,5 +595,4 @@ public class ProblemServiceImpl implements ProblemService {
         table.setTestcases(testcaseDtos);
         return table;
     }
-
 }

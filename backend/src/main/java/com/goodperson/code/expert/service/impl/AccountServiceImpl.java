@@ -101,5 +101,4 @@ public class AccountServiceImpl implements AccountService {
         }
         return convertUserToDto(userOptional.get());
     }
-
 }

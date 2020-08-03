@@ -2,7 +2,7 @@ import { input_names } from "constants/FormInputNames";
 import { password_regex, nickname_regex } from './Regexes';
 export function validateNewNickname(form, prev_nickname) {
     const values = {
-        [input_names.nickname]: form[input_names.nickname].value.trim(),
+        [input_names.new_nickname]: form[input_names.new_nickname].value.trim(),
     }
     let validation = {
         is_valid: false,
@@ -10,21 +10,21 @@ export function validateNewNickname(form, prev_nickname) {
         failed_element: null,
         values
     }
-    validation.failed_element = form[input_names.nickname];
-    if (!values[input_names.nickname]) {
+    validation.failed_element = form[input_names.new_nickname];
+    if (!values[input_names.new_nickname]) {
         validation.fail_cause = "닉네임을 입력해주세요";
     }
-    else if (unescape(prev_nickname) === values[input_names.nickname]) {
+    else if (unescape(prev_nickname) === values[input_names.new_nickname]) {
         validation.fail_cause = "이전 닉네임과 새 닉네임이 일치합니다.";
     }
-    else if (!nickname_regex.test(values[input_names.nickname])) {
+    else if (!nickname_regex.test(values[input_names.new_nickname])) {
         validation.fail_cause = "닉네임은 2자 이상 15자 이내로, 영어, 자음 모음 합쳐진 한글, 숫자만 입력 가능합니다.";
     }
     else {
         validation.is_valid = true;
     }
 
-    validation.values[input_names.nickname] = escape(values[input_names.nickname]);
+    validation.values[input_names.new_nickname] = escape(values[input_names.new_nickname]);
     return validation;
 }
 

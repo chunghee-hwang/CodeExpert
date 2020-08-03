@@ -42,7 +42,7 @@ function SignupForm(props) {
             <Form id="signupform" action={paths.actions.signup} className="form" onSubmit={e => e.preventDefault()}>
                 <Form.Group >
                     <Form.Label>아이디</Form.Label>
-                    <Form.Control name={input_names.id} type="text" placeholder="아이디를 입력하세요." maxLength="50" />
+                    <Form.Control name={input_names.email} type="text" placeholder="아이디를 입력하세요." maxLength="50" />
                 </Form.Group>
                 <Form.Group >
                     <Form.Label>닉네임</Form.Label>

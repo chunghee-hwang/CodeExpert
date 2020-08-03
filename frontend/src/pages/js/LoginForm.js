@@ -6,6 +6,7 @@ import { input_names } from 'constants/FormInputNames'
 import { validateLogin } from 'utils/validation/LoginValidation';
 import { showErrorAlert, showValidationFailureAlert } from 'utils/AlertManager';
 import { moveToPage } from 'utils/PageControl';
+import AuthenticateManager from 'utils/AuthenticateManager';
 
 function LoginForm(props) {
     const { is_progressing,
@@ -27,14 +28,14 @@ function LoginForm(props) {
 
 
     useEffect(() => {
-        if (user) {
+        if (user && AuthenticateManager.isUserLoggedIn()) {
             moveToPage(props.history, paths.pages.problem_list);
         }
         if (which === 'login') {
             let success_or_error_what = '로그인';
             if (!is_progressing) {
                 if (is_success) {
-                    moveToPage(props.history, paths.pages.problem_list);
+                    if(AuthenticateManager.isUserLoggedIn())moveToPage(props.history, paths.pages.problem_list);
                 } else {
                     showErrorAlert({ error_what: success_or_error_what, text: data });
                 }
@@ -50,7 +51,7 @@ function LoginForm(props) {
             <Form id="loginform" action={paths.actions.login} className="form" onSubmit={e => e.preventDefault()}>
                 <Form.Group>
                     <Form.Label>아이디</Form.Label>
-                    <Form.Control name={input_names.id} type="text" placeholder="아이디를 입력하세요." maxLength="50" />
+                    <Form.Control name={input_names.email} type="text" placeholder="아이디를 입력하세요." maxLength="50" />
                 </Form.Group>
                 <Form.Group>
                     <Form.Label>비밀번호</Form.Label>

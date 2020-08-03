@@ -1,18 +1,25 @@
 package com.goodperson.code.expert.model;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.Collections;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -23,7 +30,8 @@ import lombok.ToString;
 @ToString
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-public class User {
+public class User implements UserDetails {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -35,9 +43,7 @@ public class User {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String password;
 
-    // 영어가 아닌 글자 입력시 unescape 함수로 한글이 변환되서 넘어오기 때문에 6(인코딩된 한 글자 길이)X15(닉네임 최대 길이)로
-    // 설정
-    @Column(nullable = false, unique = true, length = 15)
+    @Column(nullable = false, unique = true, columnDefinition = "TEXT")
     private String nickname;
 
     @JsonIgnore
@@ -52,4 +58,52 @@ public class User {
     @JsonIgnore
     @LastModifiedDate
     private LocalDateTime modifiedDate;
+
+    @Transient
+    private static final long serialVersionUID = 5339379087483636295L;
+
+    @Transient
+    private Collection<? extends GrantedAuthority> authorities;
+
+    @JsonIgnore
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.singletonList(new SimpleGrantedAuthority(this.role));
+    }
+
+    @JsonIgnore
+    @Override
+    public String getUsername() {
+        return this.email;
+    }
+
+    @JsonIgnore
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @JsonIgnore
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @JsonIgnore
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @JsonIgnore
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
+    @JsonIgnore
+    @Override
+    public String getPassword() {
+        return this.password;
+    }
 }

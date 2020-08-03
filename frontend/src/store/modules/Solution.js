@@ -1,4 +1,4 @@
-import { delay, put, takeEvery, call } from 'redux-saga/effects';
+import { put, takeEvery, call } from 'redux-saga/effects';
 import { handleActions, createAction } from 'redux-actions';
 import * as SolutionApi from 'utils/api/SolutionApi';
 import { getErrorMessageFromResponse } from 'utils/ErrorHandler';
@@ -33,7 +33,7 @@ export const deleteComment = createAction(DELETE_COMMENT, data => data);
 export const likeOrCancelLike = createAction(LIKE_OR_CANCEL_LIKE, data => data);
 
 function* getOthersSolutionsSaga(action) {
-    yield delay(1000);
+    yield 
     try {
         const response = yield call(SolutionApi.getOthersSolutions, action.payload);
         yield put({ type: GET_OTHERS_SOLUTIONS_SUCCESS, payload: response });
@@ -43,7 +43,7 @@ function* getOthersSolutionsSaga(action) {
     }
 }
 function* registerCommentSaga(action) {
-    yield delay(1000);
+    yield 
     try {
         const response = yield call(SolutionApi.registerComment, action.payload);
         yield put({ type: REGISTER_COMMENT_SUCCESS, payload: response });
@@ -54,7 +54,7 @@ function* registerCommentSaga(action) {
 }
 
 function* updateCommentSaga(action) {
-    yield delay(1000);
+    yield 
     try {
         const response = yield call(SolutionApi.updateComment, action.payload);
         yield put({ type: UPDATE_COMMENT_SUCCESS, payload: response });
@@ -65,7 +65,7 @@ function* updateCommentSaga(action) {
 }
 
 function* deleteCommentSaga(action) {
-    yield delay(1000);
+    yield 
     try {
         const response = yield call(SolutionApi.deleteComment, action.payload);
         yield put({ type: DELETE_COMMENT_SUCCESS, payload: response });
@@ -76,9 +76,8 @@ function* deleteCommentSaga(action) {
 }
 
 function* likeOrCancelLikeSaga(action) {
-    yield delay(1000);
+    yield 
     try {
-        debugger;
         const response = yield call(SolutionApi.likeOrCancelLike, action.payload);
         yield put({ type: LIKE_OR_CANCEL_LIKE_SUCCESS, payload: response });
     }

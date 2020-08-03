@@ -12,27 +12,24 @@ import com.goodperson.code.expert.model.User;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface ProblemService {
-    ProblemMetaDataDto getProblemMetaData() throws Exception;
+        ProblemMetaDataDto getProblemMetaData() throws Exception;
 
-    long getNewProblemId() throws Exception;
+        long getNewProblemId() throws Exception;
 
-    Problem registerOrUpdateProblem(RegisterOrUpdateProblemRequestDto request, boolean isUpdate, User authenticatedUser)
-            throws Exception;
+        Problem registerOrUpdateProblem(RegisterOrUpdateProblemRequestDto request, boolean isUpdate) throws Exception;
 
-    String uploadProblemImage(Long problemId, MultipartFile[] files) throws Exception;
+        String uploadProblemImage(Long problemId, MultipartFile[] files) throws Exception;
 
-    void deleteProblem(Long problemId, User authenticatedUser) throws Exception;
+        void deleteProblem(Long problemId) throws Exception;
 
-    List<MarkResultDto> submitProblemCode(Long problemId, Long languageId, String code, User authenticatedUser)
-            throws Exception;
+        List<MarkResultDto> submitProblemCode(Long problemId, Long languageId, String code) throws Exception;
 
-    void resetCode(Long problemId, Long languageId, User authenticatedUser) throws Exception;
+        void resetCode(Long problemId, Long languageId) throws Exception;
 
-    long getUserResolvedCount(User authenticatedUser) throws Exception;
+        long getUserResolvedCount(User authenticatedUser) throws Exception;
 
-    Map<String, Object> getProblemList(List<Long> typeIds, List<Long> levelIds, Integer page, User authenticatedUser)
-            throws Exception;
+        Map<String, Object> getProblemList(List<Long> typeIds, List<Long> levelIds, Integer page) throws Exception;
 
-    Map<String, Object> getProblemDataAndCode(Long problemId, User authenticatedUser) throws Exception;
+        Map<String, Object> getProblemDataAndCode(Long problemId) throws Exception;
 
 }

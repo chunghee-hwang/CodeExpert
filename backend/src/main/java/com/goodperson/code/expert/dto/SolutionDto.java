@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 public class SolutionDto {
     private Long id;
-    private UserDto user;
+    private UserRequestDto user;
     private String code;
     private LanguageDto language;
     private LikesDto likes;

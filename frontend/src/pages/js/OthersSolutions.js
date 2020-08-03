@@ -9,8 +9,9 @@ import LikeBtn from 'components/LikeBtn';
 import Comments from 'components/Comments';
 import { getIntegerPathParameter, moveToPage } from 'utils/PageControl';
 import LoadingScreen from 'components/LoadingScreen';
+import AuthenticateManager from 'utils/AuthenticateManager';
 function OthersSolutions(props) {
-    const problem_id = getIntegerPathParameter(useParams, 'problem_id');
+    const problem_id = getIntegerPathParameter(useParams, 'problemId');
     const [page, setPage] = useState(1);
     const { user } = props.account;
     const { solution_actions, problem_actions } = props;
@@ -18,7 +19,8 @@ function OthersSolutions(props) {
     const { data: problem_data } = props.problem;
     const [language_id, setLanguageId] = useState(null);
     useEffect(() => {
-        if (!user || !problem_id) {
+        if (!user || !problem_id || !AuthenticateManager.isUserLoggedIn()) {
+            
             moveToPage(props.history, paths.pages.login_form);
             return;
         }
@@ -69,7 +71,7 @@ function OthersSolutions(props) {
         return solution_data.others_solutions.solutions.reduce((accumulator, solution, idx) => {
             accumulator.push(
                 <div key={idx} className="others-solution">
-                    <h5 className="font-weight-bold">{solution.user.name}</h5>
+                    <h5 className="font-weight-bold">{unescape(solution.user.nickname)}</h5>
                     <div id={`code-viewer${idx}`} className="code-viewer" data-solution_idx={idx}>
                     </div>
                     <div className="others-solution-like">

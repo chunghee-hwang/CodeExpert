@@ -40,7 +40,7 @@ function Comments(props) {
         return comments.reduce((accumulator, comment, idx) => {
             accumulator.push(
                 <div key={idx} className="others-solution-comment-container mb-2">
-                    <span className="others-solution-comment-username font-weight-bold">{comment.user.name}</span>
+                    <span className="others-solution-comment-username font-weight-bold">{unescape(comment.user.nickname)}</span>
                     <span className="others-solution-comment-timestamp"><Moment date={comment.timestamp} format="YYYY-MM-DD HH:mm" /></span>
                     <span className="others-solution-comment-content">
                         {

@@ -1,18 +1,22 @@
 package com.goodperson.code.expert.service;
 
-import com.goodperson.code.expert.dto.UserDto;
+import com.goodperson.code.expert.dto.UserRequestDto;
+import com.goodperson.code.expert.dto.UserResponseDto;
 import com.goodperson.code.expert.model.User;
 
-public interface AccountService {
-    UserDto login(String email, String password) throws Exception;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
-    UserDto signUp(String email, String nickname, String password, String passwordCheck) throws Exception;
+public interface AccountService extends UserDetailsService{
+    UserResponseDto signUp(UserRequestDto userRequestDto) throws Exception;
 
-    UserDto changeNickname(User authenticatedUser, String newNickname) throws Exception;
+    UserResponseDto changeNickname(UserRequestDto userRequestDto) throws Exception;
 
-    UserDto changePassword(User authenticatedUser, String password, String newPassword, String newPasswordCheck)
+    UserResponseDto changePassword(UserRequestDto userRequestDto)
             throws Exception;
 
-    void deleteAccount(User authenticatedUser) throws Exception;
+    void deleteAccount() throws Exception;
 
+    User getAuthenticatedUser() throws Exception;
+
+    UserResponseDto convertUserToResponseDto(User user);
 }

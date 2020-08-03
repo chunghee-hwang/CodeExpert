@@ -5,6 +5,7 @@ import { Pagination } from 'react-bootstrap';
 import { paths } from 'constants/Paths';
 import LoadingScreen from 'components/LoadingScreen';
 import { moveToPage } from 'utils/PageControl';
+import AuthenticateManager from 'utils/AuthenticateManager';
 function ProblemList(props) {
     const [page, setPage] = useState(1);
     const { user } = props.account;
@@ -14,7 +15,7 @@ function ProblemList(props) {
     const [type_filters, setTypeFilters] = useState(new Set());
 
     useEffect(() => {
-        if (!user) {
+        if (!user || !AuthenticateManager.isUserLoggedIn()) {
             moveToPage(props.history, paths.pages.login_form);
             return;
         }
@@ -97,7 +98,7 @@ function ProblemList(props) {
         if (input.checked) {
             setTypeFilters(type_filters => new Set(type_filters).add(Number(input.dataset.type_id)));
         } else {
-            setLevelFilters(type_filters => new Set([...type_filters].filter(type_filter => type_filter !== Number(input.dataset.type_id))));
+            setTypeFilters(type_filters => new Set([...type_filters].filter(type_filter => type_filter !== Number(input.dataset.type_id))));
         }
         updateProblemList();
     }
@@ -106,7 +107,7 @@ function ProblemList(props) {
         <div className="problem-page align-center">
             <div className="left-panel">
                 <div className="user-info">
-                    <div className="panel-title">{user ? user.nickname : 'N/A'}</div>
+                    <div className="panel-title">{user ? unescape(user.nickname) : 'N/A'}</div>
                     <h6>해결한 문제 수: {user ? user.resolved_problem_count : 'N/A'}</h6>
                 </div>
 

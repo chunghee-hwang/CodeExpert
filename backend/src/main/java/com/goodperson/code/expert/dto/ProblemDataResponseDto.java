@@ -24,5 +24,5 @@ public class ProblemDataResponseDto {
 
     private InputOutputTableDto exampleTable;
 
-    private UserDto creator;
+    private UserRequestDto creator;
 }

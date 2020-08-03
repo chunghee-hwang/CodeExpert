@@ -1,4 +1,4 @@
-package com.goodperson.code.expert.controller;
+package com.goodperson.code.expert.controller.problem;
 
 import java.util.HashMap;
 import java.util.Map;

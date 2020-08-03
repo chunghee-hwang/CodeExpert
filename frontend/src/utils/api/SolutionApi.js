@@ -13,7 +13,7 @@ export const getOthersSolutions = ({ problem_id, language_id, page }) => {
                     id: 2,
                     user: {
                         id: 2,
-                        name: '사용자2'
+                        nickname: '사용자2'
                     },
                     code: "int[] solution(String param1, String param2)\n{\n\treturn new int[]{50, 10}\n}",
                     language: {
@@ -40,7 +40,7 @@ export const getOthersSolutions = ({ problem_id, language_id, page }) => {
                     id: 1,
                     user: {
                         id: 1,
-                        name: '사용자1'
+                        nickname: '사용자1'
                     },
                     code: "int[] solution(String param1, String param2)\n{\n\treturn new int[]{1, 2};\n}",
                     language: {
@@ -56,7 +56,7 @@ export const getOthersSolutions = ({ problem_id, language_id, page }) => {
                             id: 1,
                             user: {
                                 id: 1,
-                                name: '사용자2',
+                                nickname: '사용자2',
                             },
                             timestamp: new Date(),
                             content: '정말 간단하네요!'
@@ -65,7 +65,7 @@ export const getOthersSolutions = ({ problem_id, language_id, page }) => {
                             id: 2,
                             user: {
                                 id: 2,
-                                name: '사용자3',
+                                nickname: '사용자3',
                             },
                             timestamp: new Date(),
                             content: 'map 함수가 뭔지 찾아봐야겠네요.'
@@ -74,7 +74,7 @@ export const getOthersSolutions = ({ problem_id, language_id, page }) => {
                             id: 3,
                             user: {
                                 id: 3,
-                                name: '사용자3',
+                                nickname: '사용자3',
                             },
                             timestamp: new Date(),
                             content: 'sort와 sorted 함수의 차이가 뭔가요?'
@@ -84,7 +84,7 @@ export const getOthersSolutions = ({ problem_id, language_id, page }) => {
                     id: 2,
                     user: {
                         id: 2,
-                        name: '사용자2'
+                        nickname: '사용자2'
                     },
                     code: "int[] solution(String param1, String param2)\n{\n\treturn new int[]{50, 10}\n}",
                     language: {
@@ -111,7 +111,7 @@ export const registerComment = ({ comment_content, solution_id }) => {
             id: 3,
             user: {
                 id: 1,
-                name: '사용자5',
+                nickname: '사용자5',
             },
             timestamp: new Date(),
             content: comment_content
@@ -125,7 +125,7 @@ export const updateComment = ({ comment_id, comment_content }) => {
             id: comment_id,
             user: {
                 id: 1,
-                name: '사용자5',
+                nickname: '사용자5',
             },
             timestamp: new Date(),
             content: comment_content

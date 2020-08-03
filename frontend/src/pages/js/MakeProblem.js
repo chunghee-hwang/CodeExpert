@@ -15,6 +15,7 @@ import 'pages/css/Form.css';
 import 'pages/css/MakeProblem.css';
 import LoadingScreen from 'components/LoadingScreen';
 import { moveToPage } from 'utils/PageControl';
+import AuthenticateManager from 'utils/AuthenticateManager';
 function MakeProblem(props) {
     const { user } = props.account;
     const { data, which, is_progressing, is_success } = props.problem;
@@ -23,16 +24,18 @@ function MakeProblem(props) {
     const is_registering_or_updating = (which === 'register_problem' || which === 'update_problem') && is_progressing;
     const is_deleting = (which === 'delete_problem') && is_progressing;
     useEffect(() => {
-        if (!user) {
+        if (!user || !AuthenticateManager.isUserLoggedIn()) {
             moveToPage(props.history, paths.pages.login_form);
             return;
         } else if (!is_progressing) {
             //- request get problem_types, levels
             if (!data.problem_meta_data) problem_actions.getProblemMetaData();
-
             //- request get problem data if problem_id is not null 
             if (problem_id) {
-                if (!data.problem_data) problem_actions.getProblemData({ problem_id });
+                if (!data.problem_data) {
+                    problem_actions.getProblemData({ problem_id }); 
+                    return;
+                }
 
                 // check the problem is made by same user.
                 else if (data.problem_data.creator.id !== user.id) {

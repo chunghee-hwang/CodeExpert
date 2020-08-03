@@ -1,10 +1,11 @@
 export const input_names =
 {
     // user info.
-    id: "id",
+    email: "email",
     password: "password",
     password_check: "password_check",
     nickname: "nickname",
+    new_nickname:"new_nickname",
     new_password: "new_password",
     new_password_check: "new_password_check",
 

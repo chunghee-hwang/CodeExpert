@@ -7,6 +7,7 @@ import { input_names } from 'constants/FormInputNames';
 import { validateNewNickname, validateNewPassword } from 'utils/validation/AccountManagementValidation';
 import { showSuccessAlert, showErrorAlert, showValidationFailureAlert, showWarningAlert } from 'utils/AlertManager';
 import { moveToPage } from 'utils/PageControl';
+import AuthenticateManager from 'utils/AuthenticateManager';
 function AccountManagement(props) {
     const { is_progressing,
         is_success,
@@ -14,7 +15,7 @@ function AccountManagement(props) {
         which, account_actions, user } = props;
     useEffect(() => {
         let success_or_error_what = null;
-        if (!user) {
+        if (!user || !AuthenticateManager.isUserLoggedIn()) {
             moveToPage(props.history, paths.pages.login_form);
             return;
         }
@@ -72,10 +73,6 @@ function AccountManagement(props) {
             }
         });
     }
-
-
-
-
     return (
         <div>
             <h1 className="text-center">계정 관리</h1>
@@ -85,12 +82,12 @@ function AccountManagement(props) {
                     <Form id="nicknameform" action={paths.actions.change_nickname} className="form" onSubmit={e => e.preventDefault()}>
                         <Form.Group>
                             <Form.Label>아이디</Form.Label>
-                            <h6>{user ? user.name : 'N/A'}</h6>
+                            <h6>{user ? user.email : 'N/A'}</h6>
                         </Form.Group>
                         <Form.Group>
                             <Form.Label>닉네임</Form.Label>
 
-                            <Form.Control name={input_names.nickname}
+                            <Form.Control name={input_names.new_nickname}
                                 defaultValue={user ? unescape(user.nickname) : 'N/A'} type="text" placeholder="닉네임을 입력하세요." maxLength="50" />
                         </Form.Group>
                         {which === 'nickname' && is_progressing ?

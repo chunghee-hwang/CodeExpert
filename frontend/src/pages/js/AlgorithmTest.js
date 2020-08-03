@@ -9,14 +9,15 @@ import Media from 'react-media';
 import { paths } from 'constants/Paths';
 import { getIntegerPathParameter, moveToPage } from 'utils/PageControl';
 import { showWarningAlert } from 'utils/AlertManager';
+import AuthenticateManager from 'utils/AuthenticateManager';
 function AlgorithmTest(props) {
     const { user } = props.account;
     const { is_progressing, data, which } = props.problem;
     const { problem_actions } = props;
     const [code, setCode] = useState(null);
-    const problem_id = getIntegerPathParameter(useParams, 'problem_id');
+    const problem_id = getIntegerPathParameter(useParams, 'problemId');
     useEffect(() => {
-        if (!user) {
+        if (!user || !AuthenticateManager.isUserLoggedIn()) {
             moveToPage(props.history, paths.pages.login_form);
         }
         else if (problem_id) {

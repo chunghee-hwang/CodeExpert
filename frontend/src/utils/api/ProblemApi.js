@@ -265,7 +265,7 @@ export const registerProblem = (data) => {
     [input_names.answer_table],
     [input_names.example_table],
     */
-    return axios.post("/register_problem", data);
+    return axios.post("/registerProblem", data);
 
 }
 

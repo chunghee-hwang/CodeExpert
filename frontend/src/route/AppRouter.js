@@ -15,7 +15,7 @@ function AppRouter() {
     return (
         <Switch>
             <Route exact path={paths.pages.root}>
-                <Redirect to={paths.pages.problem_list} />
+                <Redirect to={paths.pages.problem_list}></Redirect>
             </Route>
             <Route path={paths.pages.make_problem_form} component={MakeProblemContainer} />
             <Route path={paths.pages.problem_list} component={ProblemListContainer} />
@@ -24,7 +24,7 @@ function AppRouter() {
             <Route path={paths.pages.account_management} component={AccountManagementContainer} />
             <Route path={paths.pages.algorithm_test.full} component={AlgorithmTestContainer} />
             <Route path={paths.pages.others_solutions.full} component={OthersSolutionsContainer} />
-            <Route path={paths.actions.logout} component={LogoutManager}></Route>
+            <Route path={paths.actions.logout} component={LogoutManager} />
             <Route path={paths.pages.root} component={NotFound} />
         </Switch >
     );

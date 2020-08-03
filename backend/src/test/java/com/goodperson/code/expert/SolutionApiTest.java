@@ -13,7 +13,7 @@ import com.goodperson.code.expert.dto.LikesDto;
 import com.goodperson.code.expert.dto.OthersSolutionsDto;
 import com.goodperson.code.expert.dto.ProblemDto;
 import com.goodperson.code.expert.dto.SolutionDto;
-import com.goodperson.code.expert.dto.UserDto;
+import com.goodperson.code.expert.dto.UserRequestDto;
 import com.goodperson.code.expert.model.Code;
 import com.goodperson.code.expert.model.Language;
 import com.goodperson.code.expert.model.Problem;
@@ -130,8 +130,8 @@ public class SolutionApiTest {
         return languageDto;
     }
 
-    private UserDto convertUserToDto(User user) {
-        UserDto userDto = new UserDto();
+    private UserRequestDto convertUserToDto(User user) {
+        UserRequestDto userDto = new UserRequestDto();
         userDto.setId(user.getId());
         userDto.setNickname(user.getNickname());
         return userDto;

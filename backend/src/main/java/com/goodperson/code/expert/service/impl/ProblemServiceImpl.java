@@ -21,7 +21,7 @@ import com.goodperson.code.expert.dto.ProblemTypeDto;
 import com.goodperson.code.expert.dto.RegisterOrUpdateProblemRequestDto;
 import com.goodperson.code.expert.dto.ReturnDto;
 import com.goodperson.code.expert.dto.TestcaseDto;
-import com.goodperson.code.expert.dto.UserDto;
+import com.goodperson.code.expert.dto.UserRequestDto;
 import com.goodperson.code.expert.model.Code;
 import com.goodperson.code.expert.model.DataType;
 import com.goodperson.code.expert.model.Language;
@@ -47,6 +47,7 @@ import com.goodperson.code.expert.repository.ProblemReturnRepository;
 import com.goodperson.code.expert.repository.ProblemTestcaseRepository;
 import com.goodperson.code.expert.repository.ProblemTypeRepository;
 import com.goodperson.code.expert.repository.SolutionRepository;
+import com.goodperson.code.expert.service.AccountService;
 import com.goodperson.code.expert.service.ProblemService;
 import com.goodperson.code.expert.utils.CodeGenerateManager;
 import com.goodperson.code.expert.utils.CompileManager;
@@ -114,6 +115,9 @@ public class ProblemServiceImpl implements ProblemService {
     @Autowired
     private FileUtils fileUtils;
 
+    @Autowired
+    private AccountService accountService;
+
     @Override
     @GraphQLQuery(name = "problemMetaData")
     public ProblemMetaDataDto getProblemMetaData() throws Exception {
@@ -156,9 +160,10 @@ public class ProblemServiceImpl implements ProblemService {
 
     @Override
     @GraphQLMutation(name = "registerOrUpdateProblem")
-    public Problem registerOrUpdateProblem(RegisterOrUpdateProblemRequestDto request, boolean isUpdate,
-            User authenticatedUser) throws Exception {
+    public Problem registerOrUpdateProblem(RegisterOrUpdateProblemRequestDto request, boolean isUpdate)
+            throws Exception {
         final Long problemId = request.getProblemId();
+        User authenticatedUser = accountService.getAuthenticatedUser();
         if (isUpdate) {
             // 문제를 수정할 땐 문제를 만든 사람이 일치하는지 확인한다.
             boolean isCreator = problemRepository.existsByIdAndCreator(problemId, authenticatedUser);
@@ -233,8 +238,9 @@ public class ProblemServiceImpl implements ProblemService {
     }
 
     @Override
-    public void deleteProblem(Long problemId, User authenticatedUser) throws Exception {
+    public void deleteProblem(Long problemId) throws Exception {
         // 문제를 만든 사람이 삭제하려는 사람과 일치하는지 확인한다.
+        User authenticatedUser = accountService.getAuthenticatedUser();
         boolean isCreator = problemRepository.existsByIdAndCreator(problemId, authenticatedUser);
         if (!isCreator)
             throw new Exception("You are not the creator of this problem.");
@@ -248,8 +254,9 @@ public class ProblemServiceImpl implements ProblemService {
     }
 
     @Override
-    public List<MarkResultDto> submitProblemCode(Long problemId, Long languageId, String submittedCode,
-            User authenticatedUser) throws Exception {
+    public List<MarkResultDto> submitProblemCode(Long problemId, Long languageId, String submittedCode)
+            throws Exception {
+        User authenticatedUser = accountService.getAuthenticatedUser();
         Optional<Language> languageOptional = languageRepository.findById(languageId);
         Optional<Problem> problemOptional = problemRepository.findById(problemId);
         if (!problemOptional.isPresent())
@@ -280,9 +287,10 @@ public class ProblemServiceImpl implements ProblemService {
     }
 
     @Override
-    public void resetCode(Long problemId, Long languageId, User authenticatedUser) throws Exception {
+    public void resetCode(Long problemId, Long languageId) throws Exception {
         // 코드 초기화시 솔루션과 코드 엔티티에 있는 내용 모두 삭제한다.
         // 코드 삭제하면 솔루션도 cascade로 삭제된다.
+        User authenticatedUser = accountService.getAuthenticatedUser();
         Optional<Language> languageOptional = languageRepository.findById(languageId);
         Optional<Problem> problemOptional = problemRepository.findById(problemId);
         if (!problemOptional.isPresent())
@@ -305,8 +313,8 @@ public class ProblemServiceImpl implements ProblemService {
     }
 
     @Override
-    public Map<String, Object> getProblemList(List<Long> typeIds, List<Long> levelIds, Integer page,
-            User authenticatedUser) throws Exception {
+    public Map<String, Object> getProblemList(List<Long> typeIds, List<Long> levelIds, Integer page) throws Exception {
+        User authenticatedUser = accountService.getAuthenticatedUser();
         Map<String, Object> data = new HashMap<>();
         final String initValue = "";
         if (page <= 0) {
@@ -344,9 +352,9 @@ public class ProblemServiceImpl implements ProblemService {
     }
 
     @Override
-    public Map<String, Object> getProblemDataAndCode(Long problemId, User authenticatedUser) throws Exception {
+    public Map<String, Object> getProblemDataAndCode(Long problemId) throws Exception {
         Map<String, Object> data = new HashMap<>();
-
+        User authenticatedUser = accountService.getAuthenticatedUser();
         Optional<Problem> problemOptional = problemRepository.findById(problemId);
         if (!problemOptional.isPresent())
             throw new Exception("The problem info is not correct");
@@ -540,7 +548,7 @@ public class ProblemServiceImpl implements ProblemService {
 
         response.setAnswerTable(answerTable);
         response.setExampleTable(exampleTable);
-        UserDto userDto = new UserDto();
+        UserRequestDto userDto = new UserRequestDto();
         userDto.setId(creator.getId());
         userDto.setNickname(creator.getNickname());
         response.setCreator(userDto);

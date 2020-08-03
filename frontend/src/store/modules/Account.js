@@ -1,4 +1,4 @@
-import { delay, put, takeEvery, call } from 'redux-saga/effects';
+import { put, takeEvery, call } from 'redux-saga/effects';
 import { handleActions, createAction } from 'redux-actions';
 import * as AccountApi from 'utils/api/AccountApi';
 import { getErrorMessageFromResponse } from 'utils/ErrorHandler';
@@ -37,10 +37,10 @@ export const signup = createAction(SIGNUP);
 export const clearWhich = createAction(CLEAR_WHICH);
 
 function* changeNicknameSaga(action) {
-    yield delay(1000);
+    yield 
     try {
         const response = yield call(AccountApi.changeNickname, action.payload);
-        yield put({ type: CHANGE_NICKNAME_SUCCESS, payload: response });
+        yield put({ type: CHANGE_NICKNAME_SUCCESS, payload: response.data });
     }
     catch (e) {
         yield put({ type: CHANGE_NICKNAME_FAILURE, payload: getErrorMessageFromResponse(e) });
@@ -48,52 +48,52 @@ function* changeNicknameSaga(action) {
 }
 
 function* changePasswordSaga(action) {
-    yield delay(1000);
+    yield 
     try {
         const response = yield call(AccountApi.changePassword, action.payload);
-        yield put({ type: CHANGE_PASSWORD_SUCCESS, payload: response });
+        yield put({ type: CHANGE_PASSWORD_SUCCESS, payload: response.data });
     } catch (e) {
         yield put({ type: CHANGE_PASSWORD_FAILURE, payload: getErrorMessageFromResponse(e) });
     }
 }
 
 function* deleteAccountSaga(action) {
-    yield delay(1000);
+    yield 
     try {
         const response = yield call(AccountApi.deleteAccount, action.payload);
-        yield put({ type: DELETE_ACCOUNT_SUCCESS, payload: response });
+        yield put({ type: DELETE_ACCOUNT_SUCCESS, payload: response.data });
     } catch (e) {
         yield put({ type: DELETE_ACCOUNT_FAILURE, payload: getErrorMessageFromResponse(e) });
     }
 }
 
 function* loginSaga(action) {
-    yield delay(1000);
+    yield 
     try {
         const response = yield call(AccountApi.login, action.payload);
-        yield sessionStorage.setItem('user', JSON.stringify(response.user));
-        yield put({ type: LOGIN_SUCCESS, payload: response });
+        yield sessionStorage.setItem('user', JSON.stringify(response.data));
+        yield put({ type: LOGIN_SUCCESS, payload: response.data });
     } catch (e) {
         yield put({ type: LOGIN_FAILURE, payload: getErrorMessageFromResponse(e) });
     }
 }
 
 function* logoutSaga(action) {
-    yield delay(1000);
+    yield 
     try {
         const response = yield call(AccountApi.logout, action.payload);
         yield sessionStorage.removeItem('user');
-        yield put({ type: LOGOUT_SUCCESS, payload: response });
+        yield put({ type: LOGOUT_SUCCESS, payload: response.data });
     } catch (e) {
         yield put({ type: LOGOUT_FAILURE, payload: getErrorMessageFromResponse(e) });
     }
 }
 
 function* signupSaga(action) {
-    yield delay(1000);
+    yield 
     try {
         const response = yield call(AccountApi.signUp, action.payload);
-        yield put({ type: SIGNUP_SUCCESS, payload: response });
+        yield put({ type: SIGNUP_SUCCESS, payload: response.data });
     } catch (e) {
         yield put({ type: SIGNUP_FAILURE, payload: getErrorMessageFromResponse(e) });
     }
@@ -132,14 +132,12 @@ export default handleActions({
     },
     [CHANGE_NICKNAME_SUCCESS]: (state, action) => {
         return {
+            ...state,
             which: 'nickname',
             is_progressing: false,
             is_success: true,
             data: null,
-            user: {
-                ...state.user,
-                nickname: action.payload.nickname
-            }
+            user: action.payload
         };
     },
     [CHANGE_NICKNAME_FAILURE]: (state, action) => {
@@ -220,7 +218,7 @@ export default handleActions({
             is_progressing: false,
             is_success: true,
             data: null,
-            user: action.payload.user
+            user: action.payload
         };
     },
     [LOGIN_FAILURE]: (state, action) => {

@@ -26,7 +26,7 @@ import com.goodperson.code.expert.dto.ProblemTypeDto;
 import com.goodperson.code.expert.dto.RegisterOrUpdateProblemRequestDto;
 import com.goodperson.code.expert.dto.ReturnDto;
 import com.goodperson.code.expert.dto.TestcaseDto;
-import com.goodperson.code.expert.dto.UserDto;
+import com.goodperson.code.expert.dto.UserRequestDto;
 import com.goodperson.code.expert.model.Code;
 import com.goodperson.code.expert.model.DataType;
 import com.goodperson.code.expert.model.Language;
@@ -690,7 +690,7 @@ public class ProblemApiTest {
 
         response.setAnswerTable(answerTable);
         response.setExampleTable(exampleTable);
-        UserDto userDto = new UserDto();
+        UserRequestDto userDto = new UserRequestDto();
         userDto.setId(creator.getId());
         userDto.setNickname(creator.getNickname());
         response.setCreator(userDto);

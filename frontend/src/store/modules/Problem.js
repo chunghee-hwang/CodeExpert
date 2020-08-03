@@ -1,4 +1,4 @@
-import { delay, put, takeEvery, call } from 'redux-saga/effects';
+import { put, takeEvery, call } from 'redux-saga/effects';
 import { handleActions, createAction } from 'redux-actions';
 import * as ProblemApi from 'utils/api/ProblemApi';
 import { getErrorMessageFromResponse } from 'utils/ErrorHandler';
@@ -67,7 +67,7 @@ export const clearProblemImageCache = createAction(CLEAR_PROBLEM_IMAGE_CACHE);
 export const clearProblemList = createAction(CLEAR_PROBLEM_LIST);
 export const clearSubmitResults = createAction(CLEAR_SUBMIT_RESULTS);
 function* getProblemMetaDataSaga(action) {
-    yield delay(1000);
+    yield 
     try {
         const response = yield call(ProblemApi.getProblemMetaData);
         yield put({ type: GET_PROBLEM_META_DATA_SUCCESS, payload: response });
@@ -77,7 +77,7 @@ function* getProblemMetaDataSaga(action) {
     }
 }
 function* getProblemDataSaga(action) {
-    yield delay(1000);
+    yield 
     try {
         const response = yield call(ProblemApi.getProblemData, action.payload);
         yield put({ type: GET_PROBLEM_DATA_SUCCESS, payload: response });
@@ -88,7 +88,7 @@ function* getProblemDataSaga(action) {
 }
 
 function* getProblemDataAndCodeSaga(action) {
-    yield delay(1000);
+    yield 
     try {
         const response = yield call(ProblemApi.getProblemDataAndCode, action.payload);
         yield put({ type: GET_PROBLEM_DATA_AND_CODE_SUCCESS, payload: response });
@@ -99,7 +99,7 @@ function* getProblemDataAndCodeSaga(action) {
 }
 
 function* registerProblemSaga(action) {
-    yield delay(1000);
+    yield 
     try {
         const response = yield call(ProblemApi.registerProblem, action.payload);
         yield put({ type: REGISTER_PROBLEM_SUCCESS, payload: response });
@@ -110,7 +110,7 @@ function* registerProblemSaga(action) {
 }
 
 function* updateProblemSaga(action) {
-    yield delay(1000);
+    yield 
     try {
         const response = yield call(ProblemApi.updateProblem, action.payload);
         yield put({ type: UPDATE_PROBLEM_SUCCESS, payload: response });
@@ -121,7 +121,7 @@ function* updateProblemSaga(action) {
 }
 
 function* deleteProblemSaga(action) {
-    yield delay(1000);
+    yield 
     try {
         const response = yield call(ProblemApi.deleteProblem, action.payload);
         yield put({ type: DELETE_PROBLEM_SUCCESS, payload: response });
@@ -132,7 +132,7 @@ function* deleteProblemSaga(action) {
 }
 
 function* getNewProblemIdSaga(action) {
-    yield delay(1000);
+    yield 
     try {
         const response = yield call(ProblemApi.getNewProblemId, action.payload);
         yield put({ type: GET_NEW_PROBLEM_ID_SUCCESS, payload: response });
@@ -143,7 +143,7 @@ function* getNewProblemIdSaga(action) {
 }
 
 function* uploadProblemImageSaga(action) {
-    yield delay(1000);
+    yield 
     try {
         const response = yield call(ProblemApi.uploadProblemImage, action.payload);
         yield put({ type: UPLOAD_PROBLEM_IMAGE_SUCCESS, payload: response });
@@ -154,7 +154,7 @@ function* uploadProblemImageSaga(action) {
 }
 
 function* submitProblemCodeSaga(action) {
-    yield delay(1000);
+    yield 
     try {
         const response = yield call(ProblemApi.submitProblemCode, action.payload);
         yield put({ type: SUBMIT_PROBLEM_CODE_SUCCESS, payload: response });
@@ -165,7 +165,7 @@ function* submitProblemCodeSaga(action) {
 }
 
 function* resetProblemCodeSaga(action) {
-    yield delay(1000);
+    yield 
     try {
         const response = yield call(ProblemApi.resetProblemCode, action.payload);
         yield put({ type: RESET_PROBLEM_CODE_SUCCESS, payload: response });
@@ -176,7 +176,7 @@ function* resetProblemCodeSaga(action) {
 }
 
 function* getProblemListSaga(action) {
-    yield delay(1000);
+    yield 
     try {
         const response = yield call(ProblemApi.getProblemList, action.payload);
         yield put({ type: GET_PROBLEM_LIST_SUCCESS, payload: response });

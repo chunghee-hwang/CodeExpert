@@ -8,10 +8,16 @@ import { showValidationFailureAlert, showSuccessAlert, showErrorAlert } from 'ut
 import { moveToPage } from 'utils/PageControl';
 
 function SignupForm(props) {
-
-    const { accountActions, isProgressing, isSuccess, data, which } = props;
+    const { accountActions, isProgressing, isSuccess, data, which,user } = props;
 
     useEffect(() => {
+        if(user){
+            moveToPage(props.history, paths.actions.logout);
+            setTimeout(()=>{
+                moveToPage(props.history, paths.pages.signupForm);
+            },10)
+            return;
+        }
         if (which === 'signup') {
             if (!isProgressing) {
                 if (isSuccess) {
@@ -24,7 +30,7 @@ function SignupForm(props) {
                 }
             }
         }
-    }, [data, isProgressing, isSuccess, which, props.history]);
+    }, [data, user,isProgressing, isSuccess, which, props.history]);
 
     const signup = form => {
         const validation = validateSignup(form);

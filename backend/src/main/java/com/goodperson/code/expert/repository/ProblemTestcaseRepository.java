@@ -12,4 +12,6 @@ import org.springframework.stereotype.Repository;
 public interface ProblemTestcaseRepository extends JpaRepository<ProblemTestcase, Long> {
 
     List<ProblemTestcase> findAllByProblemAndTableType(Problem problem, Character tableType);
+
+	List<ProblemTestcase> findAllByProblem(Problem problem);
 }

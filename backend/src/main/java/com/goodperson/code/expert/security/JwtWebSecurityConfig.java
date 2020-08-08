@@ -68,7 +68,7 @@ public class JwtWebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(WebSecurity webSecurity) throws Exception {
         final String[] accessableUrls = new String[]{
-            authenticationPath, "/signup","/logout"
+            authenticationPath,"/logout","/signup"
         };
         webSecurity.ignoring().antMatchers(HttpMethod.POST, accessableUrls).antMatchers(HttpMethod.OPTIONS, "/**")
                 .and().ignoring().antMatchers(HttpMethod.GET, "/"); // Other Stuff You want to ignore

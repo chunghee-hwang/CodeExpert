@@ -1,8 +1,5 @@
 package com.goodperson.code.expert.service.impl;
 
-import java.io.File;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,7 +13,7 @@ import com.goodperson.code.expert.dto.InputOutputTableDto;
 import com.goodperson.code.expert.dto.LanguageDto;
 import com.goodperson.code.expert.dto.MarkResultDto;
 import com.goodperson.code.expert.dto.ParameterDto;
-import com.goodperson.code.expert.dto.ProblemDataResponseDto;
+import com.goodperson.code.expert.dto.ProblemDetailDto;
 import com.goodperson.code.expert.dto.ProblemDto;
 import com.goodperson.code.expert.dto.ProblemLevelDto;
 import com.goodperson.code.expert.dto.ProblemMetaDataDto;
@@ -29,7 +26,6 @@ import com.goodperson.code.expert.model.Code;
 import com.goodperson.code.expert.model.DataType;
 import com.goodperson.code.expert.model.Language;
 import com.goodperson.code.expert.model.Problem;
-import com.goodperson.code.expert.model.ProblemImage;
 import com.goodperson.code.expert.model.ProblemLevel;
 import com.goodperson.code.expert.model.ProblemParameter;
 import com.goodperson.code.expert.model.ProblemParameterValue;
@@ -41,7 +37,6 @@ import com.goodperson.code.expert.model.User;
 import com.goodperson.code.expert.repository.CodeRepository;
 import com.goodperson.code.expert.repository.DataTypeRepository;
 import com.goodperson.code.expert.repository.LanguageRepository;
-import com.goodperson.code.expert.repository.ProblemImageRepository;
 import com.goodperson.code.expert.repository.ProblemLevelRepository;
 import com.goodperson.code.expert.repository.ProblemParameterValueRepository;
 import com.goodperson.code.expert.repository.ProblemParamterRepository;
@@ -61,7 +56,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import io.leangen.graphql.annotations.GraphQLMutation;
 import io.leangen.graphql.annotations.GraphQLQuery;
@@ -96,9 +90,6 @@ public class ProblemServiceImpl implements ProblemService {
 
     @Autowired
     private ProblemLevelRepository problemLevelRepository;
-
-    @Autowired
-    private ProblemImageRepository problemImageRepository;
 
     @Autowired
     private ProblemRepository problemRepository;
@@ -165,6 +156,7 @@ public class ProblemServiceImpl implements ProblemService {
         Problem problem = new Problem();
         if(isUpdate){
             problem.setId(problemId);
+            deleteParameterAndReturnAndTestcaseInfoBeforeUpdateTableInfo(problem);
         }
         problem.setTitle(request.getProblemTitle());
         problem.setContent(request.getProblemContent());
@@ -179,42 +171,15 @@ public class ProblemServiceImpl implements ProblemService {
 
         InputOutputTableDto answerTable = request.getAnswerTable();
         InputOutputTableDto exampleTable = request.getExampleTable();
+  
         addParamterAndReturnAndTestcaseInfoFromTableInfo(problem, answerTable, 'a');
         addParamterAndReturnAndTestcaseInfoFromTableInfo(problem, exampleTable, 'e');
         return problem;
     }
 
+    @GraphQLMutation(name="deleteProblem")
     @Override
-    public List<String> uploadProblemImage(MultipartFile[] files) throws Exception {
-        List<String> urls = new ArrayList<>();
-        File uploadedDirectory = fileUtils.getImageUploadDirectory();
-        for (MultipartFile multipartFile : files) {
-            String originalFileName = multipartFile.getOriginalFilename();
-            String savedFileName = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME) + fileUtils.getFileExtension(originalFileName);
-            String matchedContentType = fileUtils.getContentTypeFromFileName(originalFileName);
-            Optional<ProblemImage> sameFileNameProblemImageOptional = problemImageRepository
-                    .findBySavedFileName(savedFileName);
-            if (sameFileNameProblemImageOptional.isPresent()) {
-                savedFileName = fileUtils
-                        .getUniqueSaveFileName(sameFileNameProblemImageOptional.get().getSavedFileName());
-            }
-            if (!matchedContentType.startsWith("image/"))
-                throw new Exception("The file(s) is(are) not image format.");
-
-            ProblemImage problemImage = new ProblemImage();
-            problemImage.setContentType(matchedContentType);
-            problemImage.setFileName(originalFileName);
-            problemImage.setSavedFileName(savedFileName);
-            problemImageRepository.save(problemImage);
-            File savedFile = new File(uploadedDirectory, savedFileName);
-            multipartFile.transferTo(savedFile); // 파일 서버에 저장
-            urls.add("/images/"+savedFileName);
-        }
-        return urls;
-    }
-
-    @Override
-    public void deleteProblem(Long problemId) throws Exception {
+    public Problem deleteProblem(Long problemId) throws Exception {
         // 문제를 만든 사람이 삭제하려는 사람과 일치하는지 확인한다.
         User authenticatedUser = accountService.getAuthenticatedUser();
         boolean isCreator = problemRepository.existsByIdAndCreator(problemId, authenticatedUser);
@@ -224,9 +189,8 @@ public class ProblemServiceImpl implements ProblemService {
         if (!problemOptional.isPresent())
             throw new Exception("The problem info is not correct.");
         Problem problem = problemOptional.get();
-        // List<ProblemImage> problemImages = problemImageRepository.findAllByProblem(problem);
-        // problemImages.stream().forEach(problemImage -> problemImage.getSaveFileName()/* delete file */);
         problemRepository.delete(problem);
+        return problem;
     }
 
     @Override
@@ -290,17 +254,33 @@ public class ProblemServiceImpl implements ProblemService {
         return solutionRepository.countProblemResolvedByCreator(authenticatedUser);
     }
 
+    @GraphQLQuery(name="problemList")
     @Override
     public Map<String, Object> getProblemList(List<Long> typeIds, List<Long> levelIds, Integer page) throws Exception {
         User authenticatedUser = accountService.getAuthenticatedUser();
         Map<String, Object> data = new HashMap<>();
-        final String initValue = "";
         if (page <= 0) {
             throw new Exception("The page should > 0");
         }
         final int numberOfShow = 5;
-        Page<Problem> problemPage = problemRepository.findAllByProblemTypeIdInOrProblemLevelIdInAndContentNot(typeIds,
-                levelIds, initValue, PageRequest.of(page - 1, numberOfShow));
+        final PageRequest pageRequest = PageRequest.of(page - 1, numberOfShow);
+        Page<Problem> problemPage;
+        // filtering
+        if(typeIds.isEmpty() && levelIds.isEmpty())
+        {
+            problemPage = problemRepository.findAll(pageRequest);
+        }
+        else if(typeIds.isEmpty()){
+            problemPage = problemRepository.findAllByProblemLevelIdIn(levelIds, pageRequest);
+        }
+        else if(levelIds.isEmpty()){
+            problemPage = problemRepository.findAllByProblemTypeIdIn(typeIds, pageRequest);
+        }
+        else{
+            problemPage = problemRepository.findAllByProblemTypeIdInAndProblemLevelIdIn(typeIds,
+            levelIds, pageRequest);
+        }
+
         List<ProblemDto> problemDtos = new ArrayList<>();
         for (Problem problem : problemPage.getContent()) {
             long resolveCount = solutionRepository.countUserByResolvedProblem(problem);
@@ -329,16 +309,29 @@ public class ProblemServiceImpl implements ProblemService {
         return data;
     }
 
+    @GraphQLQuery(name="problemDetail")
     @Override
-    public Map<String, Object> getProblemDataAndCode(Long problemId) throws Exception {
-        Map<String, Object> data = new HashMap<>();
+    public Map<String, Object> getProblemDetail(Long problemId) throws Exception {
+        Map<String, Object> problemData = new HashMap<>();
         User authenticatedUser = accountService.getAuthenticatedUser();
         Optional<Problem> problemOptional = problemRepository.findById(problemId);
         if (!problemOptional.isPresent())
             throw new Exception("The problem info is not correct");
         Problem problem = problemOptional.get();
-        ProblemDataResponseDto ProblemDataResponseDto = createProblemDataResponseDto(problem, authenticatedUser);
+        ProblemDetailDto problemDetailDto = createProblemDataResponseDto(problem, authenticatedUser);
+        problemData.put("problem", problemDetailDto);
+        return problemData;
+    }
 
+    @GraphQLQuery(name="problemCodes")
+    @Override
+    public Map<String, Object> getProblemCodes(Long problemId) throws Exception{
+        Map<String, Object> problemCodes = new HashMap<>();
+        User authenticatedUser = accountService.getAuthenticatedUser();
+        Optional<Problem> problemOptional = problemRepository.findById(problemId);
+        if (!problemOptional.isPresent())
+            throw new Exception("The problem info is not correct");
+        Problem problem = problemOptional.get();
         List<Language> languages = languageRepository.findAll();
         List<CodeDto> codeDtos = new ArrayList<>();
         for (Language language : languages) {
@@ -363,10 +356,28 @@ public class ProblemServiceImpl implements ProblemService {
             codeDto.setLanguage(languageDto);
             codeDtos.add(codeDto);
         }
+        problemCodes.put("codes", codeDtos);
+        return problemCodes;
+    }
 
-        data.put("problem", ProblemDataResponseDto);
-        data.put("codes", codeDtos);
-        return null;
+    private void deleteParameterAndReturnAndTestcaseInfoBeforeUpdateTableInfo(Problem problem){
+        List<ProblemParameter> previousProblemParameters = problemParameterRepository.findAllByProblem(problem);
+        for(ProblemParameter previousProblemParameter: previousProblemParameters) {
+            problemParameterRepository.delete(previousProblemParameter);
+        }
+        List<ProblemReturn> previousProblemReturns = problemReturnRepository.findAllByProblem(problem);
+        for(ProblemReturn previousProblemReturn: previousProblemReturns){
+            problemReturnRepository.delete(previousProblemReturn);
+        }
+        List<ProblemTestcase> previousProblemTestcases = problemTestcaseRepository.findAllByProblem(problem);
+        for(ProblemTestcase previousProblemTestcase: previousProblemTestcases) {
+            List<ProblemParameterValue> previosProblemParameterValues = problemParameterValueRepository.findAllByProblemTestcase(previousProblemTestcase);
+            for(ProblemParameterValue previousProblemParameterValue: previosProblemParameterValues) {
+                problemParameterValueRepository.delete(previousProblemParameterValue);
+            }
+            problemTestcaseRepository.delete(previousProblemTestcase);
+        }
+        
     }
 
     private void addParamterAndReturnAndTestcaseInfoFromTableInfo(Problem problem, InputOutputTableDto table,
@@ -502,8 +513,8 @@ public class ProblemServiceImpl implements ProblemService {
         }
     }
 
-    private ProblemDataResponseDto createProblemDataResponseDto(Problem problem, User creator) {
-        ProblemDataResponseDto response = new ProblemDataResponseDto();
+    private ProblemDetailDto createProblemDataResponseDto(Problem problem, User creator) {
+        ProblemDetailDto response = new ProblemDetailDto();
         response.setId(problem.getId());
         response.setTitle(problem.getTitle());
         ProblemTypeDto problemTypeDto = new ProblemTypeDto();

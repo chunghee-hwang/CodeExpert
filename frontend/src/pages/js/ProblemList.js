@@ -22,9 +22,10 @@ function ProblemList(props) {
 
         //-request problem list and page info using type, level, page
         // fetch(`/problems?type=${typeIds.join(',')}&level=${levels.join(',')}&page=${page}`);
-        if (!data.problemsAndMaxPage) problemActions.getProblemList({ typeIds: Array.from(typeFilters), levelIds: Array.from(levelFilters), page });
-        if(!data.userResolvedProblemCount) problemActions.getUserResolvedProblemCount();
-    }, [props.history, data.problemsAndMaxPage, data.userResolvedProblemCount, user, page, levelFilters, problemActions, typeFilters]);
+        if (!data.problemMetaData) problemActions.getProblemMetaData();
+        else if (!data.problemsAndMaxPage) problemActions.getProblemList({ typeIds: Array.from(typeFilters), levelIds: Array.from(levelFilters), page });
+        else if (!data.userResolvedProblemCount) problemActions.getUserResolvedProblemCount();
+    }, [props.history, data.problemMetaData, data.problemsAndMaxPage, data.userResolvedProblemCount, user, page, levelFilters, problemActions, typeFilters]);
 
     const updateProblemList = () => {
         problemActions.clearProblemList();
@@ -52,39 +53,33 @@ function ProblemList(props) {
 
     let problemTypeCheckboxes = [];
     let levelCheckboxes = [];
-    data.problemsAndMaxPage.problems.forEach((problem, idx) => {
-        const problemType = problem.type;
-        let tagId = `type-checkbox-${problemType.id}`;
-        problemTypeCheckboxes.push(
-            <div key={problemType.id}>
-                <input type="checkbox" defaultChecked={typeFilters.has(problemType.id)} className="form-check-input type-filter" id={tagId} data-typeid={problemType.id} onChange={e => addOrRemoveTypeFilter(e.target)} />
-                <label className="form-check-label" htmlFor={tagId}>{problemType.name}</label>
-            </div>
-        );
-    });
 
+    if (data.problemMetaData) {
+        const problemTypes = data.problemMetaData.problemTypes;
+        const problemLevels = data.problemMetaData.problemLevels;
+        if (problemTypes) {
+            problemTypes.forEach((problemType) => {
+                let tagId = `type-checkbox-${problemType.id}`;
+                problemTypeCheckboxes.push(
+                    <div key={problemType.id}>
+                        <input type="checkbox" defaultChecked={typeFilters.has(problemType.id)} className="form-check-input type-filter" id={tagId} data-typeid={problemType.id} onChange={e => addOrRemoveTypeFilter(e.target)} />
+                        <label className="form-check-label" htmlFor={tagId}>{problemType.name}</label>
+                    </div>
+                );
+            });
+        }
+        if (problemLevels) {
+            problemLevels.forEach((problemLevel) => {
+                const tagId = `level-checkbox-${problemLevel.id}`;
+                levelCheckboxes.push(
+                    <div key={problemLevel.id}>
+                        <input type="checkbox" defaultChecked={levelFilters.has(problemLevel.id)} className="form-check-input level-filter" id={tagId} data-levelid={problemLevel.id} onChange={e => addOrRemoveLevelFilter(e.target)} />
+                        <label className="form-check-label" htmlFor={tagId}>{problemLevel.name}</label>
+                    </div>
+                );
+            });
+        }
 
-    let levels = data.problemsAndMaxPage.problems.reduce((accumulator, problem) => {
-        if (accumulator.find(level => problem.level.id === level.id)) return accumulator;
-        accumulator.push(problem.level);
-        return accumulator;
-    }, []);
-    levels.sort(
-        (level1, level2) => {
-            if (level1.name > level2.name) return 1;
-            else if (level1.name === level2.name) return 0;
-            else return -1;
-        });
-    if (levels) {
-        Array.from(levels.values()).sort().forEach((level) => {
-            const tagId = `level-checkbox-${level.id}`;
-            levelCheckboxes.push(
-                <div key={level.id}>
-                    <input type="checkbox" defaultChecked={levelFilters.has(level.id)} className="form-check-input level-filter" id={tagId} data-levelid={level.id} onChange={e => addOrRemoveLevelFilter(e.target)} />
-                    <label className="form-check-label" htmlFor={tagId}>{level.name}</label>
-                </div>
-            );
-        });
     }
 
     const addOrRemoveLevelFilter = (input) => {
@@ -93,6 +88,7 @@ function ProblemList(props) {
         } else {
             setLevelFilters(levelFilters => new Set([...levelFilters].filter(levelFilter => levelFilter !== Number(input.dataset.levelid))));
         }
+        setPage(1);
         updateProblemList();
     }
     const addOrRemoveTypeFilter = (input) => {
@@ -101,6 +97,7 @@ function ProblemList(props) {
         } else {
             setTypeFilters(typeFilters => new Set([...typeFilters].filter(typeFilter => typeFilter !== Number(input.dataset.typeid))));
         }
+        setPage(1);
         updateProblemList();
     }
     return (
@@ -129,25 +126,29 @@ function ProblemList(props) {
                 <div className="problem-list">
                     {problemBoxes}
                 </div>
-                <div className="pages horizontal-scroll ">
-                    <Pagination className="align-center">
-                        <Pagination.Prev onClick={e => {
-                            if (page > 1) {
-                                setPage(page - 1);
-                                updateProblemList();
+                {endPageNumber > 0 ?
+                    <div className="pages horizontal-scroll ">
+                        <Pagination className="align-center">
+                            <Pagination.Prev onClick={e => {
+                                if (page > 1) {
+                                    setPage(page - 1);
+                                    updateProblemList();
+                                }
+                            }} />
+                            {paginationItems}
+                            <Pagination.Next onClick={e => {
+                                if (page < endPageNumber) {
+                                    setPage(page + 1);
+                                    updateProblemList();
+                                }
                             }
-                        }} />
-                        {paginationItems}
-                        <Pagination.Next onClick={e => {
-                            if (page < endPageNumber) {
-                                setPage(page + 1);
-                                updateProblemList();
-                            }
+                            } />
+                        </Pagination>
+                    </div>
+                    :
+                    <h3 className="text-center">문제 목록이 비어있습니다.</h3>
+                }
 
-
-                        }} />
-                    </Pagination>
-                </div>
             </div>
 
         </div>

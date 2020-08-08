@@ -229,7 +229,7 @@ export default handleActions({
             ...state,
             isProgressing: false,
             isSuccess: false,
-            which: 'problemData'
+            which: 'problemData',
         };
     },
 

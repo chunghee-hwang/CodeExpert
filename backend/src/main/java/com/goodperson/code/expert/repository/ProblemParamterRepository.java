@@ -12,4 +12,6 @@ import org.springframework.stereotype.Repository;
 public interface ProblemParamterRepository extends JpaRepository<ProblemParameter, Long> {
 
     List<ProblemParameter> findAllByProblemAndTableType(Problem problem, Character tableType);
+
+	List<ProblemParameter> findAllByProblem(Problem problem);
 }

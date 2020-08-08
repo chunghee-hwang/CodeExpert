@@ -3,7 +3,7 @@ package com.goodperson.code.expert.dto;
 import lombok.Data;
 
 @Data
-public class ProblemDataResponseDto {
+public class ProblemDetailDto {
     private Long id;
 
     private String title;

@@ -19,7 +19,7 @@ import com.goodperson.code.expert.dto.InputOutputTableDto;
 import com.goodperson.code.expert.dto.LanguageDto;
 import com.goodperson.code.expert.dto.MarkResultDto;
 import com.goodperson.code.expert.dto.ParameterDto;
-import com.goodperson.code.expert.dto.ProblemDataResponseDto;
+import com.goodperson.code.expert.dto.ProblemDetailDto;
 import com.goodperson.code.expert.dto.ProblemDto;
 import com.goodperson.code.expert.dto.ProblemLevelDto;
 import com.goodperson.code.expert.dto.ProblemTypeDto;
@@ -31,7 +31,6 @@ import com.goodperson.code.expert.model.Code;
 import com.goodperson.code.expert.model.DataType;
 import com.goodperson.code.expert.model.Language;
 import com.goodperson.code.expert.model.Problem;
-import com.goodperson.code.expert.model.ProblemImage;
 import com.goodperson.code.expert.model.ProblemLevel;
 import com.goodperson.code.expert.model.ProblemParameter;
 import com.goodperson.code.expert.model.ProblemParameterValue;
@@ -43,7 +42,6 @@ import com.goodperson.code.expert.model.User;
 import com.goodperson.code.expert.repository.CodeRepository;
 import com.goodperson.code.expert.repository.DataTypeRepository;
 import com.goodperson.code.expert.repository.LanguageRepository;
-import com.goodperson.code.expert.repository.ProblemImageRepository;
 import com.goodperson.code.expert.repository.ProblemLevelRepository;
 import com.goodperson.code.expert.repository.ProblemParameterValueRepository;
 import com.goodperson.code.expert.repository.ProblemParamterRepository;
@@ -56,7 +54,6 @@ import com.goodperson.code.expert.repository.UserRepository;
 import com.goodperson.code.expert.utils.CodeGenerateManager;
 import com.goodperson.code.expert.utils.CompileManager;
 import com.goodperson.code.expert.utils.CompileOption;
-import com.goodperson.code.expert.utils.FileUtils;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -96,9 +93,6 @@ public class ProblemApiTest {
     private ProblemLevelRepository problemLevelRepository;
 
     @Autowired
-    private ProblemImageRepository problemImageRepository;
-
-    @Autowired
     private ProblemRepository problemRepository;
 
     @Autowired
@@ -113,17 +107,12 @@ public class ProblemApiTest {
     @Autowired
     private CompileManager compileManager;
 
-    @Autowired
-    private FileUtils fileUtils;
-
     @BeforeEach
     public void executeBeforeTests() throws Exception {
         addUserSample();
         addProblemTypeAndLevelAndDataTypeAndLanguageSample();
         registerOrUpdateProblemSample(1L, 1L, false);
         registerOrUpdateProblemSample(2L, 1L, false);
-
-        testUploadProblemImage();
     }
 
     private void registerOrUpdateProblemSample(Long problemId, Long creatorId, boolean isUpdate) throws Exception {
@@ -244,33 +233,7 @@ public class ProblemApiTest {
         System.out.println("newId: " + nextProblemId);
     }
 
-    @Test
-    public void testUploadProblemImage() throws Exception {
-        Long problemId = 1L;
-        String originalFileName = "sample.jpg";
-
-        String matchedContentType = fileUtils.getContentTypeFromFileName(originalFileName);
-        Optional<ProblemImage> sameFileNameProblemImageOptional = problemImageRepository
-                .findBySavedFileName(originalFileName);
-        String saveFileName;
-        if (sameFileNameProblemImageOptional.isPresent()) {
-            saveFileName = fileUtils.getUniqueSaveFileName(sameFileNameProblemImageOptional.get().getSavedFileName());
-        } else {
-            saveFileName = originalFileName;
-        }
-
-        assertTrue(matchedContentType.startsWith("image/"));
-
-        ProblemImage problemImage = new ProblemImage();
-        Problem problem = new Problem();
-        problem.setId(problemId);
-
-        problemImage.setContentType(matchedContentType);
-        problemImage.setFileName(originalFileName);
-        problemImage.setSavedFileName(saveFileName);
-        problemImageRepository.save(problemImage);
-    }
-
+ 
     @Test
     public void testDeleteProblem() throws Exception {
         Long problemId = 1L;
@@ -397,15 +360,14 @@ public class ProblemApiTest {
         Long creatorId = 1L;
         // 로그인되어있는 유저 정보
         final User authenticatedUser = userRepository.findById(creatorId).get();
-        final String initValue = "";
         final List<Long> typeIds = Stream.of(new Long[] { 1L }).collect(Collectors.toList());
         final List<Long> levelIds = Stream.of(new Long[] { 1L, 2L, 3L, 4L }).collect(Collectors.toList());
         final Integer page = 1;
 
         assertTrue(page > 0);
         final int numberOfShow = 5;
-        Page<Problem> problemPage = problemRepository.findAllByProblemTypeIdInOrProblemLevelIdInAndContentNot(typeIds,
-                levelIds, initValue, PageRequest.of(page - 1, numberOfShow));
+        Page<Problem> problemPage = problemRepository.findAllByProblemTypeIdInAndProblemLevelIdIn(typeIds,
+                levelIds, PageRequest.of(page - 1, numberOfShow));
         List<ProblemDto> problemDtos = new ArrayList<>();
         for (Problem problem : problemPage.getContent()) {
             long resolveCount = solutionRepository.countUserByResolvedProblem(problem);
@@ -445,7 +407,7 @@ public class ProblemApiTest {
         if (!problemOptional.isPresent())
             throw new Exception("The problem info is not correct");
         Problem problem = problemOptional.get();
-        ProblemDataResponseDto ProblemDataResponseDto = createProblemDataResponseDto(problem, authenticatedUser);
+        ProblemDetailDto problemDetailDto = createProblemDataResponseDto(problem, authenticatedUser);
 
         List<Language> languages = languageRepository.findAll();
         List<CodeDto> codeDtos = new ArrayList<>();
@@ -472,7 +434,7 @@ public class ProblemApiTest {
             codeDtos.add(codeDto);
         }
 
-        response.put("problem", ProblemDataResponseDto);
+        response.put("problem", problemDetailDto);
         response.put("codes", codeDtos);
         System.out.println(response);
     }
@@ -665,8 +627,8 @@ public class ProblemApiTest {
         return request;
     }
 
-    private ProblemDataResponseDto createProblemDataResponseDto(Problem problem, User creator) {
-        ProblemDataResponseDto response = new ProblemDataResponseDto();
+    private ProblemDetailDto createProblemDataResponseDto(Problem problem, User creator) {
+        ProblemDetailDto response = new ProblemDetailDto();
         response.setId(problem.getId());
         response.setTitle(problem.getTitle());
         ProblemTypeDto problemTypeDto = new ProblemTypeDto();

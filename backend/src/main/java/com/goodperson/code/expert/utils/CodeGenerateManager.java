@@ -70,7 +70,7 @@ public class CodeGenerateManager {
                     returnValueExpression = "0";
                     break;
                 case "boolean":
-                    returnValueExpression = "true";
+                    returnValueExpression = "True";
                     break;
                 case "string":
                     returnValueExpression = "''";
@@ -105,7 +105,7 @@ public class CodeGenerateManager {
         stringBuilder.append(returnDataTypeExpression);
         stringBuilder.append("answer = ");
         stringBuilder.append(getJavaValueExpression(returnDataTypeName));
-        stringBuilder.append(";\nreturn answer;\n}");
+        stringBuilder.append(";\n\treturn answer;\n}");
         return stringBuilder.toString();
     }
 

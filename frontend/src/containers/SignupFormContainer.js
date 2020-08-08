@@ -7,6 +7,7 @@ const mapStateToProps = state => {
         isProgressing: state.account.isProgressing,
         isSuccess: state.account.isSuccess,
         data: state.account.data,
+        user:state.account.user,
         which: state.account.which,
     }
 }

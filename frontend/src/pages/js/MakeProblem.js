@@ -31,8 +31,14 @@ function MakeProblem(props) {
             //- request get problemTypes, levels
             if (!data.problemMetaData) problemActions.getProblemMetaData();
             //- request get problem data if problemId is not null 
-            if (problemId) {
-                if (!data.problemData) {
+            else if (problemId) {
+                if(which === 'problemData'){
+                    if(!isSuccess){
+                        moveToPage(props.history, paths.pages.problemList);
+                        return;
+                    }
+                }
+                else if (!data.problemData) {
                     problemActions.getProblemData({ problemId }); 
                     return;
                 }
@@ -52,11 +58,11 @@ function MakeProblem(props) {
                     if (levelSelectIdx !== -1) levelSelect.selectedIndex = levelSelectIdx;
                 }
             }
-
+           
             if (which === 'registerProblem') {
                 if (isSuccess) {
                     showSuccessAlert({ successWhat: "문제 등록" }).then(() => {
-                        // moveToPage(props.history, paths.pages.problemList);
+                        moveToPage(props.history, paths.pages.problemList);
                     });
                 }
                 else if (data.failCause) {
@@ -66,7 +72,9 @@ function MakeProblem(props) {
             } else if (which === 'updateProblem') {
 
                 if (isSuccess) {
-                    showSuccessAlert({ successWhat: "문제 수정" });
+                    showSuccessAlert({ successWhat: "문제 수정" }).then(()=>{
+                        moveToPage(props.history, paths.pages.problemList);
+                    });
                 }
                 else {
                     showErrorAlert({ errorWhat: "문제 수정", text: data.failCause })
@@ -84,6 +92,7 @@ function MakeProblem(props) {
                 }
 
             }
+          
         }
     }, [user, problemId, props.history, problemActions, data.problemData, data.problemMetaData, data.failCause, data.newProblemId, isProgressing, isSuccess, which]);
 

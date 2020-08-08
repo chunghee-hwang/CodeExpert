@@ -80,6 +80,7 @@ function* loginSaga(action) {
 function* logoutSaga(action) {
     try {
         const response = yield call(AccountApi.logout, action.payload);
+        yield call(removeUserDataFromSessionStorage);
         yield put({ type: LOGOUT_SUCCESS, payload: response.data });
     } catch (e) {
         yield put({ type: LOGOUT_FAILURE, payload: getErrorMessageFromResponse(e) });

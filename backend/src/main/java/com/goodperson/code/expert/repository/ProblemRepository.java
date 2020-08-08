@@ -17,6 +17,13 @@ public interface ProblemRepository extends PagingAndSortingRepository<Problem, L
     public boolean existsByIdAndCreator(Long id, User creator); // 문제 작성자가 아닌 사람이 문제를 수정할 경우를 체크할 때 사용
 
     // 문제 유형, 난이도, 페이지를 가지고 문제 목록을 가져오는 메소드
-    public Page<Problem> findAllByProblemTypeIdInOrProblemLevelIdInAndContentNot(List<Long> typeIds,
-            List<Long> levelIds, String content, Pageable pageable);
+    public Page<Problem> findAllByProblemTypeIdInAndProblemLevelIdIn(List<Long> typeIds, List<Long> levelIds,
+            Pageable pageable);
+
+    // 문제 유형, 페이지를 가지고 문제 목록을 가져오는 메소드
+    public Page<Problem> findAllByProblemTypeIdIn(List<Long> typeIds, Pageable pageable);
+
+    // 난이도, 페이지를 가지고 문제 목록을 가져오는 메소드
+    public Page<Problem> findAllByProblemLevelIdIn(List<Long> levelIds, Pageable pageable);
+
 }

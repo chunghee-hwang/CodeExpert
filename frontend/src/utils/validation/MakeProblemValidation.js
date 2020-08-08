@@ -15,7 +15,6 @@ export function validateMakeProblem(form, answerTableInfo, exampleTableInfo) {
         [inputNames.answerTable]: answerTableInfo,
         [inputNames.exampleTable]: exampleTableInfo,
     };
-    console.log(values);
     let validation = {
         isValid: false,
         failCause: null,
@@ -37,12 +36,8 @@ export function validateMakeProblem(form, answerTableInfo, exampleTableInfo) {
         validation.failCause = '문제 유형을 입력해주세요.';
         validation.failedElement = form[inputNames.problemTypeId];
     }
-    else if (!values[inputNames.problemExplain]) {
-        validation.failCause = '문제 설명을 입력해주세요.';
-        validation.failedElement = problemExplainEditor;
-    }
-    else if (values[inputNames.problemExplain].length > 1000) {
-        validation.failCause = '문제 설명은 1000자 이하로 입력해주세요.';
+    else if (!problemExplainEditor.innerText.trim()) {
+        validation.failCause = '문제 설명에 글자를 입력해주세요.';
         validation.failedElement = problemExplainEditor;
     }
     else if (!values[inputNames.limitExplain]) {
@@ -91,6 +86,8 @@ export function validateMakeProblem(form, answerTableInfo, exampleTableInfo) {
     }
     else {
         validation.isValid = true;
+        values[inputNames.timeLimit] = Number(values[inputNames.timeLimit]);
+        values[inputNames.memoryLimit] =  Number(values[inputNames.memoryLimit]);
     }
     return validation;
 }
@@ -116,7 +113,6 @@ export function validateUpdateProblem(user, problem, form, answerTableInfo, exam
         failedElement: null,
         values
     }
-
     const validationAnswerTable = validateIoTable(answerTableInfo);
     const validationExampleTable = validateIoTable(exampleTableInfo);
     if (!values[inputNames.problemId]) {
@@ -136,12 +132,8 @@ export function validateUpdateProblem(user, problem, form, answerTableInfo, exam
         validation.failCause = '문제 유형을 입력해주세요.';
         validation.failedElement = form[inputNames.problemTypeId];
     }
-    else if (!values[inputNames.problemExplain]) {
-        validation.failCause = '문제 설명을 입력해주세요.';
-        validation.failedElement = problemExplainEditor;
-    }
-    else if (values[inputNames.problemExplain].length > 1000) {
-        validation.failCause = '문제 설명은 1000자 이하로 입력해주세요.';
+    else if (!problemExplainEditor.innerText.trim()) {
+        validation.failCause = '문제 설명에 글자를 입력해주세요.';
         validation.failedElement = problemExplainEditor;
     }
     else if (!values[inputNames.limitExplain]) {
@@ -190,6 +182,8 @@ export function validateUpdateProblem(user, problem, form, answerTableInfo, exam
     }
     else {
         validation.isValid = true;
+        values[inputNames.timeLimit] = Number(values[inputNames.timeLimit]);
+        values[inputNames.memoryLimit] =  Number(values[inputNames.memoryLimit]);
     }
     return validation;
 }

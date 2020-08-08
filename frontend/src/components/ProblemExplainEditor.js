@@ -18,12 +18,16 @@ function ProblemExplainEditor(props) {
     }, [range]);
 
     const addImage = useCallback(file => {
+        if(!file.type.startsWith("image/")){
+            throw new Error("The file(s) is(are) not image format.");
+        }
         const editor = document.querySelector('#problem-explain-editor');
         let img;
         let span = document.createElement('span');
 
         img = document.createElement('img');
         img.setAttribute('class', 'attached-pic');
+        
         // FileReader support
         if (FileReader && file) {
             var fr = new FileReader();
@@ -83,8 +87,12 @@ function ProblemExplainEditor(props) {
          로컬 이미지 URL 생성
          */
         if(files) {
-            Array.from(files).forEach(file => addImage(file));
-            event.target.value='';
+            try{
+                Array.from(files).forEach(file => addImage(file));
+                event.target.value='';
+            }catch(e){
+                showErrorAlert({errorWhat:"이미지 첨부", text:e.message});
+            }
         }
     }
 

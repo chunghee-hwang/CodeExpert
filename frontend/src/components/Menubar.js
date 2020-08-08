@@ -18,8 +18,6 @@ function Menubar(props) {
                         <Nav.Link href={paths.pages.makeProblemForm}>알고리즘 문제 출제</Nav.Link>
                         <Nav.Link href={paths.pages.problemList}>코딩테스트 연습</Nav.Link>
                         <Nav.Link href={paths.pages.accountManagement}>계정 관리</Nav.Link>
-
-                        <Nav.Link href={paths.pages.signupForm}>회원 가입</Nav.Link>
                         <Nav.Link href={paths.actions.logout}>로그아웃</Nav.Link>
                     </Nav> :
                     <Nav className="align-center text-center">

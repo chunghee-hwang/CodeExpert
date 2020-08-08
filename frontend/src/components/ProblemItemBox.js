@@ -23,8 +23,8 @@ function ProblemItemBox(props) {
             </div>
 
             <div className="problem-btn-panel">
-                {problem.createdByMe ? <IoMdCheckmarkCircle className="problem-resolved-icon" size="30px" color="green"></IoMdCheckmarkCircle> : null}
-                {problem.resolved ? <Nav.Link className="edit-problem-btn" href={`${paths.pages.makeProblemForm}?id=${problem.id}`}><BsPencilSquare size="30px" color="red" /></Nav.Link> : null}
+                {problem.resolved ? <IoMdCheckmarkCircle className="problem-resolved-icon" size="30px" color="green"></IoMdCheckmarkCircle> : null}
+                {problem.createdByMe ? <Nav.Link className="edit-problem-btn" href={`${paths.pages.makeProblemForm}?id=${problem.id}`}><BsPencilSquare size="30px" color="red" /></Nav.Link> : null}
 
             </div>
         </div>

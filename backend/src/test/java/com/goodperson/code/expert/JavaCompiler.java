@@ -19,11 +19,11 @@ public class JavaCompiler {
         String[] rawArray = rawArrayValue.replaceAll("[\\[\\]\'\"\\s+]", "").split(",");
         Stream<String> valueStream = Arrays.stream(rawArray);
         switch (dataType) {
-            case "integer_array":
+            case "integerArray":
                 return valueStream.mapToInt(Integer::parseInt).toArray();
-            case "long_array":
+            case "longArray":
                 return valueStream.mapToLong(Long::parseLong).toArray();
-            case "boolean_array":
+            case "booleanArray":
                 Object[] stringArray = valueStream.toArray();
                 int stringArrayLength = stringArray.length;
                 boolean[] booleanArray = new boolean[stringArrayLength];
@@ -31,9 +31,9 @@ public class JavaCompiler {
                     booleanArray[idx] = Boolean.parseBoolean(String.valueOf(stringArray[idx]));
                 }
                 return booleanArray;
-            case "double_array":
+            case "doubleArray":
                 return valueStream.mapToDouble(Double::parseDouble).toArray();
-            case "string_array":
+            case "stringArray":
                 return rawArray;
             default:
                 return null;
@@ -55,15 +55,15 @@ public class JavaCompiler {
                 return Integer.parseInt(rawValue);
             case "double":
                 return Double.parseDouble(rawValue);
-            case "integer_array":
+            case "integerArray":
                 return splitArrayValue(rawValue, dataType);
-            case "long_array":
+            case "longArray":
                 return splitArrayValue(rawValue, dataType);
-            case "boolean_array":
+            case "booleanArray":
                 return splitArrayValue(rawValue, dataType);
-            case "double_array":
+            case "doubleArray":
                 return splitArrayValue(rawValue, dataType);
-            case "string_array":
+            case "stringArray":
                 return splitArrayValue(rawValue, dataType);
             default:
                 throw new Exception("DataType info is not correct.");
@@ -89,19 +89,19 @@ public class JavaCompiler {
             case "double":
                 className = double.class;
                 break;
-            case "integer_array":
+            case "integerArray":
                 className = int[].class;
                 break;
-            case "long_array":
+            case "longArray":
                 className = long[].class;
                 break;
-            case "boolean_array":
+            case "booleanArray":
                 className = boolean[].class;
                 break;
-            case "double_array":
+            case "doubleArray":
                 className = double[].class;
                 break;
-            case "string_array":
+            case "stringArray":
                 className = String[].class;
                 break;
             default:
@@ -158,7 +158,7 @@ public class JavaCompiler {
                 if (answerValue.equals(userAnswer)) {
                     printOutput("$answer|", outputWriter);
                 } else {
-                    printOutput("$not_answer|" + answerValue + "|" + String.valueOf(userAnswer), outputWriter);
+                    printOutput("$notAnswer|" + answerValue + "|" + String.valueOf(userAnswer), outputWriter);
                 }
                 printOutput("$time|" + timeElapsed, outputWriter);
             } catch (TimeoutException te) {
@@ -186,7 +186,7 @@ public class JavaCompiler {
 
     public static void main(String[] args) throws Exception {
         new JavaCompiler(args);
-        // String[] testArgs = new String[] { "timeout:5000", "integer_array:[1, 2, 3,
+        // String[] testArgs = new String[] { "timeout:5000", "integerArray:[1, 2, 3,
         // 4]", "integer:10" };
         // new JavaCompiler(testArgs);
     }

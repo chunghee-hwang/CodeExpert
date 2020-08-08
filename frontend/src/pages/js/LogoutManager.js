@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { bindActionCreators } from 'redux';
-import * as account_actions from 'store/modules/Account';
+import * as accountActions from 'store/modules/Account';
 import { connect } from 'react-redux';
 import { paths } from 'constants/Paths';
 import { showErrorAlert } from 'utils/AlertManager';
@@ -9,27 +9,27 @@ import { moveToPage } from 'utils/PageControl';
 
 function LogoutManager(props) {
 
-    const { account_actions, which, is_progressing, is_success, user, data } = props;
+    const { accountActions, which, isProgressing, isSuccess, user, data } = props;
 
     useEffect(() => {
         if (which !== 'logout') {
             if (user) {
-                account_actions.logout();
+                accountActions.logout();
             } else {
-                moveToPage(props.history, paths.pages.login_form);
+                moveToPage(props.history, paths.pages.loginForm);
             }
         }
-        else if (!is_progressing) {
-            if (is_success) {
-                moveToPage(props.history, paths.pages.login_form);
+        else if (!isProgressing) {
+            if (isSuccess) {
+                moveToPage(props.history, paths.pages.loginForm);
             }
             else {
-                showErrorAlert({ error_what: '로그아웃', text: data }).then(() => {
-                    moveToPage(props.history, paths.pages.problem_list);
+                showErrorAlert({ errorWhat: '로그아웃', text: data }).then(() => {
+                    moveToPage(props.history, paths.pages.problemList);
                 });
             }
         }
-    }, [props.history, account_actions, which, is_progressing, is_success, user, data]);
+    }, [props.history, accountActions, which, isProgressing, isSuccess, user, data]);
 
     return <LoadingScreen label="로그 아웃 중입니다." variant='warning' />;
 }
@@ -37,8 +37,8 @@ function LogoutManager(props) {
 
 const mapStateToProps = state => {
     return {
-        is_progressing: state.account.is_progressing,
-        is_success: state.account.is_success,
+        isProgressing: state.account.isProgressing,
+        isSuccess: state.account.isSuccess,
         which: state.account.which,
         user: state.account.user,
         data: state.account.data
@@ -47,7 +47,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        account_actions: bindActionCreators(account_actions, dispatch),
+        accountActions: bindActionCreators(accountActions, dispatch),
     }
 }
 

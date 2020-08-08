@@ -60,9 +60,7 @@ public class CodeGenerateManager {
         stringBuilder.append("):\n\tanswer = ");
         final String returnValueExpression;
         final String returnDataTypeName = problemReturn.getDataType().getName();
-        if (returnDataTypeName.endsWith("2d_array")) {
-            returnValueExpression = "[[]]";
-        } else if (returnDataTypeName.endsWith("_array")) {
+        if (returnDataTypeName.endsWith("Array")) {
             returnValueExpression = "[]";
         } else {
             switch (returnDataTypeName) {
@@ -119,34 +117,25 @@ public class CodeGenerateManager {
             case "double":
                 dataTypeValue = "0";
                 break;
-            case "integer_array":
+            case "integerArray":
                 dataTypeValue = "new int[]{}";
                 break;
-            case "integer_2d_array":
-                dataTypeValue = "new int[][]{}";
-                break;
-            case "long_array":
+            case "longArray":
                 dataTypeValue = "new long[]{}";
                 break;
-            case "long_2d_array":
-                dataTypeValue = "new long[][]{}";
-                break;
-            case "double_array":
+            case "doubleArray":
                 dataTypeValue = "new double[]{}";
-                break;
-            case "double_2d_array":
-                dataTypeValue = "new double[][]{}";
                 break;
             case "boolean":
                 dataTypeValue = "true";
                 break;
-            case "boolean_array":
+            case "booleanArray":
                 dataTypeValue = "new boolean[]{}";
                 break;
             case "string":
                 dataTypeValue = "\"\"";
                 break;
-            case "string_array":
+            case "stringArray":
                 dataTypeValue = "new String[]{}";
                 break;
             default:
@@ -162,40 +151,40 @@ public class CodeGenerateManager {
             case "integer":
                 dataTypeExpression = "int ";
                 break;
-            case "integer_array":
+            case "integerArray":
                 dataTypeExpression = "int[] ";
                 break;
-            case "integer_2d_array":
+            case "integer_2dArray":
                 dataTypeExpression = "int[][] ";
                 break;
             case "long":
                 dataTypeExpression = "long ";
                 break;
-            case "long_array":
+            case "longArray":
                 dataTypeExpression = "long[] ";
                 break;
-            case "long_2d_array":
+            case "long_2dArray":
                 dataTypeExpression = "long[][] ";
                 break;
             case "double":
                 dataTypeExpression = "double ";
                 break;
-            case "double_array":
+            case "doubleArray":
                 dataTypeExpression = "double[] ";
                 break;
-            case "double_2d_array":
+            case "double_2dArray":
                 dataTypeExpression = "double[][] ";
                 break;
             case "boolean":
                 dataTypeExpression = "boolean ";
                 break;
-            case "boolean_array":
+            case "booleanArray":
                 dataTypeExpression = "boolean[] ";
                 break;
             case "string":
                 dataTypeExpression = "String ";
                 break;
-            case "string_array":
+            case "stringArray":
                 dataTypeExpression = "String[] ";
                 break;
             default:
@@ -211,31 +200,31 @@ public class CodeGenerateManager {
             case "integer":
                 dataTypeExpression = "int ";
                 break;
-            case "integer_array":
+            case "integerArray":
                 dataTypeExpression = "std::vector<int> ";
                 break;
             case "long":
                 dataTypeExpression = "long ";
                 break;
-            case "long_array":
+            case "longArray":
                 dataTypeExpression = "std::vector<long> ";
                 break;
             case "double":
                 dataTypeExpression = "double ";
                 break;
-            case "double_array":
+            case "doubleArray":
                 dataTypeExpression = "std::vector<double> ";
                 break;
             case "boolean":
                 dataTypeExpression = "bool ";
                 break;
-            case "boolean_array":
+            case "booleanArray":
                 dataTypeExpression = "std::vector<boolean> ";
                 break;
             case "string":
                 dataTypeExpression = "std::string ";
                 break;
-            case "string_array":
+            case "stringArray":
                 dataTypeExpression = "std::vector<string> ";
                 break;
             default:
@@ -255,11 +244,11 @@ public class CodeGenerateManager {
             case "string":
                 valueExpression = value;
                 break;
-            case "integer_array":
-            case "long_array":
-            case "double_array":
-            case "boolean_array":
-            case "string_array":
+            case "integerArray":
+            case "longArray":
+            case "doubleArray":
+            case "booleanArray":
+            case "stringArray":
                 String prefix = getCppDataTypeExpression(dataTypeName);
                 valueExpression = prefix + value.replace("[", "{").replace("]", "}");
                 break;
@@ -272,9 +261,8 @@ public class CodeGenerateManager {
 
     public String getCppAnswerValueExpression(String dataTypeName) {
         String dataTypeExpression;
-        if (dataTypeName.endsWith("2d_array")) {
-            dataTypeExpression = "{{}}";
-        } else if (dataTypeName.endsWith("_array")) {
+        if (dataTypeName.endsWith("Array")) 
+        {
             dataTypeExpression = "{}";
         }
         switch (dataTypeName) {

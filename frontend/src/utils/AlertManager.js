@@ -1,69 +1,69 @@
 import swal from "sweetalert";
 
-export const showSuccessAlert = ({ success_what, text, btn_text }) => {
-    if (!btn_text) btn_text = '확인';
+export const showSuccessAlert = ({ successWhat, text, btnText }) => {
+    if (!btnText) btnText = '확인';
     let title = '';
-    if (success_what) {
-        title = success_what + ' 성공';
+    if (successWhat) {
+        title = successWhat + ' 성공';
     }
     return swal({
         title,
         text,
         icon: "success",
-        button: btn_text,
+        button: btnText,
     });
 }
 
-export const showErrorAlert = ({ error_what, text, btn_text }) => {
-    if (!btn_text) btn_text = '확인';
+export const showErrorAlert = ({ errorWhat, text, btnText }) => {
+    if (!btnText) btnText = '확인';
     let title = '';
-    if (error_what) {
-        title = error_what + ' 실패';
+    if (errorWhat) {
+        title = errorWhat + ' 실패';
     }
     return swal({
         title,
         text,
         icon: "error",
-        button: btn_text
+        button: btnText
     });
 }
 
-export const showWarningAlert = ({ title, text, btn_text }) => {
-    if (!btn_text) btn_text = '확인';
+export const showWarningAlert = ({ title, text, btnText }) => {
+    if (!btnText) btnText = '확인';
     return swal({
         title,
         text,
         icon: "warning",
         buttons: {
             cancel: '취소',
-            [btn_text]: btn_text
+            [btnText]: btnText
         },
         dangerMode: true,
     });
 }
 
-export const showValidationFailureAlert = ({ validation, fail_what, btn_text }) => {
-    if (validation.is_valid) return;
+export const showValidationFailureAlert = ({ validation, failWhat, btnText }) => {
+    if (validation.isValid) return;
     const afterValidate = () => {
-        if (validation.failed_element) {
-            validation.failed_element.focus();
-            validation.failed_element.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
+        if (validation.failedElement) {
+            validation.failedElement.focus();
+            validation.failedElement.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
         }
     };
-    return showErrorAlert({ error_what: fail_what, text: validation.fail_cause, btn_text }).then(afterValidate);
+    return showErrorAlert({ errorWhat: failWhat, text: validation.failCause, btnText }).then(afterValidate);
 }
 
-export const showTextInputAlert = ({ title, text, btn_text, default_value }) => {
-    if (!btn_text) btn_text = '확인';
+export const showTextInputAlert = ({ title, text, btnText, defaultValue }) => {
+    if (!btnText) btnText = '확인';
     return swal({
         title,
         text,
 
-        button: btn_text,
+        button: btnText,
         content: {
             element: 'input',
             attributes: {
-                defaultValue: default_value,
+                defaultValue: defaultValue,
             }
         }
     });

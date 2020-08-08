@@ -1,23 +1,23 @@
-export const id_regex = /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$/;
-export const password_regex = /^.*(?=^.{8,30}$)(?=.*\d)(?=.*[a-zA-Z])(?=.*[!@#$%^&+=]).*$/; //특수문자 / 문자 / 숫자 포함 형태의 8~30자리 이내의 암호 정규식
-export const nickname_regex = /^[a-zA-Z가-힣0-9|\s]{2,15}$/
+export const idRegex = /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$/;
+export const passwordRegex = /^.*(?=^.{8,30}$)(?=.*\d)(?=.*[a-zA-Z])(?=.*[!@#$%^&+=]).*$/; //특수문자 / 문자 / 숫자 포함 형태의 8~30자리 이내의 암호 정규식
+export const nicknameRegex = /^[a-zA-Z가-힣0-9|\s]{2,15}$/
 
 // 자료형 정규식
-export const data_type_regexs = {
+export const dataTypeRegexs = {
     integer: /^\d+$/,
-    integer_array: /^\[([+-]?\d+(,)?(\s)?)*\]$/,
-    integer_2d_array: /^\[(\[([+-]?\d+(,)?(\s)?)*\](,)?(\s)?)*\]$/,
+    integerArray: /^\[([+-]?\d+(,)?(\s)?)*\]$/,
+    integer_2dArray: /^\[(\[([+-]?\d+(,)?(\s)?)*\](,)?(\s)?)*\]$/,
     long: /^\d+$/,
-    long_array: /^\[([+-]?\d+(,)?(\s)?)*\]$/,
-    long_2d_array: /^\[(\[([+-]?\d+(,)?(\s)?)*\](,)?(\s)?)*\]$/,
+    longArray: /^\[([+-]?\d+(,)?(\s)?)*\]$/,
+    long_2dArray: /^\[(\[([+-]?\d+(,)?(\s)?)*\](,)?(\s)?)*\]$/,
     double: /^[+-]?\d+(.)?(\d+)?$/,
-    double_array: /^\[([+-]?\d+(.)?(\d+)?(,)?(\s)?)*\]$/,
-    double_2d_array: /^\[(\[([+-]?\d+(.)?(\d+)?(,)?(\s)?)*\](,)?(\s)?)*\]$/,
+    doubleArray: /^\[([+-]?\d+(.)?(\d+)?(,)?(\s)?)*\]$/,
+    double_2dArray: /^\[(\[([+-]?\d+(.)?(\d+)?(,)?(\s)?)*\](,)?(\s)?)*\]$/,
     boolean: /^(true|false)$/,
-    boolean_array: /^\[((true|false)(,)?(\s)?)*\]$/,
+    booleanArray: /^\[((true|false)(,)?(\s)?)*\]$/,
     string: /^"[^"]*"$/,
-    string_array: /^\[("[^"]*"(,)?(\s)?)*\]$/,
+    stringArray: /^\[("[^"]*"(,)?(\s)?)*\]$/,
 }
 
 // URL regex
-export const integer_param_regex = /^\d+$/;
+export const integerParamRegex = /^\d+$/;

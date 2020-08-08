@@ -4,9 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.OutputStream;
 import java.net.URLConnection;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
@@ -22,9 +20,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 public class ProblemController {
@@ -36,16 +32,10 @@ public class ProblemController {
     public ResponseEntity<?> makeProblem(
             @RequestBody RegisterOrUpdateProblemRequestDto registerOrUpdateProblemRequestDto) {
         Map<String, Object> result = new HashMap<>();
-        result.put("regiser_success", true);
-        // result.put("error_message", "오류");
+        result.put("regiserSuccess", true);
+        // result.put("errorMessage", "오류");
         return new ResponseEntity<>(registerOrUpdateProblemRequestDto, HttpStatus.OK);
 
-    }
-
-    @PostMapping("/uploadProblemImage")
-    public ResponseEntity<?> uploadProblemImage(@RequestParam("files[]") MultipartFile[] files) throws Exception {
-        List<String> urls = problemService.uploadProblemImage(files);
-        return new ResponseEntity<>(Collections.singletonMap("urls", urls), HttpStatus.OK);
     }
 
     @GetMapping("/images/{savedFileName}")

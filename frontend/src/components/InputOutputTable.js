@@ -1,5 +1,5 @@
 import React, { useEffect, useCallback } from 'react';
-import { table_mode } from 'constants/InputOutputTableMode';
+import { tableMode } from 'constants/InputOutputTableMode';
 import { fillWithParametersAndTestcases, addParam, addTestcase, createReturnDiv, getParamsCount, getTestcaseCount } from 'utils/InputOutputTableUtil';
 import DataTypeTooltip from './DataTypeTooltip';
 /**
@@ -7,14 +7,14 @@ import DataTypeTooltip from './DataTypeTooltip';
  *
  * -id : 테이블을 구분하기 위한 아이디
  * 
- * -label_name: 테이블 위에 표시될 라벨
+ * -labelName: 테이블 위에 표시될 라벨
  * 
- *-table_mode: 테이블 모드 constants/InputOutputTableMode에 정의됨
+ *-tableMode: 테이블 모드 constants/InputOutputTableMode에 정의됨
  *
- *-init_value : 테이블을 처음에 채울 값 
- *                 ex)init_value={ {param_names: ['name1', 'name2'], testcases: [{ params: [13, 15], returns: 28 }]} }
+ *-initValue : 테이블을 처음에 채울 값 
+ *                 ex)initValue={ {paramNames: ['name1', 'name2'], testcases: [{ params: [13, 15], returns: 28 }]} }
  * 
- * -data_types: 자료형 목록
+ * -dataTypes: 자료형 목록
  * 
  * -onChangeParamNames: 파라미터가 바뀔 경우 호출되는 메소드
  */
@@ -42,11 +42,12 @@ function InputOutputTable(props) {
     }, [props.id]);
 
     const initTable = useCallback(() => {
-        if (props.data_types) {
+        if (props.dataTypes) {
             createReturnDiv(props);
-            if (props.table_mode === table_mode.write.param_and_testcase) {
+            if (props.tableMode === tableMode.write.paramAndTestcase) {
+                
                 if (getParamsCount(props) < 1) {
-                    addParam(props, { name: '', data_type: props.data_types[0] });
+                    addParam(props, { name: '', dataType: props.dataTypes[0] });
                 }
                 if (getTestcaseCount(props) < 1) {
                     addTestcase(props);
@@ -54,7 +55,7 @@ function InputOutputTable(props) {
             }
             fillWithParametersAndTestcases(props);
 
-            setTableEnabled(props.table_mode !== table_mode.read);
+            setTableEnabled(props.tableMode !== tableMode.read);
         }
 
     }, [props, setTableEnabled]);
@@ -65,7 +66,7 @@ function InputOutputTable(props) {
 
     return (
         <div id={props.id} className="my-5 text-center">
-            <label className="my-3 font-weight-bold">{props.label_name}</label>{createButtonControl()}
+            <label className="my-3 font-weight-bold">{props.labelName}</label>{createButtonControl()}
             <div className="horizontal-scroll">
                 <table className="io-table my-3">
                     <tbody>
@@ -83,31 +84,31 @@ function InputOutputTable(props) {
 
 
     function createButtonControl() {
-        let add_button_control;
-        let add_param_button = <button className="btn btn-outline-success btn-sm mx-2" onClick={() => {
+        let addButtonControl;
+        let addParamButton = <button className="btn btn-outline-success btn-sm mx-2" onClick={() => {
             addParam(props)
         }} >파라미터 추가</button>;
-        let add_testcase_button = <button className="btn btn-outline-info btn-sm mx-2" onClick={() => addTestcase(props)} >테스트케이스 추가</button>;
-        switch (props.table_mode) {
-            case table_mode.write.param_and_testcase:
-                add_button_control =
+        let addTestcaseButton = <button className="btn btn-outline-info btn-sm mx-2" onClick={() => addTestcase(props)} >테스트케이스 추가</button>;
+        switch (props.tableMode) {
+            case tableMode.write.paramAndTestcase:
+                addButtonControl =
                     <span className="my-3 text-left">
-                        {add_param_button}
-                        {add_testcase_button}
+                        {addParamButton}
+                        {addTestcaseButton}
                         <DataTypeTooltip />
                     </span>
                 break;
-            case table_mode.write.testcase:
-                add_button_control =
+            case tableMode.write.testcase:
+                addButtonControl =
                     <span className="my-3 text-left">
-                        {add_testcase_button}
+                        {addTestcaseButton}
                     </span>
                 break;
             default:
-                add_button_control = null;
+                addButtonControl = null;
                 break;
         }
-        return add_button_control;
+        return addButtonControl;
     }
 }
 

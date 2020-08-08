@@ -1,20 +1,20 @@
 // ace 사용법: https://ace.c9.io/#nav=howto
-export const initAceEditor = (init_code = '', language_ace_name, editor_id_or_element, is_read_only = false) => {
+export const initAceEditor = (initCode = '', languageAceName, editorIdOrElement, isReadOnly = false) => {
     const ace = window.ace;
     if (!ace) return;
-    const editor = ace.edit(editor_id_or_element);
-    editor.setValue(init_code);
+    const editor = ace.edit(editorIdOrElement);
+    editor.setValue(initCode);
     editor.setTheme("ace/theme/twilight");
-    editor.session.setMode(`ace/mode/${language_ace_name}`);
+    editor.session.setMode(`ace/mode/${languageAceName}`);
     editor.session.setUseWrapMode(true);
     editor.session.setTabSize(4);
     editor.session.setWrapLimitRange(null, null);
     editor.setBehavioursEnabled(true);//auto pairing of quotes & brackets
     editor.setShowPrintMargin(false);
     editor.session.setUseSoftTabs(true);//use soft tabs (likely the default)
-    editor.setOptions({ readOnly: is_read_only, highlightActiveLine: !is_read_only, highlightGutterLine: !is_read_only });
+    editor.setOptions({ readOnly: isReadOnly, highlightActiveLine: !isReadOnly, highlightGutterLine: !isReadOnly });
 
-    if (is_read_only) {
+    if (isReadOnly) {
         editor.renderer.$cursorLayer.element.style.display = "none"
         editor.setOptions({ maxLines: Infinity });
     }
@@ -26,9 +26,9 @@ export const initAceEditor = (init_code = '', language_ace_name, editor_id_or_el
         })
 
         var snippetManager = ace.require("ace/snippets").snippetManager;
-        ace.config.loadModule(`ace/snippets/${language_ace_name}`, function (m) {
+        ace.config.loadModule(`ace/snippets/${languageAceName}`, function (m) {
             if (m) {
-                snippetManager.files[language_ace_name] = m;
+                snippetManager.files[languageAceName] = m;
             }
             m.snippets = snippetManager.parseSnippetFile(m.snippetText);
 

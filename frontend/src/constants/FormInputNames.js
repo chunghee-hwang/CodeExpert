@@ -1,24 +1,24 @@
-export const input_names =
+export const inputNames =
 {
     // user info.
     email: "email",
     password: "password",
-    password_check: "password_check",
+    passwordCheck: "passwordCheck",
     nickname: "nickname",
-    new_nickname:"new_nickname",
-    new_password: "new_password",
-    new_password_check: "new_password_check",
+    newNickname:"newNickname",
+    newPassword: "newPassword",
+    newPasswordCheck: "newPasswordCheck",
 
     // problem info
-    problem_id: "problem_id",
-    problem_title: "problem_title",
-    problem_type_id: "problem_type_id",
-    problem_explain: "problem_content",
-    limit_explain: "limit_explain",
-    time_limit: "time_limit",
-    memory_limit: "memory_limit",
-    problem_level_id: "problem_level_id",
-    answer_table: "answer_table",
-    example_table: "example_table",
+    problemId: "problemId",
+    problemTitle: "problemTitle",
+    problemTypeId: "problemTypeId",
+    problemExplain: "problemContent",
+    limitExplain: "limitExplain",
+    timeLimit: "timeLimit",
+    memoryLimit: "memoryLimit",
+    problemLevelId: "problemLevelId",
+    answerTable: "answerTable",
+    exampleTable: "exampleTable",
 
 }

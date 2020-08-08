@@ -38,7 +38,6 @@ export const signup = createAction(SIGNUP);
 export const clearWhich = createAction(CLEAR_WHICH);
 
 function* changeNicknameSaga(action) {
-    yield
     try {
         const response = yield call(AccountApi.changeNickname, action.payload);
         yield call(saveUserDataToSessionStorage, response.data);
@@ -50,7 +49,6 @@ function* changeNicknameSaga(action) {
 }
 
 function* changePasswordSaga(action) {
-    yield
     try {
         const response = yield call(AccountApi.changePassword, action.payload);
         yield put({ type: CHANGE_PASSWORD_SUCCESS, payload: response.data });
@@ -70,7 +68,6 @@ function* deleteAccountSaga(action) {
 }
 
 function* loginSaga(action) {
-    yield
     try {
         const response = yield call(AccountApi.login, action.payload);
         yield call(saveUserDataToSessionStorage, response.data);
@@ -81,7 +78,6 @@ function* loginSaga(action) {
 }
 
 function* logoutSaga(action) {
-    yield
     try {
         const response = yield call(AccountApi.logout, action.payload);
         yield put({ type: LOGOUT_SUCCESS, payload: response.data });
@@ -91,7 +87,6 @@ function* logoutSaga(action) {
 }
 
 function* signupSaga(action) {
-    yield
     try {
         const response = yield call(AccountApi.signUp, action.payload);
         yield put({ type: SIGNUP_SUCCESS, payload: response.data });
@@ -120,13 +115,13 @@ const getUserDataFromSessionStorage = ()=>{
 }
 
 // 새로 고침하면 유저 데이터가 store에서 날아가는 거 방지. 세션 스토리지기 때문에 서버의 세션이 만료되면 같이 만료됨.
-let user_in_storage = getUserDataFromSessionStorage();
-const initial_state = {
-    is_progressing: false,
-    is_success: false,
+let userInStorage = getUserDataFromSessionStorage();
+const initialState = {
+    isProgressing: false,
+    isSuccess: false,
     data: null,
     which: null,
-    user: user_in_storage ? JSON.parse(user_in_storage) : null
+    user: userInStorage ? JSON.parse(userInStorage) : null
 };
 
 export default handleActions({
@@ -136,8 +131,8 @@ export default handleActions({
         return {
             ...state,
             which: 'nickname',
-            is_progressing: true,
-            is_success: false,
+            isProgressing: true,
+            isSuccess: false,
             data: null,
         };
     },
@@ -145,8 +140,8 @@ export default handleActions({
         return {
             ...state,
             which: 'nickname',
-            is_progressing: false,
-            is_success: true,
+            isProgressing: false,
+            isSuccess: true,
             data: null,
             user: action.payload
         };
@@ -155,8 +150,8 @@ export default handleActions({
         return {
             ...state,
             which: 'nickname',
-            is_progressing: false,
-            is_success: false,
+            isProgressing: false,
+            isSuccess: false,
             data: action.payload,
         };
     },
@@ -164,8 +159,8 @@ export default handleActions({
         return {
             ...state,
             which: 'password',
-            is_progressing: true,
-            is_success: false,
+            isProgressing: true,
+            isSuccess: false,
             data: null,
         };
     },
@@ -173,8 +168,8 @@ export default handleActions({
         return {
             ...state,
             which: 'password',
-            is_progressing: false,
-            is_success: true,
+            isProgressing: false,
+            isSuccess: true,
             data: null,
         };
     },
@@ -182,8 +177,8 @@ export default handleActions({
         return {
             ...state,
             which: 'password',
-            is_progressing: false,
-            is_success: false,
+            isProgressing: false,
+            isSuccess: false,
             data: action.payload,
         };
     },
@@ -191,16 +186,16 @@ export default handleActions({
         return {
             ...state,
             which: 'account',
-            is_progressing: true,
-            is_success: false,
+            isProgressing: true,
+            isSuccess: false,
             data: null,
         };
     },
     [DELETE_ACCOUNT_SUCCESS]: (state, action) => {
         return {
             which: 'account',
-            is_progressing: false,
-            is_success: true,
+            isProgressing: false,
+            isSuccess: true,
             data: null,
             user: null
         };
@@ -209,8 +204,8 @@ export default handleActions({
         return {
             ...state,
             which: 'account',
-            is_progressing: false,
-            is_success: false,
+            isProgressing: false,
+            isSuccess: false,
             data: action.payload,
         };
     },
@@ -218,16 +213,16 @@ export default handleActions({
         return {
             ...state,
             which: 'login',
-            is_progressing: true,
-            is_success: false,
+            isProgressing: true,
+            isSuccess: false,
             data: null,
         };
     },
     [LOGIN_SUCCESS]: (state, action) => {
         return {
             which: 'login',
-            is_progressing: false,
-            is_success: true,
+            isProgressing: false,
+            isSuccess: true,
             data: null,
             user: action.payload
         };
@@ -235,8 +230,8 @@ export default handleActions({
     [LOGIN_FAILURE]: (state, action) => {
         return {
             which: 'login',
-            is_progressing: false,
-            is_success: false,
+            isProgressing: false,
+            isSuccess: false,
             data: action.payload,
             user: null
         };
@@ -245,16 +240,16 @@ export default handleActions({
         return {
             ...state,
             which: 'logout',
-            is_progressing: true,
-            is_success: false,
+            isProgressing: true,
+            isSuccess: false,
             data: null,
         };
     },
     [LOGOUT_SUCCESS]: (state, action) => {
         return {
             which: 'logout',
-            is_progressing: false,
-            is_success: true,
+            isProgressing: false,
+            isSuccess: true,
             data: null,
             user: null
         };
@@ -263,8 +258,8 @@ export default handleActions({
         return {
             ...state,
             which: 'logout',
-            is_progressing: false,
-            is_success: false,
+            isProgressing: false,
+            isSuccess: false,
             data: action.payload,
         };
     },
@@ -272,8 +267,8 @@ export default handleActions({
         return {
             ...state,
             which: 'signup',
-            is_progressing: true,
-            is_success: false,
+            isProgressing: true,
+            isSuccess: false,
             data: null,
         };
     },
@@ -281,8 +276,8 @@ export default handleActions({
         return {
             ...state,
             which: 'signup',
-            is_progressing: false,
-            is_success: true,
+            isProgressing: false,
+            isSuccess: true,
             data: action.payload,
         };
     },
@@ -290,8 +285,8 @@ export default handleActions({
         return {
             ...state,
             which: 'signup',
-            is_progressing: false,
-            is_success: false,
+            isProgressing: false,
+            isSuccess: false,
             data: action.payload,
         };
     },
@@ -301,4 +296,4 @@ export default handleActions({
             which: null
         }
     }
-}, initial_state);
+}, initialState);

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
 import { initAceEditor } from 'utils/AceEditor';
 
 import 'pages/css/OthersSolutions.css';
@@ -10,76 +9,77 @@ import Comments from 'components/Comments';
 import { getIntegerPathParameter, moveToPage } from 'utils/PageControl';
 import LoadingScreen from 'components/LoadingScreen';
 import AuthenticateManager from 'utils/AuthenticateManager';
+import { useParams } from 'react-router-dom';
 function OthersSolutions(props) {
-    const problem_id = getIntegerPathParameter(useParams, 'problemId');
+    const problemId = getIntegerPathParameter(useParams()['problemId']);
     const [page, setPage] = useState(1);
     const { user } = props.account;
-    const { solution_actions, problem_actions } = props;
-    const { data: solution_data, which: solution_which, is_progressing: is_solution_progressing, is_success: is_solution_success } = props.solution;
-    const { data: problem_data } = props.problem;
-    const [language_id, setLanguageId] = useState(null);
+    const { solutionActions, problemActions } = props;
+    const { data: solutionData, which: solutionWhich, isProgressing: isSolutionProgressing, isSuccess: isSolutionSuccess } = props.solution;
+    const { data: problemData } = props.problem;
+    const [languageId, setLanguageId] = useState(null);
     useEffect(() => {
-        if (!user || !problem_id || !AuthenticateManager.isUserLoggedIn()) {
+        if (!user || !problemId || !AuthenticateManager.isUserLoggedIn()) {
             
-            moveToPage(props.history, paths.pages.login_form);
+            moveToPage(props.history, paths.pages.loginForm);
             return;
         }
-        if (!problem_data.problem_meta_data) problem_actions.getProblemMetaData();
+        if (!problemData.problemMetaData) problemActions.getProblemMetaData();
         else {
-            //- request others solutions using problem_id, language_id, page
-            if (!solution_data.others_solutions) solution_actions.getOthersSolutions({ problem_id, page, language_id });
+            //- request others solutions using problemId, languageId, page
+            if (!solutionData.othersSolutions) solutionActions.getOthersSolutions({ problemId, page, languageId });
             else {
-                if (!language_id && problem_data.problem_meta_data.languages) setLanguageId(problem_data.problem_meta_data.languages[0].id);
-                if (language_id) {
-                    const language_select = document.querySelector('#others-solution-language-select');
-                    const language_select_idx = Array.from(language_select.children).findIndex(option => Number(option.dataset.language_id) === language_id);
-                    if (language_select_idx !== -1) language_select.selectedIndex = language_select_idx;
+                if (!languageId && problemData.problemMetaData.languages) setLanguageId(problemData.problemMetaData.languages[0].id);
+                if (languageId) {
+                    const languageSelect = document.querySelector('#others-solution-language-select');
+                    const languageSelectIdx = Array.from(languageSelect.children).findIndex(option => Number(option.dataset.languageid) === languageId);
+                    if (languageSelectIdx !== -1) languageSelect.selectedIndex = languageSelectIdx;
 
-                    const code_viewers = document.querySelectorAll('.code-viewer');
-                    code_viewers.forEach(code_viewer => {
-                        const solution = solution_data.others_solutions.solutions[code_viewer.dataset.solution_idx];
-                        initAceEditor(solution.code, solution.language.ace_name, code_viewer, true);
+                    const codeViewers = document.querySelectorAll('.code-viewer');
+                    codeViewers.forEach(codeViewer => {
+                        const solution = solutionData.othersSolutions.solutions[codeViewer.dataset.solutionidx];
+                        initAceEditor(solution.code, solution.language.aceName, codeViewer, true);
                     });
                 }
             }
         }
 
 
-    }, [user, props.history, language_id, page, problem_id, solution_data.others_solutions, solution_actions, problem_actions, problem_data.problem_meta_data]);
+    }, [user, props.history, languageId, page, problemId, solutionData.othersSolutions, solutionActions, problemActions, problemData.problemMetaData]);
 
 
     const getLanguageOptions = () => {
-        return problem_data.problem_meta_data.languages.reduce((accumulator, language) => {
+        return problemData.problemMetaData.languages.reduce((accumulator, language) => {
             accumulator.push(
-                <option key={language.id} data-language_id={language.id}>{language.name}</option>
+                <option key={language.id} data-languageid={language.id}>{language.name}</option>
             );
             return accumulator;
         }, []);
     }
 
     const getPaginationItems = () => {
-        let pagination_items = [];
-        for (let number = 1; number <= solution_data.others_solutions.max_page_number; number++) {
-            pagination_items.push(
+        let paginationItems = [];
+        for (let number = 1; number <= solutionData.othersSolutions.maxPageNumber; number++) {
+            paginationItems.push(
                 <Pagination.Item key={number} active={page === number} onClick={e => { setPage(number); updateOthersSolutions(); }}>{number}</Pagination.Item>
             );
         }
-        return pagination_items;
+        return paginationItems;
     }
 
     const getSolutionsAndComments = () => {
-        return solution_data.others_solutions.solutions.reduce((accumulator, solution, idx) => {
+        return solutionData.othersSolutions.solutions.reduce((accumulator, solution, idx) => {
             accumulator.push(
                 <div key={idx} className="others-solution">
                     <h5 className="font-weight-bold">{unescape(solution.user.nickname)}</h5>
-                    <div id={`code-viewer${idx}`} className="code-viewer" data-solution_idx={idx}>
+                    <div id={`code-viewer${idx}`} className="code-viewer" data-solutionidx={idx}>
                     </div>
                     <div className="others-solution-like">
-                        <LikeBtn solution_id={solution.id} likes={solution.likes} which={solution_which} is_success={is_solution_success} is_progressing={is_solution_progressing} solution_actions={solution_actions} />
+                        <LikeBtn solutionId={solution.id} likes={solution.likes} which={solutionWhich} isSuccess={isSolutionSuccess} isProgressing={isSolutionProgressing} solutionActions={solutionActions} />
                     </div>
                     <h6 className="font-weight-bold mt-3">댓글</h6>
                     <div className="others-solution-comments">
-                        <Comments solution_id={solution.id} user={user} comments={solution.comments} which={solution_which} is_success={is_solution_success} is_progressing={is_solution_progressing} solution_actions={solution_actions} />
+                        <Comments solutionId={solution.id} user={user} comments={solution.comments} which={solutionWhich} isSuccess={isSolutionSuccess} isProgressing={isSolutionProgressing} solutionActions={solutionActions} />
                     </div>
                 </div>
 
@@ -90,30 +90,30 @@ function OthersSolutions(props) {
 
 
     const updateOthersSolutions = () => {
-        solution_actions.clearOthersSolutions();
+        solutionActions.clearOthersSolutions();
     }
     return (
         <div className="others-solutions">
-            {(!solution_data.others_solutions || !problem_data.problem_meta_data) ? <LoadingScreen label='다른 사람의 풀이를 불러오는 중입니다' /> :
+            {(!solutionData.othersSolutions || !problemData.problemMetaData) ? <LoadingScreen label='다른 사람의 풀이를 불러오는 중입니다' /> :
                 <>
 
                     <div className="others-solutions-title-bar">
                         <div className="others-solution-title">
                             <h3 className="font-weight-bold">다른 사람의 풀이</h3>
-                            <Nav.Link className="to-problem-link ellipsis-text" href={`${paths.pages.algorithm_test.prefix}/${problem_id}`}>
-                                {solution_data.others_solutions.problem.title}
+                            <Nav.Link className="to-problem-link ellipsis-text" href={`${paths.pages.algorithmTest.prefix}/${problemId}`}>
+                                {solutionData.othersSolutions.problem.title}
                             </Nav.Link>
                         </div>
 
                         <select id="others-solution-language-select" className="custom-select" onChange={e => {
-                            setLanguageId(Number(e.target.options[e.target.selectedIndex].dataset.language_id));
+                            setLanguageId(Number(e.target.options[e.target.selectedIndex].dataset.languageid));
                             setPage(1);
                             updateOthersSolutions();
                         }}>
                             {getLanguageOptions()}
                         </select>
                     </div>
-                    {is_solution_progressing ? <ProgressBar animated now={100} /> : null}
+                    {isSolutionProgressing ? <ProgressBar animated now={100} /> : null}
                     {getSolutionsAndComments()}
                     <div className="pages horizontal-scroll">
 
@@ -126,7 +126,7 @@ function OthersSolutions(props) {
                             }} />
                             {getPaginationItems()}
                             <Pagination.Next onClick={e => {
-                                if (page < solution_data.others_solutions.max_page_number) {
+                                if (page < solutionData.othersSolutions.maxPageNumber) {
                                     setPage(page + 1);
                                     updateOthersSolutions();
                                 }

@@ -33,7 +33,6 @@ export const deleteComment = createAction(DELETE_COMMENT, data => data);
 export const likeOrCancelLike = createAction(LIKE_OR_CANCEL_LIKE, data => data);
 
 function* getOthersSolutionsSaga(action) {
-    yield 
     try {
         const response = yield call(SolutionApi.getOthersSolutions, action.payload);
         yield put({ type: GET_OTHERS_SOLUTIONS_SUCCESS, payload: response });
@@ -43,7 +42,6 @@ function* getOthersSolutionsSaga(action) {
     }
 }
 function* registerCommentSaga(action) {
-    yield 
     try {
         const response = yield call(SolutionApi.registerComment, action.payload);
         yield put({ type: REGISTER_COMMENT_SUCCESS, payload: response });
@@ -54,7 +52,6 @@ function* registerCommentSaga(action) {
 }
 
 function* updateCommentSaga(action) {
-    yield 
     try {
         const response = yield call(SolutionApi.updateComment, action.payload);
         yield put({ type: UPDATE_COMMENT_SUCCESS, payload: response });
@@ -65,7 +62,6 @@ function* updateCommentSaga(action) {
 }
 
 function* deleteCommentSaga(action) {
-    yield 
     try {
         const response = yield call(SolutionApi.deleteComment, action.payload);
         yield put({ type: DELETE_COMMENT_SUCCESS, payload: response });
@@ -76,7 +72,6 @@ function* deleteCommentSaga(action) {
 }
 
 function* likeOrCancelLikeSaga(action) {
-    yield 
     try {
         const response = yield call(SolutionApi.likeOrCancelLike, action.payload);
         yield put({ type: LIKE_OR_CANCEL_LIKE_SUCCESS, payload: response });
@@ -94,9 +89,9 @@ export function* solutionSaga() {
     yield takeEvery(LIKE_OR_CANCEL_LIKE, likeOrCancelLikeSaga);
 }
 
-const initial_state = {
-    is_progressing: false,
-    is_success: false,
+const initialState = {
+    isProgressing: false,
+    isSuccess: false,
     data: {},
     which: null,
 };
@@ -105,110 +100,110 @@ export default handleActions({
     [GET_OTHERS_SOLUTIONS]: (state, action) => {
         return {
             ...state,
-            is_progressing: true,
-            is_success: false,
-            which: 'get_others_solutions'
+            isProgressing: true,
+            isSuccess: false,
+            which: 'getOthersSolutions'
         }
     },
     [GET_OTHERS_SOLUTIONS_SUCCESS]: (state, action) => {
         return {
-            is_progressing: false,
-            is_success: true,
+            isProgressing: false,
+            isSuccess: true,
             data: {
                 ...state.data,
-                others_solutions: action.payload
+                othersSolutions: action.payload
             },
-            which: 'get_others_solutions'
+            which: 'getOthersSolutions'
         }
     },
     [GET_OTHERS_SOLUTIONS_FAILURE]: (state, action) => {
         return {
-            is_progressing: false,
-            is_success: false,
+            isProgressing: false,
+            isSuccess: false,
             data: {
                 ...state.data,
-                fail_cause: action.payload
+                failCause: action.payload
             },
-            which: 'get_others_solutions'
+            which: 'getOthersSolutions'
         }
     },
     [CLEAR_OTHERS_SOLUTIONS]: (state, action) => {
         return {
-            is_progressing: false,
-            is_success: true,
+            isProgressing: false,
+            isSuccess: true,
             data: {
                 ...state.data,
-                others_solutions: null
+                othersSolutions: null
             },
-            which: 'get_others_solutions'
+            which: 'getOthersSolutions'
         }
     },
 
     [REGISTER_COMMENT]: (state, action) => {
         return {
             ...state,
-            is_progressing: true,
-            is_success: false,
-            which: 'register_comment'
+            isProgressing: true,
+            isSuccess: false,
+            which: 'registerComment'
         }
     },
     [REGISTER_COMMENT_SUCCESS]: (state, action) => {
         const error = new Error('Fail to add comment');;
-        let register_comment_result = action.payload;
-        if (!state.data.others_solutions) {
+        let registerCommentResult = action.payload;
+        if (!state.data.othersSolutions) {
             throw error;
         }
 
-        let others_solutions = { ...state.data.others_solutions };
-        let solution = others_solutions.solutions.find(solution => solution.id === register_comment_result.solution_id);
+        let othersSolutions = { ...state.data.othersSolutions };
+        let solution = othersSolutions.solutions.find(solution => solution.id === registerCommentResult.solutionId);
         if (solution) {
-            solution.comments.push(register_comment_result.comment);
+            solution.comments.push(registerCommentResult.comment);
         } else {
             throw error;
         }
         return {
-            is_progressing: false,
-            is_success: true,
+            isProgressing: false,
+            isSuccess: true,
             data: {
                 ...state.data,
-                others_solutions
+                othersSolutions
             },
-            which: 'register_comment'
+            which: 'registerComment'
         }
     },
     [REGISTER_COMMENT_FAILURE]: (state, action) => {
         return {
-            is_progressing: false,
-            is_success: false,
+            isProgressing: false,
+            isSuccess: false,
             data: {
                 ...state.data,
-                fail_cause: action.payload
+                failCause: action.payload
             },
-            which: 'register_comment'
+            which: 'registerComment'
         }
     },
 
     [UPDATE_COMMENT]: (state, action) => {
         return {
             ...state,
-            is_progressing: true,
-            is_success: false,
-            which: 'update_comment'
+            isProgressing: true,
+            isSuccess: false,
+            which: 'updateComment'
         }
     },
     [UPDATE_COMMENT_SUCCESS]: (state, action) => {
         const error = new Error('Fail to update comment');;
-        let update_comment_result = action.payload;
-        if (!state.data.others_solutions) {
+        let updateCommentResult = action.payload;
+        if (!state.data.othersSolutions) {
             throw error;
         }
 
-        let others_solutions = { ...state.data.others_solutions };
-        let solution = others_solutions.solutions.find(solution => solution.id === update_comment_result.solution_id);
+        let othersSolutions = { ...state.data.othersSolutions };
+        let solution = othersSolutions.solutions.find(solution => solution.id === updateCommentResult.solutionId);
         if (solution) {
-            let comment_idx = solution.comments.findIndex(comment => comment.id === update_comment_result.comment.id);
-            if (comment_idx !== -1) {
-                solution.comments[comment_idx] = update_comment_result.comment;
+            let commentIdx = solution.comments.findIndex(comment => comment.id === updateCommentResult.comment.id);
+            if (commentIdx !== -1) {
+                solution.comments[commentIdx] = updateCommentResult.comment;
             }
             else {
                 throw error;
@@ -217,48 +212,48 @@ export default handleActions({
             throw error;
         }
         return {
-            is_progressing: false,
-            is_success: true,
+            isProgressing: false,
+            isSuccess: true,
             data: {
                 ...state.data,
-                others_solutions
+                othersSolutions
             },
-            which: 'update_comment'
+            which: 'updateComment'
         }
     },
     [UPDATE_COMMENT_FAILURE]: (state, action) => {
         return {
-            is_progressing: false,
-            is_success: false,
+            isProgressing: false,
+            isSuccess: false,
             data: {
                 ...state.data,
-                fail_cause: action.payload
+                failCause: action.payload
             },
-            which: 'update_comment'
+            which: 'updateComment'
         }
     },
 
     [DELETE_COMMENT]: (state, action) => {
         return {
             ...state,
-            is_progressing: true,
-            is_success: false,
-            which: 'delete_comment'
+            isProgressing: true,
+            isSuccess: false,
+            which: 'deleteComment'
         }
     },
     [DELETE_COMMENT_SUCCESS]: (state, action) => {
         const error = new Error('Fail to delete comment');;
-        let delete_comment_result = action.payload;
-        if (!state.data.others_solutions) {
+        let deleteCommentResult = action.payload;
+        if (!state.data.othersSolutions) {
             throw error;
         }
 
-        let others_solutions = { ...state.data.others_solutions };
-        let solution = others_solutions.solutions.find(solution => solution.id === delete_comment_result.solution_id);
+        let othersSolutions = { ...state.data.othersSolutions };
+        let solution = othersSolutions.solutions.find(solution => solution.id === deleteCommentResult.solutionId);
         if (solution) {
-            let comment_idx = solution.comments.findIndex(comment => comment.id === delete_comment_result.comment.id);
-            if (comment_idx !== -1) {
-                solution.comments.splice(comment_idx, 1);
+            let commentIdx = solution.comments.findIndex(comment => comment.id === deleteCommentResult.comment.id);
+            if (commentIdx !== -1) {
+                solution.comments.splice(commentIdx, 1);
             }
             else {
                 throw error;
@@ -267,67 +262,67 @@ export default handleActions({
             throw error;
         }
         return {
-            is_progressing: false,
-            is_success: true,
+            isProgressing: false,
+            isSuccess: true,
             data: {
                 ...state.data,
-                others_solutions
+                othersSolutions
             },
-            which: 'delete_comment'
+            which: 'deleteComment'
         }
     },
     [DELETE_COMMENT_FAILURE]: (state, action) => {
         return {
-            is_progressing: false,
-            is_success: false,
+            isProgressing: false,
+            isSuccess: false,
             data: {
                 ...state.data,
-                fail_cause: action.payload
+                failCause: action.payload
             },
-            which: 'delete_comment'
+            which: 'deleteComment'
         }
     },
 
     [LIKE_OR_CANCEL_LIKE]: (state, action) => {
         return {
             ...state,
-            is_progressing: true,
-            is_success: false,
-            which: 'like_or_cancel_like',
+            isProgressing: true,
+            isSuccess: false,
+            which: 'likeOrCancelLike',
         }
     },
     [LIKE_OR_CANCEL_LIKE_SUCCESS]: (state, action) => {
         const error = new Error('Fail to like comment');;
-        let like_result = action.payload;
-        if (!state.data.others_solutions) {
+        let likeResult = action.payload;
+        if (!state.data.othersSolutions) {
             throw error;
         }
-        let others_solutions = { ...state.data.others_solutions };
-        let solution = others_solutions.solutions.find(solution => solution.id === like_result.solution_id);
+        let othersSolutions = { ...state.data.othersSolutions };
+        let solution = othersSolutions.solutions.find(solution => solution.id === likeResult.solutionId);
         if (solution && solution.likes) {
-            solution.likes = like_result.likes;
+            solution.likes = likeResult.likes;
         } else {
             throw error;
         }
         return {
-            is_progressing: false,
-            is_success: true,
+            isProgressing: false,
+            isSuccess: true,
             data: {
                 ...state.data,
-                others_solutions
+                othersSolutions
             },
-            which: 'like_or_cancel_like'
+            which: 'likeOrCancelLike'
         }
     },
     [LIKE_OR_CANCEL_LIKE_FAILURE]: (state, action) => {
         return {
-            is_progressing: false,
-            is_success: false,
+            isProgressing: false,
+            isSuccess: false,
             data: {
                 ...state.data,
-                fail_cause: action.payload
+                failCause: action.payload
             },
-            which: 'like_or_cancel_like',
+            which: 'likeOrCancelLike',
         }
     }
-}, initial_state);
+}, initialState);

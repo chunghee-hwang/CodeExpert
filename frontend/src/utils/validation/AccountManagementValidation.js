@@ -1,60 +1,60 @@
-import { input_names } from "constants/FormInputNames";
-import { password_regex, nickname_regex } from './Regexes';
-export function validateNewNickname(form, prev_nickname) {
+import { inputNames } from "constants/FormInputNames";
+import { passwordRegex, nicknameRegex } from './Regexes';
+export function validateNewNickname(form, prevNickname) {
     const values = {
-        [input_names.new_nickname]: form[input_names.new_nickname].value.trim(),
+        [inputNames.newNickname]: form[inputNames.newNickname].value.trim(),
     }
     let validation = {
-        is_valid: false,
-        fail_cause: null,
-        failed_element: null,
+        isValid: false,
+        failCause: null,
+        failedElement: null,
         values
     }
-    validation.failed_element = form[input_names.new_nickname];
-    if (!values[input_names.new_nickname]) {
-        validation.fail_cause = "닉네임을 입력해주세요";
+    validation.failedElement = form[inputNames.newNickname];
+    if (!values[inputNames.newNickname]) {
+        validation.failCause = "닉네임을 입력해주세요";
     }
-    else if (unescape(prev_nickname) === values[input_names.new_nickname]) {
-        validation.fail_cause = "이전 닉네임과 새 닉네임이 일치합니다.";
+    else if (unescape(prevNickname) === values[inputNames.newNickname]) {
+        validation.failCause = "이전 닉네임과 새 닉네임이 일치합니다.";
     }
-    else if (!nickname_regex.test(values[input_names.new_nickname])) {
-        validation.fail_cause = "닉네임은 2자 이상 15자 이내로, 영어, 자음 모음 합쳐진 한글, 숫자만 입력 가능합니다.";
+    else if (!nicknameRegex.test(values[inputNames.newNickname])) {
+        validation.failCause = "닉네임은 2자 이상 15자 이내로, 영어, 자음 모음 합쳐진 한글, 숫자만 입력 가능합니다.";
     }
     else {
-        validation.is_valid = true;
+        validation.isValid = true;
     }
 
-    validation.values[input_names.new_nickname] = escape(values[input_names.new_nickname]);
+    validation.values[inputNames.newNickname] = escape(values[inputNames.newNickname]);
     return validation;
 }
 
 export function validateNewPassword(form) {
     const values = {
-        [input_names.password]: form[input_names.password].value.trim(),
-        [input_names.new_password]: form[input_names.new_password].value.trim(),
-        [input_names.new_password_check]: form[input_names.new_password_check].value.trim()
+        [inputNames.password]: form[inputNames.password].value.trim(),
+        [inputNames.newPassword]: form[inputNames.newPassword].value.trim(),
+        [inputNames.newPasswordCheck]: form[inputNames.newPasswordCheck].value.trim()
     }
     let validation = {
-        is_valid: false,
-        fail_cause: null,
-        failed_element: null,
+        isValid: false,
+        failCause: null,
+        failedElement: null,
         values
     }
 
-    if (!values[input_names.password] || !values[input_names.new_password] || !values[input_names.new_password_check]) {
-        validation.fail_cause = "비밀번호, 새로운 비밀번호, 비밀번호 확인은 필수 항목입니다.";
-        validation.failed_element = form[input_names.password];
+    if (!values[inputNames.password] || !values[inputNames.newPassword] || !values[inputNames.newPasswordCheck]) {
+        validation.failCause = "비밀번호, 새로운 비밀번호, 비밀번호 확인은 필수 항목입니다.";
+        validation.failedElement = form[inputNames.password];
     }
-    else if (!password_regex.test(values[input_names.new_password])) {
-        validation.fail_cause = "비밀번호는 특수문자, 문자, 숫자를 포함하여 8~15자리 이내로 입력해주세요."
-        validation.failed_element = form[input_names.new_password];
+    else if (!passwordRegex.test(values[inputNames.newPassword])) {
+        validation.failCause = "비밀번호는 특수문자, 문자, 숫자를 포함하여 8~15자리 이내로 입력해주세요."
+        validation.failedElement = form[inputNames.newPassword];
     }
-    else if (values[input_names.new_password] !== values[input_names.new_password_check]) {
-        validation.fail_cause = "새로운 비밀번호와 비밀번호 확인 입력값이 일치하지 않습니다."
-        validation.failed_element = form[input_names.new_password_check];
+    else if (values[inputNames.newPassword] !== values[inputNames.newPasswordCheck]) {
+        validation.failCause = "새로운 비밀번호와 비밀번호 확인 입력값이 일치하지 않습니다."
+        validation.failedElement = form[inputNames.newPasswordCheck];
     }
     else {
-        validation.is_valid = true;
+        validation.isValid = true;
     }
     return validation;
 }

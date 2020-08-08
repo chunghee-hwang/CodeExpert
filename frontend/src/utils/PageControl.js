@@ -1,4 +1,4 @@
-import { integer_param_regex } from 'utils/validation/Regexes';
+import { integerParamRegex } from 'utils/validation/Regexes';
 
 /**
  * 다른 페이지로 이동하는 메소드
@@ -11,31 +11,29 @@ export const moveToPage = (history, url) => {
 
 /**
  * /url?param=aa 처럼 URL에서 ?를 사용하는 파라미터를 가져오는 메소드
- * @param {string} param_name 파라미터 이름
+ * @param {string} paramName 파라미터 이름
  */
-export const getQueryParameter = (param_name) => {
-    return new URLSearchParams(window.location.search).get(param_name);
+export const getQueryParameter = (paramName) => {
+    return new URLSearchParams(window.location.search).get(paramName);
 }
 
 /**
  * getOptionalParameter와 같지만 파라미터가 정수형일 때만 가져오는 메소드
- * @param {string} param_name 
+ * @param {string} paramName 
  * @returns 정수형 파라미터
  */
-export const getIntegerQueryParameter = (param_name) => {
-    const parameter = getQueryParameter(param_name);
-    if (parameter && integer_param_regex.test(parameter)) return parameter;
+export const getIntegerQueryParameter = (paramName) => {
+    const parameter = getQueryParameter(paramName);
+    if (parameter && integerParamRegex.test(parameter)) return parameter;
     else return null;
 }
 
 /**
  * /url/aa 처럼 URL에서 /를 사용하는 파라미터를 가져오는 메소드
- * @param {Function} use_params_function react-router-dom > BrowserRouter > useParams 메소드
- * @param {string} param_name 파라미터 이름
+ * @param {Function} useParamsFunction react-router-dom > BrowserRouter > useParams 메소드
+ * @param {string} paramName 파라미터 이름
  */
-export const getIntegerPathParameter = (use_params_function, param_name) => {
-    if (!use_params_function) return null;
-    const parameter = use_params_function()[param_name];
-    if (parameter && integer_param_regex.test(parameter)) return parameter;
+export const getIntegerPathParameter = (parameter) => {
+    if (parameter && integerParamRegex.test(parameter)) return parameter;
     else return null;
 }

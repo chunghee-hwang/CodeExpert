@@ -6,7 +6,7 @@ import LoadingScreen from './LoadingScreen';
 function ProblemSolutionSection(props) {
     const getLanguageOptions = useCallback(() => {
         return props.codes.reduce((accumulator, code, idx) => {
-            accumulator.push(<option key={idx} data-language_id={code.language.id}>{code.language.name}</option>);
+            accumulator.push(<option key={idx} data-languageid={code.language.id}>{code.language.name}</option>);
             return accumulator;
         }, [])
     }, [props.codes]);
@@ -16,8 +16,8 @@ function ProblemSolutionSection(props) {
             {!props.codes || !props.code ? <LoadingScreen label="코드 정보를 불러오는 중입니다." /> :
                 <>
                     <div id="code-title-bar">
-                        <div id="code-file-name">{`solution.${props.code.language.file_extension}`}</div>
-                        <select className="custom-select" id="language-select-input" onChange={e => props.onChangeLanguage(e.target.options[e.target.selectedIndex].dataset.language_id)}>
+                        <div id="code-file-name">{`solution.${props.code.language.fileExtension}`}</div>
+                        <select className="custom-select" id="language-select-input" onChange={e => props.onChangeLanguage(e.target.options[e.target.selectedIndex].dataset.languageid)}>
                             {getLanguageOptions()}
                         </select>
                     </div>
@@ -34,7 +34,7 @@ function ProblemSolutionSection(props) {
                         cursor="row-resize"
                     >
                         <CodeSection code={props.code} />
-                        <AnswerSection is_marking={props.is_marking} is_resetting={props.is_resetting} code_results={props.code_results} />
+                        <AnswerSection isMarking={props.isMarking} isResetting={props.isResetting} codeResults={props.codeResults} />
                     </Split>
                 </>
             }

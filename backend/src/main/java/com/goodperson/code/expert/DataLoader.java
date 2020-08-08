@@ -46,11 +46,11 @@ public class DataLoader implements ApplicationRunner {
                                 new ProblemType(10L, "그래프"), new ProblemType(11L, "기타") };
 
                 final DataType[] dataTypes = new DataType[] { new DataType(1L, "integer"),
-                                new DataType(2L, "integer_array"), new DataType(3L, "long"),
-                                new DataType(4L, "long_array"), new DataType(5L, "double"),
-                                new DataType(6L, "double_array"), new DataType(7L, "boolean"),
-                                new DataType(8L, "boolean_array"), new DataType(9L, "string"),
-                                new DataType(10L, "string_array") };
+                                new DataType(2L, "integerArray"), new DataType(3L, "long"),
+                                new DataType(4L, "longArray"), new DataType(5L, "double"),
+                                new DataType(6L, "doubleArray"), new DataType(7L, "boolean"),
+                                new DataType(8L, "booleanArray"), new DataType(9L, "string"),
+                                new DataType(10L, "stringArray") };
 
                 final Language[] languages = new Language[] { new Language(1L, "cpp"), new Language(2L, "python3"),
                                 new Language(3L, "java") };

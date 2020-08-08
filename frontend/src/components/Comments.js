@@ -4,25 +4,25 @@ import Moment from 'react-moment';
 import 'moment-timezone';
 import { showTextInputAlert, showErrorAlert, showWarningAlert } from 'utils/AlertManager';
 function Comments(props) {
-    const { solution_id, comments } = props;
-    const { user, which, is_progressing, is_success, solution_actions } = props;
-    const is_progressing_comment = (which === 'register_comment' || which === 'update_comment' || which === 'delete_comment') && is_progressing;
+    const { solutionId, comments } = props;
+    const { user, which, isProgressing, isSuccess, solutionActions } = props;
+    const isProgressingComment = (which === 'registerComment' || which === 'updateComment' || which === 'deleteComment') && isProgressing;
     useEffect(() => {
-        if (!is_progressing) {
+        if (!isProgressing) {
             switch (which) {
-                case 'register_comment':
-                    if (!is_success) {
-                        showErrorAlert({ error_what: '댓글 등록' });
+                case 'registerComment':
+                    if (!isSuccess) {
+                        showErrorAlert({ errorWhat: '댓글 등록' });
                     }
                     break;
-                case 'update_comment':
-                    if (!is_success) {
-                        showErrorAlert({ error_what: '댓글 수정' });
+                case 'updateComment':
+                    if (!isSuccess) {
+                        showErrorAlert({ errorWhat: '댓글 수정' });
                     }
                     break;
-                case 'delete_comment':
-                    if (!is_success) {
-                        showErrorAlert({ error_what: '댓글 삭제' });
+                case 'deleteComment':
+                    if (!isSuccess) {
+                        showErrorAlert({ errorWhat: '댓글 삭제' });
                     }
                     break;
                 default:
@@ -50,11 +50,11 @@ function Comments(props) {
 
                     {user.id === comment.user.id ?
                         <span className="ml-2">
-                            <Button variant="outline-info" size="sm" onClick={e => updateComment(comment)} disabled={is_progressing_comment}>
+                            <Button variant="outline-info" size="sm" onClick={e => updateComment(comment)} disabled={isProgressingComment}>
                                 수정
                             </Button>
 
-                            <Button className="ml-1" variant="outline-danger" size="sm" onClick={e => deleteComment(comment)} disabled={is_progressing_comment}>
+                            <Button className="ml-1" variant="outline-danger" size="sm" onClick={e => deleteComment(comment)} disabled={isProgressingComment}>
                                 삭제
                             </Button>
 
@@ -66,24 +66,24 @@ function Comments(props) {
             return accumulator;
         }, []);
     }
-    const registerComment = (comment_input) => {
-        const comment_content = comment_input.value;
-        if (comment_content.trim()) {
-            //- request register comment using solution_id
-            solution_actions.registerComment({ comment_content, solution_id });
+    const registerComment = (commentInput) => {
+        const commentContent = commentInput.value;
+        if (commentContent.trim()) {
+            //- request register comment using solutionId
+            solutionActions.registerComment({ commentContent, solutionId });
         }
-        comment_input.value = '';
+        commentInput.value = '';
     }
 
     const updateComment = (comment) => {
         if (comment.user.id !== user.id) {
-            showErrorAlert({ error_what: '잘못된 접근', text: '댓글을 수정할 권한이 없습니다.' });
+            showErrorAlert({ errorWhat: '잘못된 접근', text: '댓글을 수정할 권한이 없습니다.' });
             return;
         }
-        showTextInputAlert({ title: '댓글 수정', text: '', btn_text: '수정', default_value: comment.content }).then((comment_content) => {
-            if (comment_content) {
-                //- request update comment using comment_id, comment_content
-                solution_actions.updateComment({ comment_id: comment.id, comment_content });
+        showTextInputAlert({ title: '댓글 수정', text: '', btnText: '수정', defaultValue: comment.content }).then((commentContent) => {
+            if (commentContent) {
+                //- request update comment using commentId, commentContent
+                solutionActions.updateComment({ commentId: comment.id, commentContent });
                 // 성공 시, store의 해당 댓글 데이터만 수정
             }
         });
@@ -91,13 +91,13 @@ function Comments(props) {
 
     const deleteComment = (comment) => {
         if (comment.user.id !== user.id) {
-            showErrorAlert({ error_what: '잘못된 접근', text: '댓글을 수정할 권한이 없습니다.' });
+            showErrorAlert({ errorWhat: '잘못된 접근', text: '댓글을 수정할 권한이 없습니다.' });
             return;
         }
-        showWarningAlert({ title: '댓글 삭제', text: '정말 삭제할까요?', btn_text: '삭제' }).then((will_delete) => {
-            if (will_delete) {
-                //- request delete comment using comment_id
-                solution_actions.deleteComment({ comment_id: comment.id });
+        showWarningAlert({ title: '댓글 삭제', text: '정말 삭제할까요?', btnText: '삭제' }).then((willDelete) => {
+            if (willDelete) {
+                //- request delete comment using commentId
+                solutionActions.deleteComment({ commentId: comment.id });
                 // 성공 시, store의 해당 댓글 데이터만 삭제
             }
         });
@@ -119,7 +119,7 @@ function Comments(props) {
                 />
                 <InputGroup.Append>
 
-                    <Button variant="outline-secondary" disabled={is_progressing_comment} onClick={e => registerComment(e.target.parentElement.parentElement.querySelector('.others-solution-comment-input'))}>
+                    <Button variant="outline-secondary" disabled={isProgressingComment} onClick={e => registerComment(e.target.parentElement.parentElement.querySelector('.others-solution-comment-input'))}>
                         등록
                     </Button>
                 </InputGroup.Append>

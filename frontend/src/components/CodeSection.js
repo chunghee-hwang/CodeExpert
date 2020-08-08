@@ -3,13 +3,13 @@ import { initAceEditor } from 'utils/AceEditor';
 function CodeSection(props) {
     useEffect(() => {
         if (!props.code) return;
-        let code_value;
-        if (props.code.prev_code) {
-            code_value = props.code.prev_code;
+        let codeValue;
+        if (props.code.prevCode) {
+            codeValue = props.code.prevCode;
         } else {
-            code_value = props.code.init_code;
+            codeValue = props.code.initCode;
         }
-        initAceEditor(code_value, props.code.language.ace_name, 'code-editor');
+        initAceEditor(codeValue, props.code.language.aceName, 'code-editor');
     }, [props.code]);
 
     return (

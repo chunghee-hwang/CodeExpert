@@ -23,7 +23,7 @@ export const login = ({ email, password }) => {
     //     user: {
     //         email: 1,
     //         nickname: 'hwang',
-    //         resolved_problem_count: 432
+    //         resolvedProblemCount: 432
     //     }
     // }
 }

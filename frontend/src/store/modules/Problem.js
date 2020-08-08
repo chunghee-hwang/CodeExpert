@@ -26,11 +26,6 @@ const DELETE_PROBLEM = "DELETE_PROBLEM"; // 만든 문제 삭제
 const DELETE_PROBLEM_SUCCESS = "DELETE_PROBLEM_SUCCESS";
 const DELETE_PROBLEM_FAILURE = "DELETE_PROBLEM_FAILURE";
 
-const UPLOAD_PROBLEM_IMAGE = "UPLOAD_PROBLEM_IMAGE"; // 문제 이미지 업로드
-const UPLOAD_PROBLEM_IMAGE_SUCCESS = "UPLOAD_PROBLEM_IMAGE_SUCCESS";
-const UPLOAD_PROBLEM_IMAGE_FAILURE = "UPLOAD_PROBLEM_IMAGE_FAILURE";
-const CLEAR_PROBLEM_IMAGE_CACHE = "CLEAR_PROBLEM_IMAGE_CACHE";
-
 const SUBMIT_PROBLEM_CODE = "SUBMIT_PROBLEM_CODE"; // 코드 제출(채점)
 const SUBMIT_PROBLEM_CODE_SUCCESS = "SUBMIT_PROBLEM_CODE_SUCCESS";
 const SUBMIT_PROBLEM_CODE_FAILURE = "SUBMIT_PROBLEM_CODE_FAILURE";
@@ -58,16 +53,13 @@ export const getProblemDataAndCode = createAction(GET_PROBLEM_DATA_AND_CODE, dat
 export const registerProblem = createAction(REGISTER_PROBLEM, data => data);
 export const updateProblem = createAction(UPDATE_PROBLEM, data => data);
 export const deleteProblem = createAction(DELETE_PROBLEM, data => data);
-export const uploadProblemImage = createAction(UPLOAD_PROBLEM_IMAGE, data => data);
 export const submitProblemCode = createAction(SUBMIT_PROBLEM_CODE, data => data);
 export const resetProblemCode = createAction(RESET_PROBLEM_CODE, data => data);
 export const getProblemList = createAction(GET_PROBLEM_LIST, data => data);
 export const getUserResolvedProblemCount = createAction(GET_USER_RESOLVED_PROBLEM_COUNT);
-export const clearProblemImageCache = createAction(CLEAR_PROBLEM_IMAGE_CACHE);
 export const clearProblemList = createAction(CLEAR_PROBLEM_LIST);
 export const clearSubmitResults = createAction(CLEAR_SUBMIT_RESULTS);
 function* getProblemMetaDataSaga(action) {
-    yield 
     try {
         const response = yield call(ProblemApi.getProblemMetaData);
         yield put({ type: GET_PROBLEM_META_DATA_SUCCESS, payload: response });
@@ -77,7 +69,6 @@ function* getProblemMetaDataSaga(action) {
     }
 }
 function* getProblemDataSaga(action) {
-    yield 
     try {
         const response = yield call(ProblemApi.getProblemData, action.payload);
         yield put({ type: GET_PROBLEM_DATA_SUCCESS, payload: response });
@@ -88,7 +79,6 @@ function* getProblemDataSaga(action) {
 }
 
 function* getProblemDataAndCodeSaga(action) {
-    yield 
     try {
         const response = yield call(ProblemApi.getProblemDataAndCode, action.payload);
         yield put({ type: GET_PROBLEM_DATA_AND_CODE_SUCCESS, payload: response });
@@ -99,7 +89,6 @@ function* getProblemDataAndCodeSaga(action) {
 }
 
 function* registerProblemSaga(action) {
-    yield 
     try {
         const response = yield call(ProblemApi.registerProblem, action.payload);
         yield put({ type: REGISTER_PROBLEM_SUCCESS, payload: response });
@@ -110,7 +99,6 @@ function* registerProblemSaga(action) {
 }
 
 function* updateProblemSaga(action) {
-    yield 
     try {
         const response = yield call(ProblemApi.updateProblem, action.payload);
         yield put({ type: UPDATE_PROBLEM_SUCCESS, payload: response });
@@ -121,7 +109,6 @@ function* updateProblemSaga(action) {
 }
 
 function* deleteProblemSaga(action) {
-    yield 
     try {
         const response = yield call(ProblemApi.deleteProblem, action.payload);
         yield put({ type: DELETE_PROBLEM_SUCCESS, payload: response });
@@ -131,19 +118,7 @@ function* deleteProblemSaga(action) {
     }
 }
 
-function* uploadProblemImageSaga(action) {
-    yield 
-    try {
-        const response = yield call(ProblemApi.uploadProblemImage, action.payload);
-        yield put({ type: UPLOAD_PROBLEM_IMAGE_SUCCESS, payload: response });
-    }
-    catch (e) {
-        yield put({ type: UPLOAD_PROBLEM_IMAGE_FAILURE, payload: getErrorMessageFromResponse(e) });
-    }
-}
-
 function* submitProblemCodeSaga(action) {
-    yield 
     try {
         const response = yield call(ProblemApi.submitProblemCode, action.payload);
         yield put({ type: SUBMIT_PROBLEM_CODE_SUCCESS, payload: response });
@@ -154,7 +129,6 @@ function* submitProblemCodeSaga(action) {
 }
 
 function* resetProblemCodeSaga(action) {
-    yield 
     try {
         const response = yield call(ProblemApi.resetProblemCode, action.payload);
         yield put({ type: RESET_PROBLEM_CODE_SUCCESS, payload: response });
@@ -189,16 +163,15 @@ export function* problemSaga() {
     yield takeEvery(REGISTER_PROBLEM, registerProblemSaga);
     yield takeEvery(UPDATE_PROBLEM, updateProblemSaga);
     yield takeEvery(DELETE_PROBLEM, deleteProblemSaga);
-    yield takeEvery(UPLOAD_PROBLEM_IMAGE, uploadProblemImageSaga);
     yield takeEvery(SUBMIT_PROBLEM_CODE, submitProblemCodeSaga);
     yield takeEvery(RESET_PROBLEM_CODE, resetProblemCodeSaga);
     yield takeEvery(GET_PROBLEM_LIST, getProblemListSaga);
     yield takeEvery(GET_USER_RESOLVED_PROBLEM_COUNT, getUserResolvedProblemCountSaga);
 }
 
-const initial_state = {
-    is_progressing: false,
-    is_success: false,
+const initialState = {
+    isProgressing: false,
+    isSuccess: false,
     data: {},
     which: null
 };
@@ -207,109 +180,109 @@ export default handleActions({
     [GET_PROBLEM_META_DATA]: (state, action) => {
         return {
             ...state,
-            is_progressing: true,
-            is_success: false,
-            which: 'problem_meta_data'
+            isProgressing: true,
+            isSuccess: false,
+            which: 'problemMetaData'
         }
     },
     [GET_PROBLEM_META_DATA_SUCCESS]: (state, action) => {
         return {
-            is_progressing: false,
-            is_success: true,
+            isProgressing: false,
+            isSuccess: true,
             data: {
                 ...state.data,
-                problem_meta_data: action.payload
+                problemMetaData: action.payload
             },
-            which: 'problem_meta_data'
+            which: 'problemMetaData'
         };
     },
     [GET_PROBLEM_META_DATA_FAILURE]: (state, action) => {
         return {
             ...state,
-            is_progressing: false,
-            is_success: false,
-            which: 'problem_meta_data'
+            isProgressing: false,
+            isSuccess: false,
+            which: 'problemMetaData'
         };
     },
 
     [GET_PROBLEM_DATA]: (state, action) => {
         return {
             ...state,
-            is_progressing: true,
-            is_success: false,
-            which: 'problem_data'
+            isProgressing: true,
+            isSuccess: false,
+            which: 'problemData'
         }
     },
     [GET_PROBLEM_DATA_SUCCESS]: (state, action) => {
         return {
-            is_progressing: false,
-            is_success: true,
+            isProgressing: false,
+            isSuccess: true,
             data: {
                 ...state.data,
-                problem_data: action.payload
+                problemData: action.payload
             },
-            which: 'problem_data'
+            which: 'problemData'
         };
     },
     [GET_PROBLEM_DATA_FAILURE]: (state, action) => {
         return {
             ...state,
-            is_progressing: false,
-            is_success: false,
-            which: 'problem_data'
+            isProgressing: false,
+            isSuccess: false,
+            which: 'problemData'
         };
     },
 
     [GET_PROBLEM_DATA_AND_CODE]: (state, action) => {
         return {
             ...state,
-            is_progressing: true,
-            is_success: false,
+            isProgressing: true,
+            isSuccess: false,
         }
     },
     [GET_PROBLEM_DATA_AND_CODE_SUCCESS]: (state, action) => {
         return {
-            is_progressing: false,
-            is_success: true,
+            isProgressing: false,
+            isSuccess: true,
             data: {
                 ...state.data,
-                problem_data_and_code: action.payload
+                problemDataAndCode: action.payload
             }
         };
     },
     [GET_PROBLEM_DATA_AND_CODE_FAILURE]: (state, action) => {
         return {
             ...state,
-            is_progressing: false,
-            is_success: false,
+            isProgressing: false,
+            isSuccess: false,
         };
     },
 
     [REGISTER_PROBLEM]: (state, action) => {
         return {
             ...state,
-            is_progressing: true,
-            is_success: false,
-            which: 'register_problem'
+            isProgressing: true,
+            isSuccess: false,
+            which: 'registerProblem'
         }
     },
     [REGISTER_PROBLEM_SUCCESS]: (state, action) => {
         return {
             ...state,
-            is_progressing: false,
-            is_success: true,
-            which: 'register_problem'
+            isProgressing: false,
+            isSuccess: true,
+            which: 'registerProblem'
         };
     },
     [REGISTER_PROBLEM_FAILURE]: (state, action) => {
         return {
             ...state,
-            is_progressing: false,
-            is_success: false,
-            which: 'register_problem',
+            isProgressing: false,
+            isSuccess: false,
+            which: 'registerProblem',
             data: {
                 ...state.data,
-                fail_cause: action.payload
+                failCause: action.payload
             },
         };
     },
@@ -317,27 +290,27 @@ export default handleActions({
     [UPDATE_PROBLEM]: (state, action) => {
         return {
             ...state,
-            is_progressing: true,
-            is_success: false,
-            which: 'update_problem'
+            isProgressing: true,
+            isSuccess: false,
+            which: 'updateProblem'
         }
     },
     [UPDATE_PROBLEM_SUCCESS]: (state, action) => {
         return {
             ...state,
-            is_progressing: false,
-            is_success: true,
-            which: 'update_problem'
+            isProgressing: false,
+            isSuccess: true,
+            which: 'updateProblem'
         };
     },
     [UPDATE_PROBLEM_FAILURE]: (state, action) => {
         return {
-            is_progressing: false,
-            is_success: false,
-            which: 'update_problem',
+            isProgressing: false,
+            isSuccess: false,
+            which: 'updateProblem',
             data: {
                 ...state.data,
-                fail_cause: action.payload
+                failCause: action.payload
             },
         };
     },
@@ -345,137 +318,95 @@ export default handleActions({
     [DELETE_PROBLEM]: (state, action) => {
         return {
             ...state,
-            is_progressing: true,
-            is_success: false,
-            which: 'delete_problem'
+            isProgressing: true,
+            isSuccess: false,
+            which: 'deleteProblem'
         }
     },
     [DELETE_PROBLEM_SUCCESS]: (state, action) => {
         return {
             ...state,
-            is_progressing: false,
-            is_success: true,
-            which: 'delete_problem'
+            isProgressing: false,
+            isSuccess: true,
+            which: 'deleteProblem'
         };
     },
     [DELETE_PROBLEM_FAILURE]: (state, action) => {
         return {
-            is_progressing: false,
-            is_success: false,
-            which: 'delete_problem',
+            isProgressing: false,
+            isSuccess: false,
+            which: 'deleteProblem',
             data: {
                 ...state.data,
-                fail_cause: action.payload
+                failCause: action.payload
             },
-        };
-    },
-
-    [UPLOAD_PROBLEM_IMAGE]: (state, action) => {
-        return {
-            ...state,
-            is_progressing: true,
-            is_success: false,
-            which: 'upload_problem_image'
-        }
-    },
-    [UPLOAD_PROBLEM_IMAGE_SUCCESS]: (state, action) => {
-        return {
-            is_progressing: false,
-            is_success: true,
-            which: 'upload_problem_image',
-            data: {
-                ...state.data,
-                urls: action.payload.data.urls
-            }
-        };
-    },
-    [UPLOAD_PROBLEM_IMAGE_FAILURE]: (state, action) => {
-        return {
-            is_progressing: false,
-            is_success: false,
-            which: 'upload_problem_image',
-            data: {
-                ...state.data,
-                fail_cause: action.payload
-            },
-        };
-    },
-
-    [CLEAR_PROBLEM_IMAGE_CACHE]: (state, action) => {
-        return {
-            ...state,
-            which: 'upload_problem_image',
-            data: {
-                ...state.data,
-                urls: null
-            }
         };
     },
     [SUBMIT_PROBLEM_CODE]: (state, action) => {
         return {
             ...state,
-            is_progressing: true,
-            is_success: false,
+            isProgressing: true,
+            isSuccess: false,
             data: {
                 ...state.data,
-                submit_results: null
+                submitResults: null
             },
-            which: 'submit_problem_code'
+            which: 'submitProblemCode'
         }
     },
     [SUBMIT_PROBLEM_CODE_SUCCESS]: (state, action) => {
         return {
-            is_progressing: false,
-            is_success: true,
+            isProgressing: false,
+            isSuccess: true,
             data: {
                 ...state.data,
-                submit_results: action.payload
+                submitResults: action.payload
             },
-            which: 'submit_problem_code'
+            which: 'submitProblemCode'
         };
     },
     [SUBMIT_PROBLEM_CODE_FAILURE]: (state, action) => {
         return {
             ...state,
-            is_progressing: false,
-            is_success: false,
-            which: 'submit_problem_code'
+            isProgressing: false,
+            isSuccess: false,
+            which: 'submitProblemCode'
         };
     },
 
     [RESET_PROBLEM_CODE]: (state, action) => {
         return {
             ...state,
-            is_progressing: true,
-            is_success: false,
-            which: 'reset_problem_code'
+            isProgressing: true,
+            isSuccess: false,
+            which: 'resetProblemCode'
         }
     },
     [RESET_PROBLEM_CODE_SUCCESS]: (state, action) => {
         return {
-            is_progressing: false,
-            is_success: true,
+            isProgressing: false,
+            isSuccess: true,
             data: {
                 ...state.data,
-                submit_results: null
+                submitResults: null
             },
-            which: 'reset_problem_code'
+            which: 'resetProblemCode'
         };
     },
     [RESET_PROBLEM_CODE_FAILURE]: (state, action) => {
         return {
             ...state,
-            is_progressing: false,
-            is_success: false,
-            which: 'reset_problem_code'
+            isProgressing: false,
+            isSuccess: false,
+            which: 'resetProblemCode'
         };
     },
 
     [GET_PROBLEM_LIST]: (state, action) => {
         return {
             ...state,
-            is_progressing: true,
-            is_success: false,
+            isProgressing: true,
+            isSuccess: false,
             data: {
                 ...state.data,
 
@@ -486,26 +417,26 @@ export default handleActions({
     },
     [GET_PROBLEM_LIST_SUCCESS]: (state, action) => {
         return {
-            is_progressing: false,
-            is_success: true,
+            isProgressing: false,
+            isSuccess: true,
             data: {
                 ...state.data,
-                problems_and_max_page: action.payload
+                problemsAndMaxPage: action.payload
             }
         };
     },
     [GET_PROBLEM_LIST_FAILURE]: (state, action) => {
         return {
             ...state,
-            is_progressing: false,
-            is_success: false,
+            isProgressing: false,
+            isSuccess: false,
         };
     },
     [GET_USER_RESOLVED_PROBLEM_COUNT]: (state, action) => {
         return {
             ...state,
-            is_progressing: true,
-            is_success: false,
+            isProgressing: true,
+            isSuccess: false,
             data: {
                 ...state.data,
             }
@@ -513,29 +444,29 @@ export default handleActions({
     },
     [GET_USER_RESOLVED_PROBLEM_COUNT_SUCCESS]: (state, action) => {
         return {
-            is_progressing: false,
-            is_success: true,
+            isProgressing: false,
+            isSuccess: true,
             data: {
                 ...state.data,
-                user_resolved_problem_count: action.payload.userResolvedProblemCount
+                userResolvedProblemCount: action.payload.userResolvedProblemCount
             }
         };
     },
     [GET_USER_RESOLVED_PROBLEM_COUNT_FAILURE]: (state, action) => {
         return {
             ...state,
-            is_progressing: false,
-            is_success: false,
+            isProgressing: false,
+            isSuccess: false,
         };
     },
     [CLEAR_PROBLEM_LIST]: (state, action) => {
         return {
             ...state,
-            is_progressing: false,
-            is_success: true,
+            isProgressing: false,
+            isSuccess: true,
             data: {
                 ...state.data,
-                problems_and_max_page: null
+                problemsAndMaxPage: null
 
             }
         }
@@ -543,13 +474,13 @@ export default handleActions({
     [CLEAR_SUBMIT_RESULTS]: (state, action) => {
         return {
             ...state,
-            is_progressing: false,
-            is_success: true,
+            isProgressing: false,
+            isSuccess: true,
             data: {
                 ...state.data,
-                submit_results: null
+                submitResults: null
             }
         }
     }
 
-}, initial_state);
+}, initialState);

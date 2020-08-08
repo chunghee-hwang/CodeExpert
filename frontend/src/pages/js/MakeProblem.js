@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import { Form, Button, Spinner } from 'react-bootstrap';
-import { input_names } from 'constants/FormInputNames';
+import { inputNames } from 'constants/FormInputNames';
 import { paths } from 'constants/Paths';
-import { table_mode } from 'constants/InputOutputTableMode';
+import { tableMode } from 'constants/InputOutputTableMode';
 
 import ProblemExplainEditor from 'components/ProblemExplainEditor';
 import InputOutputTable from 'components/InputOutputTable';
@@ -18,86 +18,86 @@ import { moveToPage } from 'utils/PageControl';
 import AuthenticateManager from 'utils/AuthenticateManager';
 function MakeProblem(props) {
     const { user } = props.account;
-    const { data, which, is_progressing, is_success } = props.problem;
-    const { problem_actions } = props;
-    const problem_id = getIntegerQueryParameter("id");
-    const is_registering_or_updating = (which === 'register_problem' || which === 'update_problem') && is_progressing;
-    const is_deleting = (which === 'delete_problem') && is_progressing;
+    const { data, which, isProgressing, isSuccess } = props.problem;
+    const { problemActions } = props;
+    const problemId = getIntegerQueryParameter("id");
+    const isRegisteringOrUpdating = (which === 'registerProblem' || which === 'updateProblem') && isProgressing;
+    const isDeleting = (which === 'deleteProblem') && isProgressing;
     useEffect(() => {
         if (!user || !AuthenticateManager.isUserLoggedIn()) {
-            moveToPage(props.history, paths.pages.login_form);
+            moveToPage(props.history, paths.pages.loginForm);
             return;
-        } else if (!is_progressing) {
-            //- request get problem_types, levels
-            if (!data.problem_meta_data) problem_actions.getProblemMetaData();
-            //- request get problem data if problem_id is not null 
-            if (problem_id) {
-                if (!data.problem_data) {
-                    problem_actions.getProblemData({ problem_id }); 
+        } else if (!isProgressing) {
+            //- request get problemTypes, levels
+            if (!data.problemMetaData) problemActions.getProblemMetaData();
+            //- request get problem data if problemId is not null 
+            if (problemId) {
+                if (!data.problemData) {
+                    problemActions.getProblemData({ problemId }); 
                     return;
                 }
 
                 // check the problem is made by same user.
-                else if (data.problem_data.creator.id !== user.id) {
-                    showErrorAlert({ error_what: '문제 접근', text: '사용자님은 문제 작성자가 아닙니다.' }).then(() => {
-                        moveToPage(props.history, paths.pages.login_form);
+                else if (data.problemData.creator.id !== user.id) {
+                    showErrorAlert({ errorWhat: '문제 접근', text: '사용자님은 문제 작성자가 아닙니다.' }).then(() => {
+                        moveToPage(props.history, paths.pages.loginForm);
                     });
                 } else {
-                    const type_select = document.querySelector('#problem-type-select');
-                    const type_select_idx = Array.from(type_select.children).findIndex(option => Number(option.dataset.id) === data.problem_data.type.id);
-                    if (type_select_idx !== -1) type_select.selectedIndex = type_select_idx;
+                    const typeSelect = document.querySelector('#problem-type-select');
+                    const typeSelectIdx = Array.from(typeSelect.children).findIndex(option => Number(option.dataset.id) === data.problemData.type.id);
+                    if (typeSelectIdx !== -1) typeSelect.selectedIndex = typeSelectIdx;
 
-                    const level_select = document.querySelector('#problem-level-select');
-                    const level_select_idx = Array.from(level_select.children).findIndex(option => Number(option.dataset.level_id) === data.problem_data.level.id);
-                    if (level_select_idx !== -1) level_select.selectedIndex = level_select_idx;
+                    const levelSelect = document.querySelector('#problem-level-select');
+                    const levelSelectIdx = Array.from(levelSelect.children).findIndex(option => Number(option.dataset.levelid) === data.problemData.level.id);
+                    if (levelSelectIdx !== -1) levelSelect.selectedIndex = levelSelectIdx;
                 }
             }
 
-            if (which === 'register_problem') {
-                if (is_success) {
-                    showSuccessAlert({ success_what: "문제 등록" }).then(() => {
-                        // moveToPage(props.history, paths.pages.problem_list);
+            if (which === 'registerProblem') {
+                if (isSuccess) {
+                    showSuccessAlert({ successWhat: "문제 등록" }).then(() => {
+                        // moveToPage(props.history, paths.pages.problemList);
                     });
                 }
-                else if (data.fail_cause) {
-                    showErrorAlert({ error_what: "문제 등록", text: data.fail_cause })
+                else if (data.failCause) {
+                    showErrorAlert({ errorWhat: "문제 등록", text: data.failCause })
                 }
 
-            } else if (which === 'update_problem') {
+            } else if (which === 'updateProblem') {
 
-                if (is_success) {
-                    showSuccessAlert({ success_what: "문제 수정" });
+                if (isSuccess) {
+                    showSuccessAlert({ successWhat: "문제 수정" });
                 }
                 else {
-                    showErrorAlert({ error_what: "문제 수정", text: data.fail_cause })
+                    showErrorAlert({ errorWhat: "문제 수정", text: data.failCause })
                 }
 
-            } else if (which === 'delete_problem') {
+            } else if (which === 'deleteProblem') {
 
-                if (is_success) {
-                    showSuccessAlert({ success_what: "문제 삭제" }).then(() => {
-                        moveToPage(props.history, paths.pages.problem_list);
+                if (isSuccess) {
+                    showSuccessAlert({ successWhat: "문제 삭제" }).then(() => {
+                        moveToPage(props.history, paths.pages.problemList);
                     });
                 }
                 else {
-                    showErrorAlert({ error_what: "문제 삭제", text: data.fail_cause })
+                    showErrorAlert({ errorWhat: "문제 삭제", text: data.failCause })
                 }
 
             }
         }
-    }, [user, problem_id, props.history, problem_actions, data.problem_data, data.problem_meta_data, data.fail_cause, data.new_problem_id, is_progressing, is_success, which]);
+    }, [user, problemId, props.history, problemActions, data.problemData, data.problemMetaData, data.failCause, data.newProblemId, isProgressing, isSuccess, which]);
 
     const getProblemTypeOptions = () => {
-        return data.problem_meta_data.problem_types.reduce((accumulator, problem_type, idx) => {
-            accumulator.push(<option key={problem_type.id} data-id={problem_type.id}>{problem_type.name}</option>);
+        return data.problemMetaData.problemTypes.reduce((accumulator, problemType, idx) => {
+            accumulator.push(<option key={problemType.id} data-id={problemType.id}>{problemType.name}</option>);
             return accumulator;
         }, []);
 
     }
 
     const getLevelOptions = () => {
-        return data.problem_meta_data.levels.reduce((accumulator, level) => {
-            accumulator.push(<option key={level.id} data-level_id={level.id}>{level.name}</option>);
+        return data.problemMetaData.problemLevels.reduce((accumulator, level) => {
+            accumulator.push(<option key={level.id} data-levelid={level.id}>{level.name}</option>);
             return accumulator;
         }, []);
 
@@ -105,59 +105,58 @@ function MakeProblem(props) {
 
 
     /* 입출력 예시 설정 테이블 */
-    let io_ex_table = <InputOutputTable id="io-ex-set-table" table_mode={table_mode.write.testcase} label_name='입출력 예시' init_value={data.problem_data ? data.problem_data.example_table : null} data_types={data.problem_meta_data ? data.problem_meta_data.data_types : null} />;
+    let ioExTable = <InputOutputTable id="io-ex-set-table" tableMode={tableMode.write.testcase} labelName='입출력 예시' initValue={data.problemData ? data.problemData.exampleTable : null} dataTypes={data.problemMetaData ? data.problemMetaData.dataTypes : null} />;
 
     /* 테스트케이스 설정 테이블 */
-    let testcase_set_table = <InputOutputTable id="testcase-set-table" table_mode={table_mode.write.param_and_testcase} label_name='테스트 케이스'
-        init_value={data.problem_data ? data.problem_data.answer_table : null}
-        onChangeParamNames={table_value => {
-            let new_props = {
-                ...io_ex_table.props,
-                init_value: table_value
+    let testcaseSetTable = <InputOutputTable id="testcase-set-table" tableMode={tableMode.write.paramAndTestcase} labelName='테스트 케이스'
+        initValue={data.problemData ? data.problemData.answerTable : null}
+        onChangeParamNames={tableValue => {
+            let newProps = {
+                ...ioExTable.props,
+                initValue: tableValue
             }
-            fillWithParametersAndTestcases(new_props);
-        }} data_types={data.problem_meta_data ? data.problem_meta_data.data_types : null} />
+            fillWithParametersAndTestcases(newProps);
+        }} dataTypes={data.problemMetaData ? data.problemMetaData.dataTypes : null} />
 
     const registerProblem = () => {
-        const answer_table_info = getParamsAndTestcases(testcase_set_table.props);
-        const example_table_info = getParamsAndTestcases(io_ex_table.props);
-
-        let form = document.getElementById('make_problem_form');
-        let validation = validateMakeProblem(data.new_problem_id, form, answer_table_info, example_table_info);
-        if (validation.is_valid) {
+        const answerTableInfo = getParamsAndTestcases(testcaseSetTable.props);
+        const exampleTableInfo = getParamsAndTestcases(ioExTable.props);
+        let form = document.getElementById('make-problem-form');
+        let validation = validateMakeProblem(form, answerTableInfo, exampleTableInfo);
+        if (validation.isValid) {
             //- request register problem
-            problem_actions.registerProblem(validation.values);
+            problemActions.registerProblem(validation.values);
         }
         else {
-            showValidationFailureAlert({ validation, fail_what: "문제 등록", text: data.fail_cause });
+            showValidationFailureAlert({ validation, failWhat: "문제 등록", text: data.failCause });
         }
     }
 
     const updateProblem = () => {
-        const answer_table_info = getParamsAndTestcases(testcase_set_table.props);
-        const example_table_info = getParamsAndTestcases(io_ex_table.props);
+        const answerTableInfo = getParamsAndTestcases(testcaseSetTable.props);
+        const exampleTableInfo = getParamsAndTestcases(ioExTable.props);
 
-        let form = document.getElementById('make_problem_form');
-        let validation = validateUpdateProblem(user, data.problem_data, form, answer_table_info, example_table_info);
-        if (validation.is_valid) {
+        let form = document.getElementById('make-problem-form');
+        let validation = validateUpdateProblem(user, data.problemData, form, answerTableInfo, exampleTableInfo);
+        if (validation.isValid) {
             //- request update problem
-            problem_actions.updateProblem(validation.values);
+            problemActions.updateProblem(validation.values);
         }
         else {
-            showValidationFailureAlert({ validation, fail_what: "문제 수정", text: data.fail_cause });
+            showValidationFailureAlert({ validation, failWhat: "문제 수정", text: data.failCause });
         }
     }
 
     const deleteProblem = () => {
-        showWarningAlert({ title: '문제 삭제', text: '정말 삭제할까요?', btn_text: '삭제' }).then((will_delete) => {
-            if (will_delete) {
-                let validation = validateDeleteProblem(user, data.problem_data);
-                if (validation.is_valid) {
+        showWarningAlert({ title: '문제 삭제', text: '정말 삭제할까요?', btnText: '삭제' }).then((willDelete) => {
+            if (willDelete) {
+                let validation = validateDeleteProblem(user, data.problemData);
+                if (validation.isValid) {
                     //- request delete problem
-                    problem_actions.deleteProblem(validation.values);
+                    problemActions.deleteProblem(validation.values);
                 }
                 else {
-                    showValidationFailureAlert({ validation, fail_what: "문제 삭제", text: data.fail_cause });
+                    showValidationFailureAlert({ validation, failWhat: "문제 삭제", text: data.failCause });
                 }
             }
         });
@@ -165,50 +164,50 @@ function MakeProblem(props) {
     }
     return (
         <div>
-            <Form id="make_problem_form" method="post" className="text-center" action={paths.actions.make_problem} onSubmit={e => e.preventDefault()}>
-                {(which === 'problem_data' && is_progressing) ? <LoadingScreen label="문제 정보를 불러오는 중입니다." /> :
+            <Form id="make-problem-form" method="post" className="text-center" action={paths.actions.makeProblem} onSubmit={e => e.preventDefault()}>
+                {(which === 'problemData' && isProgressing) ? <LoadingScreen label="문제 정보를 불러오는 중입니다." /> :
                     <>
                         <Form.Label className="font-weight-bold">문제 제목</Form.Label>
-                        <Form.Control name={input_names.problem_title} type="text" placeholder="문제 제목" maxLength="100" defaultValue={data.problem_data ? data.problem_data.title : null} />
+                        <Form.Control name={inputNames.problemTitle} type="text" placeholder="문제 제목" maxLength="100" defaultValue={data.problemData ? data.problemData.title : null} />
                         <Form.Group className="my-5">
                             <Form.Label className="font-weight-bold">문제 유형</Form.Label>
 
-                            <Form.Control as="select" id="problem-type-select" custom className="form-control" onChange={e => e.target.form[input_names.problem_type_id].value = e.target.options[e.target.selectedIndex].dataset.id}>
-                                {data.problem_meta_data ? getProblemTypeOptions() : null}
+                            <Form.Control as="select" id="problem-type-select" custom className="form-control" onChange={e => e.target.form[inputNames.problemTypeId].value = e.target.options[e.target.selectedIndex].dataset.id}>
+                                {data.problemMetaData ? getProblemTypeOptions() : null}
                             </Form.Control>
-                            <input type="hidden" name={input_names.problem_type_id} value="1"></input>
+                            <input type="hidden" name={inputNames.problemTypeId} value="1"></input>
                         </Form.Group>
                         <Form.Label className="font-weight-bold">문제 설명</Form.Label>
-                        <ProblemExplainEditor content={data.problem_data ? data.problem_data.explain : null} problem_id={data.new_problem_id ? data.new_problem_id : problem_id} urls={data.urls} is_progressing={is_progressing} which={which} is_success={is_success} problem_actions={problem_actions} />
-                        {testcase_set_table}
-                        {io_ex_table}
+                        <ProblemExplainEditor content={data.problemData ? data.problemData.explain : null} problemId={data.newProblemId ? data.newProblemId : problemId} urls={data.urls} isProgressing={isProgressing} which={which} isSuccess={isSuccess} problemActions={problemActions} />
+                        {testcaseSetTable}
+                        {ioExTable}
 
                         <Form.Group className="limit-control-container my-5 text-center">
                             <Form.Label className="font-weight-bold">제한 사항</Form.Label>
-                            <textarea className="limit-explain-control form-control rounded-0" name={input_names.limit_explain} placeholder="제한사항 입력" rows="3" maxLength="200" defaultValue={data.problem_data ? data.problem_data.limit_explain : null} />
+                            <textarea className="limit-explain-control form-control rounded-0" name={inputNames.limitExplain} placeholder="제한사항 입력" rows="3" maxLength="200" defaultValue={data.problemData ? data.problemData.limitExplain : null} />
 
                             <Form.Label className="font-weight-bold">제한 시간</Form.Label>
-                            <Form.Control className="limit-time-control" name={input_names.time_limit} placeholder="제한시간" maxLength="5" defaultValue={data.problem_data ? data.problem_data.time_limit : null} />
+                            <Form.Control className="limit-time-control" name={inputNames.timeLimit} placeholder="제한시간" maxLength="5" defaultValue={data.problemData ? data.problemData.timeLimit : null} />
                             <span>ms</span>
 
                             <Form.Label className="font-weight-bold ml-3">메모리 제한</Form.Label>
-                            <Form.Control className="limit-memory-control" name={input_names.memory_limit} placeholder="메모리 제한" maxLength="3" defaultValue={data.problem_data ? data.problem_data.memory_limit : null} />
+                            <Form.Control className="limit-memory-control" name={inputNames.memoryLimit} placeholder="메모리 제한" maxLength="3" defaultValue={data.problemData ? data.problemData.memoryLimit : null} />
                             <span>MB</span>
                         </Form.Group>
                         <Form.Group className="level-control-container my-5 align-center text-center">
                             <Form.Label className="font-weight-bold">난이도</Form.Label>
-                            <Form.Control id="problem-level-select" as="select" custom className="level-control form-control align-center" onChange={e => e.target.form[input_names.problem_level_id].value = e.target.options[e.target.selectedIndex].dataset.level_id}>
-                                {data.problem_meta_data ? getLevelOptions() : null}
+                            <Form.Control id="problem-level-select" as="select" custom className="level-control form-control align-center" onChange={e => e.target.form[inputNames.problemLevelId].value = e.target.options[e.target.selectedIndex].dataset.levelid}>
+                                {data.problemMetaData ? getLevelOptions() : null}
                             </Form.Control>
-                            <input type="hidden" name={input_names.problem_level_id} value="1"></input>
+                            <input type="hidden" name={inputNames.problemLevelId} value="1"></input>
                         </Form.Group>
-                        {is_progressing ?
-                            <Button variant="primary" block disabled>{is_registering_or_updating ? <Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true" /> : null}
-                                {data.problem_data ? is_registering_or_updating ? '수정 중' : '수정' : is_registering_or_updating ? '등록 중' : '등록'}</Button>
+                        {isProgressing ?
+                            <Button variant="primary" block disabled>{isRegisteringOrUpdating ? <Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true" /> : null}
+                                {data.problemData ? isRegisteringOrUpdating ? '수정 중' : '수정' : isRegisteringOrUpdating ? '등록 중' : '등록'}</Button>
                             :
-                            <Button type="submit" variant="primary" block onClick={e => { data.problem_data ? updateProblem() : registerProblem() }}>{data.problem_data ? '수정' : '등록'}</Button>}
-                        {data.problem_data ?
-                            is_deleting ? <Button variant="danger" block disabled>삭제 중<Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true" /></Button> : <Button type="submit" variant="danger" block onClick={e => deleteProblem()}>삭제</Button> : null
+                            <Button type="submit" variant="primary" block onClick={e => { data.problemData ? updateProblem() : registerProblem() }}>{data.problemData ? '수정' : '등록'}</Button>}
+                        {data.problemData ?
+                            isDeleting ? <Button variant="danger" block disabled>삭제 중<Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true" /></Button> : <Button type="submit" variant="danger" block onClick={e => deleteProblem()}>삭제</Button> : null
                         }
                     </>}
 

@@ -1,61 +1,61 @@
 /**
 * 코딩 문제에 쓰일 자료형들
-* - key: data_types[integer.key] === data_types.integer
+* - key: dataTypes[integer.key] === dataTypes.integer
 * - name: select 태그의 option에 사용될 자료형 이름
 * - regex: 코딩 문제 등록 시, 자료형이 맞는지 확인하기 위한 정규표현식
 */
-export const data_types =
+export const dataTypes =
 {
     integer: {
         key: 'integer',
         name: 'int',
     },
-    integer_array: {
-        key: 'integer_array',
+    integerArray: {
+        key: 'integerArray',
         name: 'int[]',
     },
-    integer_2d_array: {
-        key: 'integer_2d_array',
+    integer2dArray: {
+        key: 'integer2dArray',
         name: 'int[][]',
     },
     long: {
         key: 'long',
         name: 'long',
     },
-    long_array: {
-        key: 'long_array',
+    longArray: {
+        key: 'longArray',
         name: 'long[]',
     },
-    long_2d_array: {
-        key: 'long_2d_array',
+    long2dArray: {
+        key: 'long2dArray',
         name: "long[][]",
     },
     double: {
         key: 'double',
         name: 'double',
     },
-    double_array: {
-        key: 'double_array',
+    doubleArray: {
+        key: 'doubleArray',
         name: 'double[]',
     },
-    double_2d_array: {
-        key: 'double_2d_array',
+    double2dArray: {
+        key: 'double2dArray',
         name: "double[][]",
     },
     boolean: {
         key: 'boolean',
         name: 'boolean'
     },
-    boolean_array: {
-        key: 'boolean_array',
+    booleanArray: {
+        key: 'booleanArray',
         name: 'boolean[]'
     },
     string: {
         key: 'string',
         name: 'string',
     },
-    string_array: {
-        key: 'string_array',
+    stringArray: {
+        key: 'stringArray',
         name: 'string[]',
     },
 }

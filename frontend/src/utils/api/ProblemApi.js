@@ -5,52 +5,27 @@ import {graphQLFetch} from 'utils/GraphQLFetchManager';
  * 문제 유형, 레벨 목록 가져오기
  */
 export const getProblemMetaData = () => {
-    let response = {
-        problem_types: [
-            { id: 1, name: "정렬" },
-            { id: 2, name: "스택/큐" },
-            { id: 3, name: "동적 계획법" },
-            { id: 4, name: "탐욕법" },
-            { id: 5, name: "완전 탐색" },
-            { id: 6, name: "힙" },
-            { id: 7, name: "해시" },
-            { id: 8, name: "기타" }],
-        levels: [
-            { id: 1, name: "1" },
-            { id: 2, name: "2" },
-            { id: 3, name: "3" },
-            { id: 4, name: "4" },
-        ],
-        data_types: [
-            { id: 1, name: "integer" },
-            { id: 2, name: "integer_array" },
-            { id: 3, name: "integer_2d_array" },
-            { id: 4, name: "long" },
-            { id: 5, name: "long_array" },
-            { id: 6, name: "long_2d_array" },
-            { id: 7, name: "double" },
-            { id: 8, name: "double_array" },
-            { id: 9, name: "double_2d_array" },
-            { id: 10, name: "boolean" },
-            { id: 11, name: "boolean_array" },
-            { id: 12, name: "string" },
-            { id: 13, name: "string_array" },
-        ],
-        languages: [
-            { id: 1, name: 'java' },
-            { id: 2, name: 'python3' },
-            { id: 3, name: 'cpp' }
-        ]
-    }
-    addLanguageDetailToMetaData(response)
-    return response;
+    return graphQLFetch(`
+    {
+        problemMetaData{
+          problemTypes{id, name},
+          problemLevels{id, name},
+          dataTypes{id, name},
+          languages{id, name}
+        }
+      }`, 
+      "get").then(response=>{
+            let problemMetaData = response.problemMetaData;
+            addLanguageDetailToMetaData(problemMetaData);
+            return problemMetaData;
+      })
 }
 
 const addLanguageDetailToMetaData = (response) => {
     response.languages.forEach(language => {
-        let corresponding_language = languages[language.name]
-        language.ace_name = corresponding_language.ace_name;
-        language.file_extension = corresponding_language.file_extension;
+        let correspondingLanguage = languages[language.name]
+        language.aceName = correspondingLanguage.aceName;
+        language.fileExtension = correspondingLanguage.fileExtension;
     });
 
 }
@@ -58,7 +33,7 @@ const addLanguageDetailToMetaData = (response) => {
 /**
  * 문제 정보 가져오기(테스트케이스 정보 포함)
  */
-export const getProblemData = ({ problem_id }) => {
+export const getProblemData = ({ problemId }) => {
     let response =
     {
         id: 1,
@@ -67,21 +42,21 @@ export const getProblemData = ({ problem_id }) => {
             id: 3,
             name: "탐욕법"
         },
-        explain: '파라미터로 int형 배열이 넘어오면,<div>오름차순으로 정렬 후, 문자열의 형태로 출력하는 프로그램을 작성하세요.</div><div><img src="https://image.shutterstock.com/image-photo/bright-spring-view-cameo-island-260nw-1048185397.jpg" class="attached_pic"><br></div><div>결과는 위 사진처럼 나오면 됩니다.</div>',
-        limit_explain: "array의 원소 x: 1<=x<=<1000 인 자연수",
-        time_limit: 500,
-        memory_limit: 256,
+        explain: '파라미터로 int형 배열이 넘어오면,<div>오름차순으로 정렬 후, 문자열의 형태로 출력하는 프로그램을 작성하세요.</div><div><img src="https://image.shutterstock.com/image-photo/bright-spring-view-cameo-island-260nw-1048185397.jpg" class="attached-pic"><br></div><div>결과는 위 사진처럼 나오면 됩니다.</div>',
+        limitExplain: "array의 원소 x: 1<=x<=<1000 인 자연수",
+        timeLimit: 500,
+        memoryLimit: 256,
         level: {
             id: 1,
             name: "1"
         },
         // 테스트케이스 
-        answer_table: { // example_table
+        answerTable: { // exampleTable
             params: [
-                { name: 'array', data_type: { id: 2, name: "integer_array" }, },
+                { name: 'array', dataType: { id: 2, name: "integerArray" }, },
             ],
             returns: {
-                data_type: { id: 12, name: "string" },
+                dataType: { id: 12, name: "string" },
             },
             testcases: [
                 {
@@ -94,12 +69,12 @@ export const getProblemData = ({ problem_id }) => {
                 }
             ]
         },
-        example_table: { //example_table
+        exampleTable: { //exampleTable
             params: [
-                { name: 'array', data_type: { id: 2, name: "integer_array" }, },
+                { name: 'array', dataType: { id: 2, name: "integerArray" }, },
             ],
             returns: {
-                data_type: { id: 12, name: "string" },
+                dataType: { id: 12, name: "string" },
             },
             testcases: [
                 {
@@ -124,31 +99,9 @@ export const getProblemData = ({ problem_id }) => {
 }
 
 /**
- * 문제 이미지 업로드 요청
- */
-export const uploadProblemImage = ({ files }) => {
-    console.log({ files });
-    const formData = new FormData();
-    Array.from(files).forEach(file => {
-        formData.append('files[]', file);
-    });
-    return axios({
-        method: 'post',
-        url: '/uploadProblemImage',
-        data: formData,
-        headers: {
-            'Content-Type': 'multipart/form-data'
-        }
-    });
-    // return {
-    //     urls: "/images/example.png, /images/example2.png,"
-    // }
-}
-
-/**
  * 문제 정보와 최종 제출한 코드(또는 초기 코드) 정보가져오기 (정답 테이블 미포함)
  */
-export const getProblemDataAndCode = ({ problem_id }) => {
+export const getProblemDataAndCode = ({ problemId }) => {
     let response = {
         problem: {
             id: 1,
@@ -157,20 +110,20 @@ export const getProblemDataAndCode = ({ problem_id }) => {
                 id: 1,
                 name: "정렬"
             },
-            explain: '파라미터로 int형 배열이 넘어오면,<div>오름차순으로 정렬 후, 문자열의 형태로 출력하는 프로그램을 작성하세요.</div><div><img src="https://image.shutterstock.com/image-photo/bright-spring-view-cameo-island-260nw-1048185397.jpg" class="attached_pic"><br></div><div>결과는 위 사진처럼 나오면 됩니다.</div>',
-            limit_explain: "array의 원소 x: 1<=x<=<1000 인 자연수",
-            time_limit: 500,
-            memory_limit: 256,
+            explain: '파라미터로 int형 배열이 넘어오면,<div>오름차순으로 정렬 후, 문자열의 형태로 출력하는 프로그램을 작성하세요.</div><div><img src="https://image.shutterstock.com/image-photo/bright-spring-view-cameo-island-260nw-1048185397.jpg" class="attached-pic"><br></div><div>결과는 위 사진처럼 나오면 됩니다.</div>',
+            limitExplain: "array의 원소 x: 1<=x<=<1000 인 자연수",
+            timeLimit: 500,
+            memoryLimit: 256,
             level: {
                 id: 1,
                 name: "1"
             },
-            example_table: {
+            exampleTable: {
                 params: [
-                    { name: 'array', data_type: { id: 2, name: "integer_array" }, },
+                    { name: 'array', dataType: { id: 2, name: "integerArray" }, },
                 ],
                 returns: {
-                    data_type: { id: 12, name: "string" },
+                    dataType: { id: 12, name: "string" },
                 },
                 testcases: [
                     {
@@ -195,15 +148,15 @@ export const getProblemDataAndCode = ({ problem_id }) => {
                     id: 1,
                     name: 'java'
                 },
-                init_code: "String solution(int[] array)\n{\n\treturn \"\";\n}",
+                initCode: "String solution(int[] array)\n{\n\treturn \"\";\n}",
             },
             {
                 language: {
                     id: 2,
                     name: 'python3'
                 },
-                init_code: "def solution(array):\n\treturn ''",
-                prev_code: "def solution(array):\n\treturn '-'.join(map(str, sorted(array)))"
+                initCode: "def solution(array):\n\treturn ''",
+                prevCode: "def solution(array):\n\treturn '-'.join(map(str, sorted(array)))"
 
             },
             {
@@ -211,7 +164,7 @@ export const getProblemDataAndCode = ({ problem_id }) => {
                     id: 3,
                     name: 'cpp'
                 },
-                init_code: "#include <vector>\n#include <string>\nusing namespace std;\nstring solution(vector<int> array)\n{\n\treturn \"\";\n}"
+                initCode: "#include <vector>\n#include <string>\nusing namespace std;\nstring solution(vector<int> array)\n{\n\treturn \"\";\n}"
             }
         ]
     };
@@ -222,9 +175,9 @@ export const getProblemDataAndCode = ({ problem_id }) => {
 
 const addLanguageDetailToCodes = (codes) => {
     codes.forEach(code => {
-        let corresponding_language = languages[code.language.name]
-        code.language.ace_name = corresponding_language.ace_name;
-        code.language.file_extension = corresponding_language.file_extension;
+        let correspondingLanguage = languages[code.language.name]
+        code.language.aceName = correspondingLanguage.aceName;
+        code.language.fileExtension = correspondingLanguage.fileExtension;
     });
 }
 
@@ -234,16 +187,16 @@ const addLanguageDetailToCodes = (codes) => {
 export const registerProblem = (data) => {
     console.log(data);
     /*
-    [input_names.problem_title],
-    [input_names.problem_type],
-    [input_names.problem_explain],
-    [input_names.problem_type],
-    [input_names.limit_explain],
-    [input_names.time_limit],
-    [input_names.memory_limit],
-    [input_names.level],
-    [input_names.answer_table],
-    [input_names.example_table],
+    [inputNames.problemTitle],
+    [inputNames.problemType],
+    [inputNames.problemExplain],
+    [inputNames.problemType],
+    [inputNames.limitExplain],
+    [inputNames.timeLimit],
+    [inputNames.memoryLimit],
+    [inputNames.level],
+    [inputNames.answerTable],
+    [inputNames.exampleTable],
     */
     return axios.post("/registerProblem", data);
 
@@ -254,21 +207,21 @@ export const registerProblem = (data) => {
  */
 export const updateProblem = (data) => {
     /*
-    [input_names.problem_id],
-    [input_names.problem_title],
-    [input_names.problem_type],
-    [input_names.problem_explain],
-    [input_names.problem_type],
-    [input_names.limit_explain],
-    [input_names.time_limit],
-    [input_names.memory_limit],
-    [input_names.level],
-    [input_names.answer_table],
-    [input_names.example_table],
+    [inputNames.problemId],
+    [inputNames.problemTitle],
+    [inputNames.problemType],
+    [inputNames.problemExplain],
+    [inputNames.problemType],
+    [inputNames.limitExplain],
+    [inputNames.timeLimit],
+    [inputNames.memoryLimit],
+    [inputNames.level],
+    [inputNames.answerTable],
+    [inputNames.exampleTable],
     */
 
     return {
-        update_success: true
+        updateSuccess: true
     }
 
 }
@@ -277,9 +230,9 @@ export const updateProblem = (data) => {
  * 
  * 만든 문제 삭제 
  */
-export const deleteProblem = ({ problem_id }) => {
+export const deleteProblem = ({ problemId }) => {
     return {
-        delete_success: true
+        deleteSuccess: true
     }
 }
 
@@ -287,22 +240,22 @@ export const deleteProblem = ({ problem_id }) => {
 /**
  * 코드 제출(채점)
  */
-export const submitProblemCode = ({ problem_id, submitted_code, language_id }) => {
+export const submitProblemCode = ({ problemId, submittedCode, languageId }) => {
     return [
         {
             success: true,
-            interval_time: 5.75,
-            used_memory: 50.9
+            intervalTime: 5.75,
+            usedMemory: 50.9
         },
         {
             success: true,
-            interval_time: 31.20,
-            used_memory: 100.5
+            intervalTime: 31.20,
+            usedMemory: 100.5
         },
         {
             success: true,
-            interval_time: 1.57,
-            used_memory: 12.9
+            intervalTime: 1.57,
+            usedMemory: 12.9
         },
     ];
 }
@@ -310,9 +263,9 @@ export const submitProblemCode = ({ problem_id, submitted_code, language_id }) =
 /**
  * 코드 리셋
  */
-export const resetProblemCode = ({ problem_id, language_id }) => {
+export const resetProblemCode = ({ problemId, languageId }) => {
     return {
-        clear_code_success: true
+        clearCodeSuccess: true
     }
 
 }
@@ -320,7 +273,7 @@ export const resetProblemCode = ({ problem_id, language_id }) => {
 /**
  * 문제 목록 가져오기
  */
-export const getProblemList = ({ type_ids, level_ids, page }) => {
+export const getProblemList = ({ typeIds, levelIds, page }) => {
 
     return {
         //page가 0일때(지정되지 않았을 때) 데이터
@@ -332,8 +285,8 @@ export const getProblemList = ({ type_ids, level_ids, page }) => {
                     id: 1, name: "정렬"
                 },
                 level: { id: 1, name: "1" },
-                resolve_count: 51891,
-                created_by_me: true,
+                resolveCount: 51891,
+                createdByMe: true,
                 resolved: true,
             },
             {
@@ -343,8 +296,8 @@ export const getProblemList = ({ type_ids, level_ids, page }) => {
                     id: 2, name: "스택"
                 },
                 level: { id: 3, name: "3" },
-                resolve_count: 424,
-                created_by_me: false,
+                resolveCount: 424,
+                createdByMe: false,
                 resolved: true,
             },
             {
@@ -354,8 +307,8 @@ export const getProblemList = ({ type_ids, level_ids, page }) => {
                     id: 4, name: "탐욕법"
                 },
                 level: { id: 2, name: "2" },
-                resolve_count: 7901,
-                created_by_me: false,
+                resolveCount: 7901,
+                createdByMe: false,
                 resolved: false,
             },
             {
@@ -365,8 +318,8 @@ export const getProblemList = ({ type_ids, level_ids, page }) => {
                     id: 7, name: "해시"
                 },
                 level: { id: 1, name: "1" },
-                resolve_count: 14791,
-                created_by_me: false,
+                resolveCount: 14791,
+                createdByMe: false,
                 resolved: false,
             },
             {
@@ -376,8 +329,8 @@ export const getProblemList = ({ type_ids, level_ids, page }) => {
                     id: 5, name: "완전 탐색"
                 },
                 level: { id: 4, name: "4" },
-                resolve_count: 11,
-                created_by_me: false,
+                resolveCount: 11,
+                createdByMe: false,
                 resolved: false,
             },
             {
@@ -387,12 +340,12 @@ export const getProblemList = ({ type_ids, level_ids, page }) => {
                     id: 6, name: "힙"
                 },
                 level: { id: 3, name: "3" },
-                resolve_count: 5464,
-                created_by_me: false,
+                resolveCount: 5464,
+                createdByMe: false,
                 resolved: true,
             },
         ],
-        max_page: 10
+        maxPage: 10
 
     }
 }

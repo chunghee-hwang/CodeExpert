@@ -1,11 +1,11 @@
 import languages from "constants/Languages";
-export const getOthersSolutions = ({ problem_id, language_id, page }) => {
+export const getOthersSolutions = ({ problemId, languageId, page }) => {
     let response;
     if (page === 1) {
         response = {
-            max_page_number: 3,
+            maxPageNumber: 3,
             problem: {
-                id: problem_id,
+                id: problemId,
                 title: '오름차순으로 정렬하기'
             },
             solutions:
@@ -21,8 +21,8 @@ export const getOthersSolutions = ({ problem_id, language_id, page }) => {
                         name: 'java'
                     },
                     likes: {
-                        like_count: 24,
-                        is_like_pressed: false
+                        likeCount: 24,
+                        isLikePressed: false
                     },
                     comments: []
                 }]
@@ -30,9 +30,9 @@ export const getOthersSolutions = ({ problem_id, language_id, page }) => {
     }
     else {
         response = {
-            max_page_number: 3,
+            maxPageNumber: 3,
             problem: {
-                id: problem_id,
+                id: problemId,
                 title: '오름차순으로 정렬하기'
             },
             solutions:
@@ -48,8 +48,8 @@ export const getOthersSolutions = ({ problem_id, language_id, page }) => {
                         name: 'java'
                     },
                     likes: {
-                        like_count: 24,
-                        is_like_pressed: false
+                        likeCount: 24,
+                        isLikePressed: false
                     },
                     comments: [
                         {
@@ -92,8 +92,8 @@ export const getOthersSolutions = ({ problem_id, language_id, page }) => {
                         name: 'java'
                     },
                     likes: {
-                        like_count: 24,
-                        is_like_pressed: false
+                        likeCount: 24,
+                        isLikePressed: false
                     },
                     comments: []
                 }]
@@ -103,10 +103,10 @@ export const getOthersSolutions = ({ problem_id, language_id, page }) => {
     addLanguageDetailToSolutions(response.solutions);
     return response;
 }
-export const registerComment = ({ comment_content, solution_id }) => {
+export const registerComment = ({ commentContent, solutionId }) => {
 
     return {
-        solution_id,
+        solutionId,
         comment: {
             id: 3,
             user: {
@@ -114,46 +114,46 @@ export const registerComment = ({ comment_content, solution_id }) => {
                 nickname: '사용자5',
             },
             timestamp: new Date(),
-            content: comment_content
+            content: commentContent
         }
     }
 }
-export const updateComment = ({ comment_id, comment_content }) => {
+export const updateComment = ({ commentId, commentContent }) => {
     return {
-        solution_id: 2,
+        solutionId: 2,
         comment: {
-            id: comment_id,
+            id: commentId,
             user: {
                 id: 1,
                 nickname: '사용자5',
             },
             timestamp: new Date(),
-            content: comment_content
+            content: commentContent
         }
     }
 }
-export const deleteComment = ({ comment_id }) => {
+export const deleteComment = ({ commentId }) => {
     return {
-        solution_id: 2,
+        solutionId: 2,
         comment: {
-            id: comment_id,
+            id: commentId,
         }
     }
 }
-export const likeOrCancelLike = ({ solution_id }) => {
+export const likeOrCancelLike = ({ solutionId }) => {
     return {
-        solution_id: solution_id,
+        solutionId: solutionId,
         likes: {
-            like_count: 100,
-            is_like_pressed: true
+            likeCount: 100,
+            isLikePressed: true
         },
     }
 }
 
 const addLanguageDetailToSolutions = (solutions) => {
     solutions.forEach(solution => {
-        let corresponding_language = languages[solution.language.name]
-        solution.language.ace_name = corresponding_language.ace_name;
-        solution.language.file_extension = corresponding_language.file_extension;
+        let correspondingLanguage = languages[solution.language.name]
+        solution.language.aceName = correspondingLanguage.aceName;
+        solution.language.fileExtension = correspondingLanguage.fileExtension;
     });
 }

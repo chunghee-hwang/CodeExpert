@@ -2,26 +2,26 @@ export const paths =
 {
     pages: {
         root: "/",
-        problem_list: "/problemList",
-        make_problem_form: "/makeProblemForm",
-        signup_form: "/signupForm",
-        account_management: "/accountManagement",
-        login_form: "/loginForm",
-        algorithm_test: {
+        problemList: "/problemList",
+        makeProblemForm: "/makeProblemForm",
+        signupForm: "/signupForm",
+        accountManagement: "/accountManagement",
+        loginForm: "/loginForm",
+        algorithmTest: {
             prefix: "/algorithmTest",
             full: "/algorithmTest/:problemId"
         },
-        others_solutions: {
+        othersSolutions: {
             prefix: "/othersSolutions",
             full: "/othersSolutions/:problemId"
         }
     },
     actions: {
-        make_problem: "/makeProblem",
+        makeProblem: "/makeProblem",
         login: "/login",
         logout: "/logout",
-        change_nickname: "/changeNickname",
-        change_password: "/changePassword",
+        changeNickname: "/changeNickname",
+        changePassword: "/changePassword",
         signup: "/signup",
 
     }

@@ -12,29 +12,29 @@ import { showWarningAlert } from 'utils/AlertManager';
 import AuthenticateManager from 'utils/AuthenticateManager';
 function AlgorithmTest(props) {
     const { user } = props.account;
-    const { is_progressing, data, which } = props.problem;
-    const { problem_actions } = props;
+    const { isProgressing, data, which } = props.problem;
+    const { problemActions } = props;
     const [code, setCode] = useState(null);
-    const problem_id = getIntegerPathParameter(useParams, 'problemId');
+    const problemId = getIntegerPathParameter(useParams()['problemId']);
     useEffect(() => {
         if (!user || !AuthenticateManager.isUserLoggedIn()) {
-            moveToPage(props.history, paths.pages.login_form);
+            moveToPage(props.history, paths.pages.loginForm);
         }
-        else if (problem_id) {
-            if (!data.problem_data_and_code) {
+        else if (problemId) {
+            if (!data.problemDataAndCode) {
                 //- request problem data and code using problem id
-                problem_actions.getProblemDataAndCode({ problem_id });
-            } else if (!data.problem_meta_data) problem_actions.getProblemMetaData();
+                problemActions.getProblemDataAndCode({ problemId });
+            } else if (!data.problemMetaData) problemActions.getProblemMetaData();
             else {
-                setCode(data.problem_data_and_code.codes[0]);
+                setCode(data.problemDataAndCode.codes[0]);
             }
         }
-    }, [user, props.history, data.problem_data_and_code, problem_actions, problem_id, data.problem_meta_data]);
-    const is_marking = is_progressing && which === 'submit_problem_code';
-    const is_resetting = is_progressing && which === 'reset_problem_code';
+    }, [user, props.history, data.problemDataAndCode, problemActions, problemId, data.problemMetaData]);
+    const isMarking = isProgressing && which === 'submitProblemCode';
+    const isResetting = isProgressing && which === 'resetProblemCode';
 
-    const problem_info_section = <ProblemInfoSection problem_meta_data={data.problem_meta_data ? data.problem_meta_data : null} problem={data.problem_data_and_code ? data.problem_data_and_code.problem : null} />;
-    const problem_solution_section = <ProblemSolutionSection codes={data.problem_data_and_code ? data.problem_data_and_code.codes : null} code={code} onChangeLanguage={langauge_id => changeLangauge(langauge_id)} code_results={data.submit_results} is_marking={is_marking} is_resetting={is_resetting} />;
+    const problemInfoSection = <ProblemInfoSection problemMetaData={data.problemMetaData ? data.problemMetaData : null} problem={data.problemDataAndCode ? data.problemDataAndCode.problem : null} />;
+    const problemSolutionSection = <ProblemSolutionSection codes={data.problemDataAndCode ? data.problemDataAndCode.codes : null} code={code} onChangeLanguage={langaugeId => changeLangauge(langaugeId)} codeResults={data.submitResults} isMarking={isMarking} isResetting={isResetting} />;
 
 
     return (
@@ -55,14 +55,14 @@ function AlgorithmTest(props) {
                             direction="horizontal"
                             cursor="col-resize"
                         >
-                            {problem_info_section}
-                            {problem_solution_section}
+                            {problemInfoSection}
+                            {problemSolutionSection}
                         </Split>
                     ) : (
                             /* smart device screen */
                             <div className="algorithm-test">
-                                {problem_info_section}
-                                {problem_solution_section}
+                                {problemInfoSection}
+                                {problemSolutionSection}
                             </div>
                         )
                 }
@@ -70,9 +70,9 @@ function AlgorithmTest(props) {
 
 
             <div id="answer-btn-bar">
-                {!is_progressing ?
+                {!isProgressing ?
                     <>
-                        <Nav.Link href={`${paths.pages.others_solutions.prefix}/${problem_id}`}><Button variant="dark mr-3">다른 사람의 풀이</Button></Nav.Link>
+                        <Nav.Link href={`${paths.pages.othersSolutions.prefix}/${problemId}`}><Button variant="dark mr-3">다른 사람의 풀이</Button></Nav.Link>
                         <Button variant="dark align-right" onClick={e => resetCode()}>초기화</Button>
                         <Button variant="primary ml-3" onClick={e => submitCode()}>코드 채점</Button>
                     </>
@@ -93,34 +93,34 @@ function AlgorithmTest(props) {
     );
 
 
-    function changeLangauge(language_id) {
-        if (data.problem_data_and_code) {
-            language_id = Number(language_id);
-            let language_coressponding_code = data.problem_data_and_code.codes.find(code => language_id === code.language.id);
-            if (language_coressponding_code) {
-                setCode(language_coressponding_code);
-                if (data.submit_results) problem_actions.clearSubmitResults();
+    function changeLangauge(languageId) {
+        if (data.problemDataAndCode) {
+            languageId = Number(languageId);
+            let languageCoresspondingCode = data.problemDataAndCode.codes.find(code => languageId === code.language.id);
+            if (languageCoresspondingCode) {
+                setCode(languageCoresspondingCode);
+                if (data.submitResults) problemActions.clearSubmitResults();
             }
         }
     }
 
     function resetCode() {
-        showWarningAlert({ title: '정말 코드를 초기화 할까요?', btn_text: '초기화' }).then((will_reset) => {
-            if (will_reset) {
+        showWarningAlert({ title: '정말 코드를 초기화 할까요?', btnText: '초기화' }).then((willReset) => {
+            if (willReset) {
                 //- request reset problem code
-                problem_actions.resetProblemCode({ problem_id, language_id: code.language.id });
+                problemActions.resetProblemCode({ problemId, languageId: code.language.id });
                 let editor = window.ace.edit('code-editor');
-                editor.setValue(code.init_code);
+                editor.setValue(code.initCode);
                 editor.gotoLine(1);
             }
         });
     }
     function submitCode() {
-        const submitted_code = window.ace.edit('code-editor').getValue();
-        const language_id = code.language.id;
+        const submittedCode = window.ace.edit('code-editor').getValue();
+        const languageId = code.language.id;
 
-        //- request Marking the code using problem_id, submitted_code, language_id
-        problem_actions.submitProblemCode({ problem_id, submitted_code, language_id });
+        //- request Marking the code using problemId, submittedCode, languageId
+        problemActions.submitProblemCode({ problemId, submittedCode, languageId });
     }
 }
 

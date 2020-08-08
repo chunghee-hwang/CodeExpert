@@ -1,22 +1,22 @@
 import { connect } from 'react-redux';
 import OthersSolutions from 'pages/js/OthersSolutions';
 import { bindActionCreators } from 'redux';
-import * as solution_actions from 'store/modules/Solution';
-import * as problem_actions from 'store/modules/Problem';
+import * as solutionActions from 'store/modules/Solution';
+import * as problemActions from 'store/modules/Problem';
 const mapStateToProps = state => {
     return {
         account: {
             user: state.account.user
         },
         solution: {
-            is_progressing: state.solution.is_progressing,
-            is_success: state.solution.is_success,
+            isProgressing: state.solution.isProgressing,
+            isSuccess: state.solution.isSuccess,
             data: state.solution.data,
             which: state.solution.which
         },
         problem: {
-            is_progressing: state.problem.is_progressing,
-            is_success: state.problem.is_success,
+            isProgressing: state.problem.isProgressing,
+            isSuccess: state.problem.isSuccess,
             data: state.problem.data,
             which: state.problem.which
         }
@@ -24,8 +24,8 @@ const mapStateToProps = state => {
 }
 const mapDispatchToProps = dispatch => {
     return {
-        solution_actions: bindActionCreators(solution_actions, dispatch),
-        problem_actions: bindActionCreators(problem_actions, dispatch),
+        solutionActions: bindActionCreators(solutionActions, dispatch),
+        problemActions: bindActionCreators(problemActions, dispatch),
     }
 }
 export default connect(mapStateToProps, mapDispatchToProps)(OthersSolutions);

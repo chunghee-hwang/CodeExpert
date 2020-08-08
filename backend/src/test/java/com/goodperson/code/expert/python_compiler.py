@@ -48,13 +48,13 @@ def argv_to_python_code(data_type_and_value):
         value = int(value)
     elif data_type == 'double':
         value = float(value)
-    elif data_type == 'integer_array' or data_type == 'long_array':
+    elif data_type == 'integerArray' or data_type == 'longArray':
         value = list(map(int, split_array_value(value)))
-    elif data_type == 'boolean_array':
-        value = list(map(bool, split_array_value(value)))
-    elif data_type == 'double_array':
+    elif data_type == 'booleanArray':
+        value = list(map(bool, splitArray_value(value)))
+    elif data_type == 'doubleArray':
         value = list(map(float, split_array_value(value)))
-    elif data_type == 'string_array':
+    elif data_type == 'stringAray':
         value = list(map(str, split_array_value(value)))
     return value
 
@@ -75,8 +75,7 @@ if __name__ == '__main__':
         if answer == user_answer:
             print('$answer|')
         else:
-            print('user_answer:', user_answer)
-            print('$not_answer|'+str(answer)+'|' + str(user_answer))
+            print('$notAnswer|'+str(answer)+'|' + str(user_answer))
         print('$time|'+str(time_elapsed))
     except TimeoutError as toe:
         print('$timeout|', file=sys.stderr)

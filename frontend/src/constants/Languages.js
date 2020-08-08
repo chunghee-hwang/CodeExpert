@@ -1,18 +1,18 @@
 const languages = {
     java: {
         name: 'java',
-        ace_name: 'java',
-        file_extension: 'java',
+        aceName: 'java',
+        fileExtension: 'java',
     },
     python3: {
         name: 'python3',
-        ace_name: 'python',
-        file_extension: 'py',
+        aceName: 'python',
+        fileExtension: 'py',
     },
     cpp: {
         name: 'cpp',
-        ace_name: 'c_cpp',
-        file_extension: 'cpp',
+        aceName: 'c_cpp',
+        fileExtension: 'cpp',
     }
 }
 

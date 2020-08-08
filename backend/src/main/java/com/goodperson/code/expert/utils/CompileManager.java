@@ -38,7 +38,7 @@ public class CompileManager {
         CompileOption compileOption = new CompileOption();
         List<String> parameters = new ArrayList<>();
         // 500(timeout),
-        // "integer_array:[1, 2, 3, 4]", "integer:10"
+        // "integerArray:[1, 2, 3, 4]", "integer:10"
 
         int paramLength = problemParameters.size();
 
@@ -63,7 +63,7 @@ public class CompileManager {
 
     private File makeCompileDirectory() {
         String workPath = System.getProperty("user.home");
-        File compileDirectory = new File(workPath + "/code_expert_compile");
+        File compileDirectory = new File(workPath + "/codeExpertCompile");
         if (!compileDirectory.exists())
             compileDirectory.mkdirs();
         return compileDirectory;
@@ -82,7 +82,7 @@ public class CompileManager {
 
     @Async
     public CompletableFuture<MarkResultDto> compilePython(String code, CompileOption compileOption) throws Exception {
-        final String validateCode = getValidateCode("/src/test/java/com/goodperson/code/expert/python_compiler.py");
+        final String validateCode = getValidateCode("/src/test/java/com/goodperson/code/expert/pythonCompiler.py");
         code = code + "\n" + validateCode;
         File compileDirectory = makeCompileDirectory();
         File compileFile = makeCompileFile(compileDirectory, code, LocalDateTime.now(), "py");
@@ -261,7 +261,7 @@ public class CompileManager {
                 line = line.replaceAll(compileFileFullPath, "solution".concat(compileFileExtension));
                 if (line.equals("$answer|")) {
                     isAnswer = true;
-                } else if (line.startsWith("$not_answer|")) {
+                } else if (line.startsWith("$notAnswer|")) {
                     String[] splitted = line.split("\\|");
                     expected = splitted[1];
                     actual = splitted[2];

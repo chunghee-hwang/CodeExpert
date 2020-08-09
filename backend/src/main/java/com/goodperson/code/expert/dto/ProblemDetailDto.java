@@ -8,7 +8,7 @@ public class ProblemDetailDto {
 
     private String title;
 
-    private ProblemTypeDto type;
+    private ProblemTypeDto problemType;
 
     private String explain;
 

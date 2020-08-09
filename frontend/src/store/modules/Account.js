@@ -40,7 +40,7 @@ export const clearWhich = createAction(CLEAR_WHICH);
 function* changeNicknameSaga(action) {
     try {
         const response = yield call(AccountApi.changeNickname, action.payload);
-        yield call(saveUserDataToSessionStorage, response.data);
+        yield call(saveUserDataToLocalStorage, response.data);
         yield put({ type: CHANGE_NICKNAME_SUCCESS, payload: response.data });
     }
     catch (e) {
@@ -60,7 +60,7 @@ function* changePasswordSaga(action) {
 function* deleteAccountSaga(action) {
     try {
         const response = yield call(AccountApi.deleteAccount, action.payload);
-        yield call(removeUserDataFromSessionStorage);
+        yield call(removeUserDataFromLocalStorage);
         yield put({ type: DELETE_ACCOUNT_SUCCESS, payload: response.data });
     } catch (e) {
         yield put({ type: DELETE_ACCOUNT_FAILURE, payload: getErrorMessageFromResponse(e) });
@@ -70,7 +70,7 @@ function* deleteAccountSaga(action) {
 function* loginSaga(action) {
     try {
         const response = yield call(AccountApi.login, action.payload);
-        yield call(saveUserDataToSessionStorage, response.data);
+        yield call(saveUserDataToLocalStorage, response.data);
         yield put({ type: LOGIN_SUCCESS, payload: response.data });
     } catch (e) {
         yield put({ type: LOGIN_FAILURE, payload: getErrorMessageFromResponse(e) });
@@ -80,7 +80,7 @@ function* loginSaga(action) {
 function* logoutSaga(action) {
     try {
         const response = yield call(AccountApi.logout, action.payload);
-        yield call(removeUserDataFromSessionStorage);
+        yield call(removeUserDataFromLocalStorage);
         yield put({ type: LOGOUT_SUCCESS, payload: response.data });
     } catch (e) {
         yield put({ type: LOGOUT_FAILURE, payload: getErrorMessageFromResponse(e) });
@@ -105,18 +105,18 @@ export function* accountSaga() {
     yield takeEvery(SIGNUP, signupSaga);
 }
 
-const saveUserDataToSessionStorage = user => {
-    sessionStorage.setItem(USER_NAME_SESSION_ATTRIBUTE_NAME, JSON.stringify(user));
+const saveUserDataToLocalStorage = user => {
+    localStorage.setItem(USER_NAME_SESSION_ATTRIBUTE_NAME, JSON.stringify(user));
 }
-const removeUserDataFromSessionStorage = () => {
-    sessionStorage.removeItem(USER_NAME_SESSION_ATTRIBUTE_NAME);
+const removeUserDataFromLocalStorage = () => {
+    localStorage.removeItem(USER_NAME_SESSION_ATTRIBUTE_NAME);
 }
-const getUserDataFromSessionStorage = ()=>{
-    return sessionStorage.getItem(USER_NAME_SESSION_ATTRIBUTE_NAME);
+const getUserDataFromLocalStorage = ()=>{
+    return localStorage.getItem(USER_NAME_SESSION_ATTRIBUTE_NAME);
 }
 
 // 새로 고침하면 유저 데이터가 store에서 날아가는 거 방지. 세션 스토리지기 때문에 서버의 세션이 만료되면 같이 만료됨.
-let userInStorage = getUserDataFromSessionStorage();
+let userInStorage = getUserDataFromLocalStorage();
 const initialState = {
     isProgressing: false,
     isSuccess: false,

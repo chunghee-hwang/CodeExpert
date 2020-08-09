@@ -45,7 +45,7 @@ const GET_USER_RESOLVED_PROBLEM_COUNT_SUCCESS = "GET_USER_RESOLVED_PROBLEM_COUNT
 const GET_USER_RESOLVED_PROBLEM_COUNT_FAILURE = "GET_USER_RESOLVED_PROBLEM_COUNT_FAILURE";
 
 const CLEAR_PROBLEM_LIST = "CLEAR_PROBLEM_LIST"; // 문제 목록 초기화
-
+const CLEAR_WHICH = "CLEAR_WHICH";
 
 export const getProblemMetaData = createAction(GET_PROBLEM_META_DATA);
 export const getProblemData = createAction(GET_PROBLEM_DATA, data => data);
@@ -59,6 +59,7 @@ export const getProblemList = createAction(GET_PROBLEM_LIST, data => data);
 export const getUserResolvedProblemCount = createAction(GET_USER_RESOLVED_PROBLEM_COUNT);
 export const clearProblemList = createAction(CLEAR_PROBLEM_LIST);
 export const clearSubmitResults = createAction(CLEAR_SUBMIT_RESULTS);
+export const clearWhich = createAction(CLEAR_WHICH);
 function* getProblemMetaDataSaga(action) {
     try {
         const response = yield call(ProblemApi.getProblemMetaData);
@@ -480,6 +481,12 @@ export default handleActions({
                 ...state.data,
                 submitResults: null
             }
+        }
+    },
+    [CLEAR_WHICH]:(state, action)=>{
+        return {
+            ...state,
+            which:null
         }
     }
 

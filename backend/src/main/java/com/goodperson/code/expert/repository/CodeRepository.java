@@ -12,7 +12,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CodeRepository extends JpaRepository<Code, Long> {
-
-    Optional<Code> findByProblemAndLanguageAndCreator(Problem problem, Language language, User creator);
-
+    Optional<Code> findByProblemAndLanguageAndCreatorAndIsInitCode(Problem problem, Language language, User creator, Boolean isInitCode);
 }

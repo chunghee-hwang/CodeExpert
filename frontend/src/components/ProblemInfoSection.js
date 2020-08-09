@@ -6,7 +6,6 @@ import LoadingScreen from './LoadingScreen';
 function ProblemInfoSection(props) {
     const { problem, problemMetaData } = props;
     const loadingScreen = <LoadingScreen label="문제 정보를 불러오는 중입니다." />;
-
     return (
         <div className="problem-info-section">
             {(!problem || !problemMetaData) ? loadingScreen :
@@ -14,7 +13,7 @@ function ProblemInfoSection(props) {
                     <div className="problem-info-title text-center">
                         <h3>{problem.title}</h3>
                         <div className="problem-info-subtitle">문제 유형</div>
-                        <div>{problem.type.name}</div>
+                        <div>{problem.problemType.name}</div>
                         <div className="problem-info-subtitle">난이도</div>
                         <div>{`Level ${problem.level.name}`}</div>
 

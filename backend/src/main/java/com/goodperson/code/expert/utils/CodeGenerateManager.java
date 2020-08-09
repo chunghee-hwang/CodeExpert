@@ -26,7 +26,7 @@ public class CodeGenerateManager {
 
     private String makeCppInitCode(List<ProblemParameter> problemParameters, ProblemReturn problemReturn) {
         StringBuilder stringBuilder = new StringBuilder(
-                "#include <string>\n#include <vector>\nusing namespace std;\n\n");
+                "#include <string>\n#include <vector>\n\n");
         String returnDataTypeExpression = "";
         String returnDataTypeName = problemReturn.getDataType().getName();
         returnDataTypeExpression = getCppDataTypeExpression(returnDataTypeName);
@@ -219,7 +219,7 @@ public class CodeGenerateManager {
                 dataTypeExpression = "bool ";
                 break;
             case "booleanArray":
-                dataTypeExpression = "std::vector<boolean> ";
+                dataTypeExpression = "std::vector<bool> ";
                 break;
             case "string":
                 dataTypeExpression = "std::string ";

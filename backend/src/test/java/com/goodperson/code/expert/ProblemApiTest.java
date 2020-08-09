@@ -335,11 +335,11 @@ public class ProblemApiTest {
             throw new Exception("The language info is not correct");
         final Language language = languageOptional.get();
         final Problem problem = problemOptional.get();
-        Optional<Code> codeOptional = codeRepository.findByProblemAndLanguageAndCreator(problem, language,
-                authenticatedUser);
-        if (codeOptional.isPresent()) {
-            Code code = codeOptional.get();
-            codeRepository.delete(code);
+        Optional<Code> codeOptional = codeRepository.findByProblemAndLanguageAndCreatorAndIsInitCode(problem, language, authenticatedUser, false);
+        if(codeOptional.isPresent()){
+            codeRepository.delete(codeOptional.get());
+        }else{
+            throw new Exception("The code info was not found");
         }
 
     }
@@ -387,7 +387,7 @@ public class ProblemApiTest {
             ProblemTypeDto problemTypeDto = new ProblemTypeDto();
             problemTypeDto.setId(problemType.getId());
             problemTypeDto.setName(problemType.getName());
-            problemDto.setType(problemTypeDto);
+            problemDto.setProblemType(problemTypeDto);
             problemDto.setLevel(problemLevelDto);
             problemDtos.add(problemDto);
         }
@@ -415,8 +415,8 @@ public class ProblemApiTest {
             CodeDto codeDto = new CodeDto();
             String prevCodeContent = null;
             String initCodeContent = null;
-            Optional<Code> codeOptional = codeRepository.findByProblemAndLanguageAndCreator(problem, language,
-                    authenticatedUser);
+            Optional<Code> codeOptional = codeRepository.findByProblemAndLanguageAndCreatorAndIsInitCode(problem, language,
+                    authenticatedUser, false);
             if (codeOptional.isPresent()) {
                 prevCodeContent = codeOptional.get().getContent();
             }
@@ -499,8 +499,7 @@ public class ProblemApiTest {
             Problem problem, Language language) {
         boolean isAnswer = results.stream().allMatch(result -> result.getIsAnswer());
         // 정답이든 아니든 code 엔티티에 저장(코드 저장)
-        Optional<Code> codeOptional = codeRepository.findByProblemAndLanguageAndCreator(problem, language,
-                authenticatedUser);
+        Optional<Code> codeOptional = codeRepository.findByProblemAndLanguageAndCreatorAndIsInitCode(problem, language, authenticatedUser, false);
         Code code = null;
         // 이전에 작성한 코드가 있으면 덮어쓴다.
         if (codeOptional.isPresent()) {
@@ -512,6 +511,7 @@ public class ProblemApiTest {
         }
         code.setContent(submittedCode);
         code.setCreator(authenticatedUser);
+        code.setIsInitCode(false);
         codeRepository.save(code);
 
         // 정답일 경우 solution 엔티티에 저장
@@ -635,7 +635,7 @@ public class ProblemApiTest {
         ProblemType problemType = problem.getProblemType();
         problemTypeDto.setId(problemType.getId());
         problemTypeDto.setName(problemType.getName());
-        response.setType(problemTypeDto);
+        response.setProblemType(problemTypeDto);
         response.setLimitExplain(problem.getLimitExplain());
         response.setMemoryLimit(problem.getMemoryLimit());
         ProblemLevel problemLevel = problem.getProblemLevel();

@@ -1,21 +1,20 @@
-import React, { useEffect } from 'react';
-import { Form, Button, Spinner } from 'react-bootstrap';
-import { inputNames } from 'constants/FormInputNames';
-import { paths } from 'constants/Paths';
-import { tableMode } from 'constants/InputOutputTableMode';
-
-import ProblemExplainEditor from 'components/ProblemExplainEditor';
 import InputOutputTable from 'components/InputOutputTable';
-import { fillWithParametersAndTestcases, getParamsAndTestcases } from 'utils/InputOutputTableUtil';
-import { validateMakeProblem, validateUpdateProblem, validateDeleteProblem } from 'utils/validation/MakeProblemValidation';
-import { showValidationFailureAlert, showErrorAlert, showSuccessAlert, showWarningAlert } from 'utils/AlertManager';
-import { getIntegerQueryParameter } from 'utils/PageControl';
-
+import LoadingScreen from 'components/LoadingScreen';
+import ProblemExplainEditor from 'components/ProblemExplainEditor';
+import { inputNames } from 'constants/FormInputNames';
+import { tableMode } from 'constants/InputOutputTableMode';
+import { paths } from 'constants/Paths';
 import 'pages/css/Form.css';
 import 'pages/css/MakeProblem.css';
-import LoadingScreen from 'components/LoadingScreen';
-import { moveToPage } from 'utils/PageControl';
+import React, { useEffect } from 'react';
+import { Button, Form, Spinner } from 'react-bootstrap';
+import { showErrorAlert, showValidationFailureAlert, showWarningAlert } from 'utils/AlertManager';
 import AuthenticateManager from 'utils/AuthenticateManager';
+import { fillWithParametersAndTestcases, getParamsAndTestcases } from 'utils/InputOutputTableUtil';
+import { getIntegerQueryParameter, moveToPage } from 'utils/PageControl';
+import { validateDeleteProblem, validateMakeProblem, validateUpdateProblem } from 'utils/validation/MakeProblemValidation';
+
+
 function MakeProblem(props) {
     const { user } = props.account;
     const { data, which, isProgressing, isSuccess } = props.problem;
@@ -32,49 +31,44 @@ function MakeProblem(props) {
             if (!data.problemMetaData) problemActions.getProblemMetaData();
             //- request get problem data if problemId is not null 
             else if (problemId) {
-                if(which === 'problemData'){
-                    if(!isSuccess){
-                        moveToPage(props.history, paths.pages.problemList);
-                        return;
+                if (data.problemData) {
+                    // check the problem is made by same user.
+                    if (data.problemData.creator.id !== user.id) {
+                        showErrorAlert({ errorWhat: '문제 접근', text: '사용자님은 문제 작성자가 아닙니다.' }).then(() => {
+                            moveToPage(props.history, paths.pages.loginForm);
+                        });
                     }
-                }
-                else if (!data.problemData) {
-                    problemActions.getProblemData({ problemId }); 
-                    return;
-                }
-
-                // check the problem is made by same user.
-                else if (data.problemData.creator.id !== user.id) {
-                    showErrorAlert({ errorWhat: '문제 접근', text: '사용자님은 문제 작성자가 아닙니다.' }).then(() => {
-                        moveToPage(props.history, paths.pages.loginForm);
-                    });
-                } else {
                     const typeSelect = document.querySelector('#problem-type-select');
-                    const typeSelectIdx = Array.from(typeSelect.children).findIndex(option => Number(option.dataset.id) === data.problemData.type.id);
+                    const typeSelectIdx = Array.from(typeSelect.children).findIndex(option => Number(option.dataset.id) === data.problemData.problemType.id);
+
                     if (typeSelectIdx !== -1) typeSelect.selectedIndex = typeSelectIdx;
 
                     const levelSelect = document.querySelector('#problem-level-select');
                     const levelSelectIdx = Array.from(levelSelect.children).findIndex(option => Number(option.dataset.levelid) === data.problemData.level.id);
                     if (levelSelectIdx !== -1) levelSelect.selectedIndex = levelSelectIdx;
+                    problemActions.clearWhich();
+                }
+                else if (!data.problemData) {
+                    if (which === 'problemData' && !isSuccess) {
+                        moveToPage(props.history, paths.pages.problemList);
+                        return;
+                    }
+                    problemActions.getProblemData({ problemId });
+                    return;
                 }
             }
-           
             if (which === 'registerProblem') {
                 if (isSuccess) {
-                    showSuccessAlert({ successWhat: "문제 등록" }).then(() => {
-                        moveToPage(props.history, paths.pages.problemList);
-                    });
+                    moveToPage(props.history, paths.pages.problemList);
                 }
-                else if (data.failCause) {
+                else{
                     showErrorAlert({ errorWhat: "문제 등록", text: data.failCause })
                 }
 
             } else if (which === 'updateProblem') {
 
                 if (isSuccess) {
-                    showSuccessAlert({ successWhat: "문제 수정" }).then(()=>{
-                        moveToPage(props.history, paths.pages.problemList);
-                    });
+                    moveToPage(props.history, paths.pages.problemList);
                 }
                 else {
                     showErrorAlert({ errorWhat: "문제 수정", text: data.failCause })
@@ -83,21 +77,18 @@ function MakeProblem(props) {
             } else if (which === 'deleteProblem') {
 
                 if (isSuccess) {
-                    showSuccessAlert({ successWhat: "문제 삭제" }).then(() => {
-                        moveToPage(props.history, paths.pages.problemList);
-                    });
+                    moveToPage(props.history, paths.pages.problemList);
                 }
                 else {
                     showErrorAlert({ errorWhat: "문제 삭제", text: data.failCause })
                 }
 
             }
-          
         }
     }, [user, problemId, props.history, problemActions, data.problemData, data.problemMetaData, data.failCause, data.newProblemId, isProgressing, isSuccess, which]);
 
     const getProblemTypeOptions = () => {
-        return data.problemMetaData.problemTypes.reduce((accumulator, problemType, idx) => {
+        return data.problemMetaData.problemTypes.reduce((accumulator, problemType) => {
             accumulator.push(<option key={problemType.id} data-id={problemType.id}>{problemType.name}</option>);
             return accumulator;
         }, []);
@@ -120,11 +111,14 @@ function MakeProblem(props) {
     let testcaseSetTable = <InputOutputTable id="testcase-set-table" tableMode={tableMode.write.paramAndTestcase} labelName='테스트 케이스'
         initValue={data.problemData ? data.problemData.answerTable : null}
         onChangeParamNames={tableValue => {
-            let newProps = {
-                ...ioExTable.props,
-                initValue: tableValue
+            if(which!=='problemData')
+            {
+                let newProps = {
+                    ...ioExTable.props,
+                    initValue: tableValue
+                }
+                fillWithParametersAndTestcases(newProps);
             }
-            fillWithParametersAndTestcases(newProps);
         }} dataTypes={data.problemMetaData ? data.problemMetaData.dataTypes : null} />
 
     const registerProblem = () => {

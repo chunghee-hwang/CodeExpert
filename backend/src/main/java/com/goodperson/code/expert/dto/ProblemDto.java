@@ -6,7 +6,7 @@ import lombok.Data;
 public class ProblemDto {
     private Long id;
     private String title;
-    private ProblemTypeDto type;
+    private ProblemTypeDto problemType;
     private ProblemLevelDto level;
     private Long resolveCount;
     private Boolean createdByMe;

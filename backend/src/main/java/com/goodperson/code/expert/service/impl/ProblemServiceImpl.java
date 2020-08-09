@@ -107,9 +107,6 @@ public class ProblemServiceImpl implements ProblemService {
     private CompileManager compileManager;
 
     @Autowired
-    private FileUtils fileUtils;
-
-    @Autowired
     private AccountService accountService;
 
 
@@ -174,10 +171,35 @@ public class ProblemServiceImpl implements ProblemService {
   
         addParamterAndReturnAndTestcaseInfoFromTableInfo(problem, answerTable, 'a');
         addParamterAndReturnAndTestcaseInfoFromTableInfo(problem, exampleTable, 'e');
+        createInitCodeAllOfLanguages(problem, authenticatedUser);
         return problem;
     }
 
-    @GraphQLMutation(name="deleteProblem")
+    private void createInitCodeAllOfLanguages(Problem problem, User authenticatedUser) {
+        List<Language> languages = languageRepository.findAll();
+        for (Language language : languages) {
+            String initCodeContent = null;
+            List<ProblemParameter> problemParameters = problemParameterRepository.findAllByProblemAndTableType(problem,
+                    'a');
+            ProblemReturn problemReturn = problemReturnRepository.findByProblemAndTableType(problem, 'a');
+            initCodeContent = codeGenerateManager.makeInitCode(problemParameters, problemReturn, language);
+            Optional<Code> prevInitCodeOptional = codeRepository.findByProblemAndLanguageAndCreatorAndIsInitCode(problem, language, authenticatedUser, true);
+            Code initCode; 
+            if(prevInitCodeOptional.isPresent()){
+                initCode = prevInitCodeOptional.get();
+            }else{
+                initCode = new Code();
+                initCode.setCreator(null);
+                initCode.setLanguage(language);
+                initCode.setProblem(problem);
+                initCode.setIsInitCode(true);
+            }
+            initCode.setContent(initCodeContent);
+            codeRepository.save(initCode);
+        }
+    }
+
+    @GraphQLMutation(name = "deleteProblem")
     @Override
     public Problem deleteProblem(Long problemId) throws Exception {
         // 문제를 만든 사람이 삭제하려는 사람과 일치하는지 확인한다.
@@ -239,11 +261,11 @@ public class ProblemServiceImpl implements ProblemService {
             throw new Exception("The language info is not correct");
         final Language language = languageOptional.get();
         final Problem problem = problemOptional.get();
-        Optional<Code> codeOptional = codeRepository.findByProblemAndLanguageAndCreator(problem, language,
-                authenticatedUser);
-        if (codeOptional.isPresent()) {
-            Code code = codeOptional.get();
-            codeRepository.delete(code);
+        Optional<Code> codeOptional = codeRepository.findByProblemAndLanguageAndCreatorAndIsInitCode(problem, language, authenticatedUser, false);
+        if(codeOptional.isPresent()){
+            codeRepository.delete(codeOptional.get());
+        }else{
+            throw new Exception("The code info was not found");
         }
     }
 
@@ -300,7 +322,7 @@ public class ProblemServiceImpl implements ProblemService {
             ProblemTypeDto problemTypeDto = new ProblemTypeDto();
             problemTypeDto.setId(problemType.getId());
             problemTypeDto.setName(problemType.getName());
-            problemDto.setType(problemTypeDto);
+            problemDto.setProblemType(problemTypeDto);
             problemDto.setLevel(problemLevelDto);
             problemDtos.add(problemDto);
         }
@@ -338,16 +360,18 @@ public class ProblemServiceImpl implements ProblemService {
             CodeDto codeDto = new CodeDto();
             String prevCodeContent = null;
             String initCodeContent = null;
-            Optional<Code> codeOptional = codeRepository.findByProblemAndLanguageAndCreator(problem, language,
-                    authenticatedUser);
-            if (codeOptional.isPresent()) {
-                prevCodeContent = codeOptional.get().getContent();
+            Optional<Code> initCodeOptional = codeRepository.findByProblemAndLanguageAndCreatorAndIsInitCode(problem, language, null,true);
+            Optional<Code> prevCodeOptional = codeRepository.findByProblemAndLanguageAndCreatorAndIsInitCode(problem, language,
+            authenticatedUser, false);
+            if(!initCodeOptional.isPresent())
+            {
+                throw new Exception("The initial code info is empty.");
+            }else{
+                initCodeContent = initCodeOptional.get().getContent();
             }
-            List<ProblemParameter> problemParameters = problemParameterRepository.findAllByProblemAndTableType(problem,
-                    'a');
-            ProblemReturn problemReturn = problemReturnRepository.findByProblemAndTableType(problem, 'a');
-            initCodeContent = codeGenerateManager.makeInitCode(problemParameters, problemReturn, language);
-
+            if (prevCodeOptional.isPresent()) {
+                prevCodeContent = prevCodeOptional.get().getContent();
+            }
             codeDto.setInitCode(initCodeContent);
             codeDto.setPrevCode(prevCodeContent);
             LanguageDto languageDto = new LanguageDto();
@@ -479,8 +503,8 @@ public class ProblemServiceImpl implements ProblemService {
             Problem problem, Language language) {
         boolean isAnswer = results.stream().allMatch(result -> result.getIsAnswer());
         // 정답이든 아니든 code 엔티티에 저장(코드 저장)
-        Optional<Code> codeOptional = codeRepository.findByProblemAndLanguageAndCreator(problem, language,
-                authenticatedUser);
+        Optional<Code> codeOptional = codeRepository.findByProblemAndLanguageAndCreatorAndIsInitCode(problem, language,
+                authenticatedUser, false);
         Code code = null;
         // 이전에 작성한 코드가 있으면 덮어쓴다.
         if (codeOptional.isPresent()) {
@@ -489,6 +513,7 @@ public class ProblemServiceImpl implements ProblemService {
             code = new Code();
             code.setProblem(problem);
             code.setLanguage(language);
+            code.setIsInitCode(false);
         }
         code.setContent(submittedCode);
         code.setCreator(authenticatedUser);
@@ -521,7 +546,7 @@ public class ProblemServiceImpl implements ProblemService {
         ProblemType problemType = problem.getProblemType();
         problemTypeDto.setId(problemType.getId());
         problemTypeDto.setName(problemType.getName());
-        response.setType(problemTypeDto);
+        response.setProblemType(problemTypeDto);
         response.setLimitExplain(problem.getLimitExplain());
         response.setMemoryLimit(problem.getMemoryLimit());
         ProblemLevel problemLevel = problem.getProblemLevel();
@@ -557,7 +582,7 @@ public class ProblemServiceImpl implements ProblemService {
         for (ProblemParameter problemParameter : problemParameters) {
             ParameterDto parameterDto = new ParameterDto();
             DataTypeDto dataTypeDto = new DataTypeDto();
-            DataType paramDataType = problemReturn.getDataType();
+            DataType paramDataType = problemParameter.getDataType();
             dataTypeDto.setId(paramDataType.getId());
             dataTypeDto.setName(paramDataType.getName());
             parameterDto.setDataType(dataTypeDto);

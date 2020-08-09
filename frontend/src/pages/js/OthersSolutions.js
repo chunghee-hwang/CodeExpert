@@ -71,7 +71,7 @@ function OthersSolutions(props) {
         return solutionData.othersSolutions.solutions.reduce((accumulator, solution, idx) => {
             accumulator.push(
                 <div key={idx} className="others-solution">
-                    <h5 className="font-weight-bold">{unescape(solution.user.nickname)}</h5>
+                    <h5 className="font-weight-bold">{decodeURI(solution.user.nickname)}</h5>
                     <div id={`code-viewer${idx}`} className="code-viewer" data-solutionidx={idx}>
                     </div>
                     <div className="others-solution-like">

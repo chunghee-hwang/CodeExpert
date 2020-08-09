@@ -14,12 +14,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import com.goodperson.code.expert.dto.CompileErrorDto;
 import com.goodperson.code.expert.dto.MarkResultDto;
 import com.goodperson.code.expert.model.ProblemParameter;
 import com.goodperson.code.expert.model.ProblemParameterValue;
 import com.goodperson.code.expert.model.ProblemReturn;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Component;
@@ -32,6 +34,13 @@ public class CompileManager {
 
     @Autowired
     private FileUtils fileUtils;
+
+    @Value("${compiler.file.java.path}")
+    private String javaCompilerPath;
+    @Value("${compiler.file.cpp.path}")
+    private String cppCompilerPath;
+    @Value("${compiler.file.python.path}")
+    private String pythonCompilerPath;
 
     public CompileOption makeCompileOption(List<ProblemParameter> problemParameters, ProblemReturn problemReturn,
             List<ProblemParameterValue> problemParameterValues, String returnValue, int timeOutInMilliseconds) {
@@ -54,10 +63,12 @@ public class CompileManager {
         return compileOption;
     }
 
-    private String getValidateCode(String relativeCompilerFilePath) throws IOException {
+    private String getValidateCode(String relativeCompilerFilePath) throws Exception {
         String workPath = System.getProperty("user.dir");
-        final Path validaterFilePath = Paths.get(workPath + relativeCompilerFilePath);
-
+        final String fullCompilerFilePath = workPath + relativeCompilerFilePath;
+        File compilerFile = new File(fullCompilerFilePath);
+        if(!compilerFile.exists())throw new Exception("The compiler file is not exists");
+        final Path validaterFilePath = Paths.get(fullCompilerFilePath);
         return Files.readString(validaterFilePath);
     }
 
@@ -81,8 +92,8 @@ public class CompileManager {
     }
 
     @Async
-    public CompletableFuture<MarkResultDto> compilePython(String code, CompileOption compileOption) throws Exception {
-        final String validateCode = getValidateCode("/src/test/java/com/goodperson/code/expert/pythonCompiler.py");
+    public CompletableFuture<MarkResultDto> compilePython(String code, CompileOption compileOption, CompileErrorDto compileErrorDto) throws Exception {
+        final String validateCode = getValidateCode(pythonCompilerPath);
         code = code + "\n" + validateCode;
         File compileDirectory = makeCompileDirectory();
         File compileFile = makeCompileFile(compileDirectory, code, LocalDateTime.now(), "py");
@@ -122,24 +133,32 @@ public class CompileManager {
     }
 
     @Async
-    public CompletableFuture<MarkResultDto> compileJava(String code, CompileOption compileOption) throws Exception {
-        final String validateCode = removePackageCodeFromValidateCode(
-                getValidateCode("/src/test/java/com/goodperson/code/expert/JavaCompiler.java"));
-        String[] codeParts = splitJavaCodeToImportPartAndImplementCodePart(code);
-        code = codeParts[0].concat("\n").concat(validateCode).concat("\n").concat(codeParts[1]).concat("\n}");
-        File compileDirectory = makeCompileDirectory();
-        File compileFile = makeCompileFile(compileDirectory, code, LocalDateTime.now(), "java");
-        compileOption.setCompileFile(compileFile);
-        List<String> commands = new ArrayList<>();
-        commands.add("java");
-        commands.add(compileFile.getAbsolutePath());
-        commands.add("--illegal-access=warn");
-        commands.add(String.valueOf(compileOption.getTimeOutInMilliseconds()));
-        commands.addAll(compileOption.getParameters());
-        commands.add(compileOption.getAnswer());
-        MarkResultDto markResultDto = execCodeAndGetMarkResult(commands.toArray(String[]::new), compileOption);
-        deleteCompiledOrExecFile(compileFile);
-        return new AsyncResult<>(markResultDto).completable();
+    public CompletableFuture<MarkResultDto> compileJava(String code, CompileOption compileOption, CompileErrorDto compileErrorDto)
+    {
+        MarkResultDto markResultDto=null;
+        try{
+            final String validateCode = removePackageCodeFromValidateCode(
+                    getValidateCode(javaCompilerPath));
+            String[] codeParts = splitJavaCodeToImportPartAndImplementCodePart(code);
+            code = codeParts[0].concat("\n").concat(validateCode).concat("\n").concat(codeParts[1]).concat("\n}");
+            File compileDirectory = makeCompileDirectory();
+            File compileFile = makeCompileFile(compileDirectory, code, LocalDateTime.now(), "java");
+            compileOption.setCompileFile(compileFile);
+            List<String> commands = new ArrayList<>();
+            commands.add("java");
+            commands.add(compileFile.getAbsolutePath());
+            commands.add("--illegal-access=warn");
+            commands.add(String.valueOf(compileOption.getTimeOutInMilliseconds()));
+            commands.addAll(compileOption.getParameters());
+            commands.add(compileOption.getAnswer());
+            markResultDto = execCodeAndGetMarkResult(commands.toArray(String[]::new), compileOption);
+            deleteCompiledOrExecFile(compileFile);
+            return new AsyncResult<>(markResultDto).completable();
+        }
+        catch(Exception e){
+            compileErrorDto.setCompileError(true);
+            return new AsyncResult<>(markResultDto).completable();
+        }
     }
 
     private void deleteCompiledOrExecFile(File... files) {
@@ -173,10 +192,22 @@ public class CompileManager {
     }
 
     @Async
-    public CompletableFuture<MarkResultDto> compileCpp(String code, CompileOption compileOption) throws Exception {
+    public CompletableFuture<Boolean> waitForAllTestcasesMarked(int testcaseSize, List<MarkResultDto> markResults, CompileErrorDto CompileErrorDto){
+        while (markResults.size() != testcaseSize && !CompileErrorDto.isCompileError()) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ie) {
+                break;
+            }
+        }
+        return new AsyncResult<>(true).completable();
+    }
+
+    @Async
+    public CompletableFuture<MarkResultDto> compileCpp(String code, CompileOption compileOption, CompileErrorDto compileErrorDto) throws Exception {
         LocalDateTime now = LocalDateTime.now();
         final String validateCode = applyDetailToCppValidateCode(
-                getValidateCode("/src/test/java/com/goodperson/code/expert/CppCompiler.cpp"),
+                getValidateCode(cppCompilerPath),
                 compileOption.getParameters(), compileOption.getAnswer());
         final String compileFileExtension = "cpp";
         File compileDirectory = makeCompileDirectory();
@@ -187,7 +218,7 @@ public class CompileManager {
         File execFile = new File(compileDirectory, execFileName);
         final String compileFileFullPath = compileFile.getAbsolutePath();
         compileOption.setCompileFile(compileFile);
-        String[] compileCommands = new String[] { "clang++", "-pthread", "-std=c++1z", compileFile.getAbsolutePath(),
+        String[] compileCommands = new String[] { "clang++", "-pthread","-w", "-std=c++1z", compileFile.getAbsolutePath(),
                 "-o", execFile.getAbsolutePath() };
         String[] execCommands = new String[] { execFile.getAbsolutePath(),
                 String.valueOf(compileOption.getTimeOutInMilliseconds()) };

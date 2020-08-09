@@ -1,5 +1,6 @@
 package com.goodperson.code.expert.service.impl;
 
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import com.goodperson.code.expert.dto.CodeDto;
+import com.goodperson.code.expert.dto.CompileErrorDto;
 import com.goodperson.code.expert.dto.DataTypeDto;
 import com.goodperson.code.expert.dto.InputOutputTableDto;
 import com.goodperson.code.expert.dto.LanguageDto;
@@ -50,8 +52,8 @@ import com.goodperson.code.expert.service.ProblemService;
 import com.goodperson.code.expert.utils.CodeGenerateManager;
 import com.goodperson.code.expert.utils.CompileManager;
 import com.goodperson.code.expert.utils.CompileOption;
-import com.goodperson.code.expert.utils.FileUtils;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -183,7 +185,7 @@ public class ProblemServiceImpl implements ProblemService {
                     'a');
             ProblemReturn problemReturn = problemReturnRepository.findByProblemAndTableType(problem, 'a');
             initCodeContent = codeGenerateManager.makeInitCode(problemParameters, problemReturn, language);
-            Optional<Code> prevInitCodeOptional = codeRepository.findByProblemAndLanguageAndCreatorAndIsInitCode(problem, language, authenticatedUser, true);
+            Optional<Code> prevInitCodeOptional = codeRepository.findByProblemAndLanguageAndCreatorAndIsInitCode(problem, language, null, true);
             Code initCode; 
             if(prevInitCodeOptional.isPresent()){
                 initCode = prevInitCodeOptional.get();
@@ -215,6 +217,7 @@ public class ProblemServiceImpl implements ProblemService {
         return problem;
     }
 
+    @GraphQLMutation(name="submitProblemCode")
     @Override
     public List<MarkResultDto> submitProblemCode(Long problemId, Long languageId, String submittedCode)
             throws Exception {
@@ -333,14 +336,14 @@ public class ProblemServiceImpl implements ProblemService {
 
     @GraphQLQuery(name="problemDetail")
     @Override
-    public Map<String, Object> getProblemDetail(Long problemId) throws Exception {
+    public Map<String, Object> getProblemDetail(Long problemId, Boolean exceptAnswerTable) throws Exception {
         Map<String, Object> problemData = new HashMap<>();
         User authenticatedUser = accountService.getAuthenticatedUser();
         Optional<Problem> problemOptional = problemRepository.findById(problemId);
         if (!problemOptional.isPresent())
             throw new Exception("The problem info is not correct");
         Problem problem = problemOptional.get();
-        ProblemDetailDto problemDetailDto = createProblemDataResponseDto(problem, authenticatedUser);
+        ProblemDetailDto problemDetailDto = createProblemDataResponseDto(problem, exceptAnswerTable, authenticatedUser);
         problemData.put("problem", problemDetailDto);
         return problemData;
     }
@@ -457,9 +460,14 @@ public class ProblemServiceImpl implements ProblemService {
 
         // 코드 생성
         // 채점 및 채점 결과 생성
+        if(StringUtils.isEmpty(submittedCode)){
+            throw new Exception("The submitted code is empty");
+        }
+        submittedCode = URLDecoder.decode(submittedCode, "UTF-8");
+        submittedCode = submittedCode.replaceAll("(\\$)plus;", "+");
         String languageName = language.getName();
         final int testcaseSize = parameterValues.size();
-
+        CompileErrorDto compileErrorDto = new CompileErrorDto();
         for (int idx = 0; idx < testcaseSize; idx++) {
             List<ProblemParameterValue> problemParameterValues = parameterValues.get(idx);
             String returnValue = returnValues.get(idx);
@@ -470,27 +478,20 @@ public class ProblemServiceImpl implements ProblemService {
             };
             switch (languageName) {
                 case "java":
-                    compileManager.compileJava(submittedCode, compileOption).thenAccept(resultHandler);
+                    compileManager.compileJava(submittedCode, compileOption, compileErrorDto).thenAccept(resultHandler);
                     break;
                 case "python3":
-                    compileManager.compilePython(submittedCode, compileOption).thenAccept(resultHandler);
+                    compileManager.compilePython(submittedCode, compileOption, compileErrorDto).thenAccept(resultHandler);
                     break;
                 case "cpp":
-                    compileManager.compileCpp(submittedCode, compileOption).thenAccept(resultHandler);
+                    compileManager.compileCpp(submittedCode, compileOption, compileErrorDto).thenAccept(resultHandler);
                     break;
             }
             Thread.sleep(10);
         }
 
         /** Busy waiting */
-        // waitForAllTestcasesMarked(testcaseSize, markResults).get();
-        while (markResults.size() != testcaseSize) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException ie) {
-                break;
-            }
-        }
+        compileManager.waitForAllTestcasesMarked(testcaseSize, markResults,compileErrorDto).get();
         if (markResults.size() == testcaseSize) {
             saveCodeMarkResult(markResults, submittedCode, authenticatedUser, problem, language);
         } else {
@@ -538,7 +539,7 @@ public class ProblemServiceImpl implements ProblemService {
         }
     }
 
-    private ProblemDetailDto createProblemDataResponseDto(Problem problem, User creator) {
+    private ProblemDetailDto createProblemDataResponseDto(Problem problem, Boolean exceptAnswerTable, User creator) {
         ProblemDetailDto response = new ProblemDetailDto();
         response.setId(problem.getId());
         response.setTitle(problem.getTitle());
@@ -556,16 +557,16 @@ public class ProblemServiceImpl implements ProblemService {
         response.setLevel(problemLevelDto);
         response.setTimeLimit(problem.getTimeLimit());
         response.setExplain(problem.getContent());
-
-        InputOutputTableDto answerTable = createInputOutputTableDto(problem, 'a');
         InputOutputTableDto exampleTable = createInputOutputTableDto(problem, 'e');
-
-        response.setAnswerTable(answerTable);
         response.setExampleTable(exampleTable);
         UserRequestDto userDto = new UserRequestDto();
         userDto.setId(creator.getId());
         userDto.setNickname(creator.getNickname());
         response.setCreator(userDto);
+        if(!exceptAnswerTable){
+            InputOutputTableDto answerTable = createInputOutputTableDto(problem, 'a');
+            response.setAnswerTable(answerTable);
+        }
         return response;
     }
 

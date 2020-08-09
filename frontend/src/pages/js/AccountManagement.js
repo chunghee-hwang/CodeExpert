@@ -88,7 +88,7 @@ function AccountManagement(props) {
                             <Form.Label>닉네임</Form.Label>
 
                             <Form.Control name={inputNames.newNickname}
-                                defaultValue={user ? unescape(user.nickname) : 'N/A'} type="text" placeholder="닉네임을 입력하세요." maxLength="50" />
+                                defaultValue={user ? decodeURI(user.nickname) : 'N/A'} type="text" placeholder="닉네임을 입력하세요." maxLength="50" />
                         </Form.Group>
                         {which === 'nickname' && isProgressing ?
                             <Button variant="primary" disabled><Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true" />변경 중...</Button>

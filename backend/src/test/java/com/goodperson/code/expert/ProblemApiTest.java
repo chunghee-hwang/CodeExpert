@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.goodperson.code.expert.dto.CodeDto;
+import com.goodperson.code.expert.dto.CompileErrorDto;
 import com.goodperson.code.expert.dto.DataTypeDto;
 import com.goodperson.code.expert.dto.InputOutputTableDto;
 import com.goodperson.code.expert.dto.LanguageDto;
@@ -449,7 +450,7 @@ public class ProblemApiTest {
         // 채점 및 채점 결과 생성
         String languageName = language.getName();
         final int testcaseSize = parameterValues.size();
-
+        CompileErrorDto compileErrorDto = new CompileErrorDto();
         for (int idx = 0; idx < testcaseSize; idx++) {
             List<ProblemParameterValue> problemParameterValues = parameterValues.get(idx);
             String returnValue = returnValues.get(idx);
@@ -460,13 +461,13 @@ public class ProblemApiTest {
             };
             switch (languageName) {
                 case "java":
-                    compileManager.compileJava(submittedCode, compileOption).thenAccept(resultHandler);
+                    compileManager.compileJava(submittedCode, compileOption, compileErrorDto).thenAccept(resultHandler);
                     break;
                 case "python3":
-                    compileManager.compilePython(submittedCode, compileOption).thenAccept(resultHandler);
+                    compileManager.compilePython(submittedCode, compileOption, compileErrorDto).thenAccept(resultHandler);
                     break;
                 case "cpp":
-                    compileManager.compileCpp(submittedCode, compileOption).thenAccept(resultHandler);
+                    compileManager.compileCpp(submittedCode, compileOption, compileErrorDto).thenAccept(resultHandler);
                     break;
             }
             Thread.sleep(10);

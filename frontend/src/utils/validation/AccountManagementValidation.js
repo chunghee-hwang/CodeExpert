@@ -14,7 +14,7 @@ export function validateNewNickname(form, prevNickname) {
     if (!values[inputNames.newNickname]) {
         validation.failCause = "닉네임을 입력해주세요";
     }
-    else if (unescape(prevNickname) === values[inputNames.newNickname]) {
+    else if (decodeURI(prevNickname) === values[inputNames.newNickname]) {
         validation.failCause = "이전 닉네임과 새 닉네임이 일치합니다.";
     }
     else if (!nicknameRegex.test(values[inputNames.newNickname])) {
@@ -24,7 +24,7 @@ export function validateNewNickname(form, prevNickname) {
         validation.isValid = true;
     }
 
-    validation.values[inputNames.newNickname] = escape(values[inputNames.newNickname]);
+    validation.values[inputNames.newNickname] = encodeURI(values[inputNames.newNickname]);
     return validation;
 }
 

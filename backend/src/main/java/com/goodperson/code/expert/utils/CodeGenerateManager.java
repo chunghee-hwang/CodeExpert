@@ -225,7 +225,7 @@ public class CodeGenerateManager {
                 dataTypeExpression = "std::string ";
                 break;
             case "stringArray":
-                dataTypeExpression = "std::vector<string> ";
+                dataTypeExpression = "std::vector<std::string> ";
                 break;
             default:
                 dataTypeExpression = "void ";

@@ -4,7 +4,7 @@ export const nicknameRegex = /^[a-zA-Z가-힣0-9|\s]{2,15}$/
 
 // 자료형 정규식
 export const dataTypeRegexs = {
-    integer: /^\d+$/,
+    integer: /^[+-]?\d+$/,
     integerArray: /^\[([+-]?\d+(,)?(\s)?)*\]$/,
     integer2dArray: /^\[(\[([+-]?\d+(,)?(\s)?)*\](,)?(\s)?)*\]$/,
     long: /^\d+$/,

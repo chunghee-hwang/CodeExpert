@@ -45,6 +45,6 @@ export function validateSignup(form) {
     else {
         validation.isValid = true;
     }
-    validation.values[inputNames.nickname] = escape(values[inputNames.nickname]);
+    validation.values[inputNames.nickname] = encodeURI(values[inputNames.nickname]);
     return validation;
 }

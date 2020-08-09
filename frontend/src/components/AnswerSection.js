@@ -15,7 +15,7 @@ function AnswerSection(props) {
                 accumulator.push(
                     <tr key={idx}>
                         <td>테스트 {idx + 1}</td>
-                        <td>{result.success ? <span className="result-success">성공</span> : <span className="result-fail">실패</span>}( {result.intervalTime}ms, {result.usedMemory}MB )</td>
+                        <td>{result.isAnswer ? <><span className="result-success">성공</span>{getSuccessDetail(result)}</> : <><span className="result-fail">실패</span>{getFailDetail(result)}</>}</td>
                     </tr>
                 )
                 return accumulator;
@@ -27,7 +27,7 @@ function AnswerSection(props) {
                     </tbody>
 
                 </table>
-                {props.codeResults.every(codeResult => codeResult.success) ? <div className="result-success text-center">맞았습니다!</div> : <div className="result-fail text-center">틀렸습니다!</div>}
+                {props.codeResults.every(codeResult => codeResult.isAnswer) ? <div className="result-success text-center">맞았습니다!</div> : <div className="result-fail text-center">틀렸습니다!</div>}
             </>
         }
         else {
@@ -36,6 +36,26 @@ function AnswerSection(props) {
                 </div>
         }
     }, [props.codeResults, props.isMarking, props.isResetting]);
+
+    const getSuccessDetail = (result) => {
+        return <>
+            {result.timeElapsed != null ? <div><div className="font-weight-bold">걸린 시간</div>{result.timeElapsed} ms</div> : null}
+            {result.outputMessage && <div><div className="font-weight-bold">출력</div>{result.outputMessage}</div>}
+        </>
+    };
+
+    const getFailDetail = (result) => {
+        return <>
+            {result.isTimeOut ? <div>시간 초과</div> :
+                <>
+                    {result.errorMessage && <div><div className="font-weight-bold">에러 메시지</div> {result.errorMessage}</div>}
+                    {result.outputMessage && <div><div className="font-weight-bold">출력</div>{result.outputMessage}</div>}
+                    {result.timeElapsed != null ? <div><div className="font-weight-bold">걸린 시간</div>{result.timeElapsed} ms</div> : null}
+                    {result.expected && result.actual && <div><div className="font-weight-bold">예상 값</div>{result.expected}<br /><div className="font-weight-bold">실제 값</div>{result.actual}</div>}
+                </>
+            }
+        </>
+    };
 
     return (
         <div className="answer-section">

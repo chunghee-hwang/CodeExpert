@@ -23,7 +23,7 @@ public interface ProblemService {
 
         Map<String, Object> getProblemList(List<Long> typeIds, List<Long> levelIds, Integer page) throws Exception;
 
-        Map<String, Object> getProblemDetail(Long problemId) throws Exception;
+        Map<String, Object> getProblemDetail(Long problemId, Boolean exceptAnswerTable) throws Exception;
         Map<String, Object> getProblemCodes(Long problemId) throws Exception;
 
 }

@@ -37,6 +37,7 @@ function MakeProblem(props) {
                         showErrorAlert({ errorWhat: '문제 접근', text: '사용자님은 문제 작성자가 아닙니다.' }).then(() => {
                             moveToPage(props.history, paths.pages.loginForm);
                         });
+                        return;
                     }
                     const typeSelect = document.querySelector('#problem-type-select');
                     const typeSelectIdx = Array.from(typeSelect.children).findIndex(option => Number(option.dataset.id) === data.problemData.problemType.id);

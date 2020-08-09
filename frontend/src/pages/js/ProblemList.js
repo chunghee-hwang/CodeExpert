@@ -104,7 +104,7 @@ function ProblemList(props) {
         <div className="problem-page align-center">
             <div className="left-panel">
                 <div className="user-info">
-                    <div className="panel-title">{user ? unescape(user.nickname) : 'N/A'}</div>
+                    <div className="panel-title">{user ? decodeURI(user.nickname) : 'N/A'}</div>
                     <h6>해결한 문제 수: {data.userResolvedProblemCount}</h6>
                 </div>
 

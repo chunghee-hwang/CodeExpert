@@ -99,6 +99,7 @@
 }
 .result-success, .result-fail{
     font-weight: bold;
+    font-size: 1.2rem;
 }
 .result-success{
     color:rgb(0, 0, 201);

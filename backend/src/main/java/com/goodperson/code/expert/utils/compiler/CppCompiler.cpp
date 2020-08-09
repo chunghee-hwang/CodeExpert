@@ -17,7 +17,6 @@ solution_result solution_wrapper(int timeOut)
     std::mutex m;
     std::condition_variable cv;
     solution_result result;
-
     std::thread t([&cv, &result]() {
         try
         {
@@ -164,6 +163,7 @@ int main(int argc, char **argv)
     try
     {
         const int timeOut = atoi(argv[1]);
+
         solution_result result = solution_wrapper(timeOut);
         {{answerDataType}}answer = {{answerValue}};
         {{answerDataType}}userAnswer = result.answer;
@@ -172,7 +172,6 @@ int main(int argc, char **argv)
         if (answer == userAnswer)
         {
             fprintf(stdout, "%s\n", "$answer|");
-            fflush(stdout);
         }
         else
         {
@@ -193,9 +192,9 @@ int main(int argc, char **argv)
         }
         else
         {
-            fprintf(stderr, "%s\n", e.what());
+            fprintf(stderr, "%s\n", "e.what()");
         }
-        fflush(stderr);
+        fflush(stdout);
         exit(1);
     }
     return 0;

@@ -121,17 +121,6 @@
 | problem_type_id(fk) | 문제 유형 아이디(problem_type)|
 | creator_id(fk) | 출제자 아이디(user) |
 
-###### problem_image
-알고리즘 문제에 첨부된 이미지 엔티티<br/>
-|속성 이름|속성 설명|
-|:---:|:---:|
-| id(pk) | 이미지 아이디 |
-| file_name | 원본 파일 이름 |
-| save_file_name | 서버에 저장된 파일 이름 |
-| content_type | 파일 형식(image/..) |
-| created_date | 생성 날짜 |
-| problem_id(fk) | 이미지가 첨부된 문제 아이디(problem) |
-
 ###### problem_level
 알고리즘 문제 난이도 엔티티<br/>
 |속성 이름|속성 설명|
@@ -155,7 +144,7 @@ table_type 속성으로 둘을 구분한다.<br/>
 | id(pk) | 파라미터 아이디 |
 | name | 파라미터 명(변수명) |
 | table_type | 채점할 때 사용되면 'a', 문제 설명에 사용되면 'e' |
-| datatype_id(fk) | 자료형 아이디(datatype) |
+| data_type_id(fk) | 자료형 아이디(datatype) |
 | problem_id(fk) | 문제 아이디(problem_id) |
 
 ###### problem_return
@@ -198,8 +187,10 @@ table_type 속성으로 둘을 구분한다.<br/>
 |:---:|:---:|
 | id(pk) | 코드 아이디 |
 | content | 코드 내용 |
+| is_init_code | 초기 코드 여부 |
 | created_date | 생성 날짜 |
 | modified_date | 수정 날짜 |
+| creator_id | 코드 작성자 아이디 |
 | language_id(fk) | 작성한 언어 아이디(language|
 | problem_id(fk) | 문제 아이디(problem) |
 
@@ -210,7 +201,7 @@ table_type 속성으로 둘을 구분한다.<br/>
 | id(pk) | 언어 아이디 |
 | name | 언어 이름 |
 
-###### datatype
+###### data_type
 파라미터, 반환되는 값의 자료형(int, double...) 엔티티<br/>
 |속성 이름|속성 설명|
 |:---:|:---:|

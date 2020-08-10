@@ -13,6 +13,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import com.goodperson.code.expert.dto.CompileErrorDto;
 import com.goodperson.code.expert.dto.MarkResultDto;
@@ -164,7 +165,7 @@ public class CompileManager {
     private void deleteCompiledOrExecFile(File... files) {
         if (files != null) {
             for (File file : files) {
-                file.deleteOnExit();
+                file.delete();
             }
         }
     }
@@ -225,7 +226,7 @@ public class CompileManager {
         Runtime runtime = Runtime.getRuntime();
 
         Process compileProcess = runtime.exec(compileCommands);
-        compileProcess.waitFor();
+        compileProcess.waitFor(10000, TimeUnit.MILLISECONDS);
 
         // 다른 언어는 컴파일후 바로 실행 결과가 나오지만 c++은 컴파일 후, 실행 파일을 실행한다.
 
@@ -262,8 +263,9 @@ public class CompileManager {
         final File compileFile = compileOption.getCompileFile();
         final int timeOutInMilliseconds = compileOption.getTimeOutInMilliseconds();
         final String compileFileFullPath = compileFile.getAbsolutePath();
+        final String compileFileName = compileFile.getName();
         final String compileFileExtension = fileUtils.getFileExtension(compileFileFullPath);
-        execProcess.waitFor();
+        execProcess.waitFor(compileOption.getTimeOutInMilliseconds()+10000, TimeUnit.MILLISECONDS);
         try (BufferedReader execInput = new BufferedReader(new InputStreamReader(execProcess.getInputStream()));
                 BufferedReader execError = new BufferedReader(new InputStreamReader(execProcess.getErrorStream()));) {
             String line = "";
@@ -278,7 +280,7 @@ public class CompileManager {
             String outputMessage = null;
 
             while ((line = execError.readLine()) != null) {
-                line = line.replaceAll(compileFileFullPath, "solution".concat(compileFileExtension));
+                line = line.replaceAll(compileFileFullPath+"|"+compileFileName, "solution".concat(compileFileExtension));
                 if (line.startsWith("$timeout|")) {
                     isTimeOut = true;
                     timeElapsed = (double) timeOutInMilliseconds;
@@ -289,6 +291,7 @@ public class CompileManager {
                 }
             }
             while ((line = execInput.readLine()) != null) {
+                if(line.isEmpty()) continue;
                 line = line.replaceAll(compileFileFullPath, "solution".concat(compileFileExtension));
                 if (line.equals("$answer|")) {
                     isAnswer = true;

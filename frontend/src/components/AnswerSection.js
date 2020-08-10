@@ -1,9 +1,12 @@
 import React, { useCallback } from 'react';
 import LoadingScreen from './LoadingScreen';
+import { showSuccessAlert, showErrorAlert } from 'utils/AlertManager';
 
 function AnswerSection(props) {
 
     const makeResult = useCallback(() => {
+        
+                
         if (props.isResetting) {
             return <LoadingScreen label="코드 초기화 중입니다." />
         }
@@ -14,12 +17,22 @@ function AnswerSection(props) {
             let trs = props.codeResults.reduce((accumulator, result, idx) => {
                 accumulator.push(
                     <tr key={idx}>
-                        <td>테스트 {idx + 1}</td>
+                        <td className="font-weight-bold">테스트 {result.testcaseNumber}</td>
                         <td>{result.isAnswer ? <><span className="result-success">성공</span>{getSuccessDetail(result)}</> : <><span className="result-fail">실패</span>{getFailDetail(result)}</>}</td>
                     </tr>
                 )
                 return accumulator;
             }, []);
+            if( props.which ==="submitProblemCode"){
+                const allIsAnswer = props.codeResults.every(codeResult => codeResult.isAnswer);
+                if(allIsAnswer){
+                    showSuccessAlert({successWhat:"정답입니다!", appendSuccessText:false});
+                }else{
+                    showErrorAlert({errorWhat:"틀렸습니다!", appendFailureText:false});
+                }
+                props.problemActions.clearWhich()
+            }
+
             return <>
                 <table id="test-result-table">
                     <tbody>
@@ -27,7 +40,6 @@ function AnswerSection(props) {
                     </tbody>
 
                 </table>
-                {props.codeResults.every(codeResult => codeResult.isAnswer) ? <div className="result-success text-center">맞았습니다!</div> : <div className="result-fail text-center">틀렸습니다!</div>}
             </>
         }
         else {
@@ -35,12 +47,12 @@ function AnswerSection(props) {
                 실행 결과가 여기 표시됩니다.
                 </div>
         }
-    }, [props.codeResults, props.isMarking, props.isResetting]);
+    }, [props.codeResults, props.isMarking, props.isResetting, props.which, props.problemActions]);
 
     const getSuccessDetail = (result) => {
         return <>
-            {result.timeElapsed != null ? <div><div className="font-weight-bold">걸린 시간</div>{result.timeElapsed} ms</div> : null}
             {result.outputMessage && <div><div className="font-weight-bold">출력</div>{result.outputMessage}</div>}
+            {result.timeElapsed != null ? <div><div className="font-weight-bold">걸린 시간</div>{result.timeElapsed} ms</div> : null}
         </>
     };
 

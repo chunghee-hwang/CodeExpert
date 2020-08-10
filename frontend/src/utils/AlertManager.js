@@ -1,10 +1,13 @@
 import swal from "sweetalert";
 
-export const showSuccessAlert = ({ successWhat, text, btnText }) => {
+export const showSuccessAlert = ({ successWhat, text, btnText, appendSuccessText }) => {
     if (!btnText) btnText = '확인';
     let title = '';
     if (successWhat) {
-        title = successWhat + ' 성공';
+        title = successWhat;
+        if(appendSuccessText){
+            title+=' 성공';
+        }
     }
     return swal({
         title,
@@ -14,11 +17,14 @@ export const showSuccessAlert = ({ successWhat, text, btnText }) => {
     });
 }
 
-export const showErrorAlert = ({ errorWhat, text, btnText }) => {
+export const showErrorAlert = ({ errorWhat, text, btnText, appendFailureText }) => {
     if (!btnText) btnText = '확인';
     let title = '';
     if (errorWhat) {
-        title = errorWhat + ' 실패';
+        title = errorWhat;
+        if(appendFailureText){
+            title+="실패";
+        }
     }
     return swal({
         title,

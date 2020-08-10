@@ -129,6 +129,36 @@ public class JavaCompiler {
             }
         }).toArray();
     }
+    private String toStringAnswer(Object answer) {
+        if (answer instanceof int[])
+            return Arrays.toString((int[]) answer);
+        else if (answer instanceof boolean[])
+            return Arrays.toString((boolean[]) answer);
+        else if (answer instanceof long[])
+            return Arrays.toString((long[]) answer);
+        else if (answer instanceof double[])
+            return Arrays.toString((double[]) answer);
+        else if (answer instanceof String[]) {
+            StringBuffer result = new StringBuffer("[");
+            int index = 0;
+            final int arrayLength = ((String[]) answer).length;
+            for (String a : (String[]) answer) {
+                result.append("\"");
+                result.append(a);
+                result.append("\"");
+                if (index != arrayLength - 1) {
+                    result.append(", ");
+                }
+                index++;
+            }
+            result.append("]");
+            return result.toString();
+        } else if (answer instanceof String) {
+            return "\"" + answer + "\"";
+        } else{
+            return String.valueOf(answer);
+        }
+    }
 
     public JavaCompiler(String[] args) throws Exception {
         try (BufferedWriter outputWriter = new BufferedWriter(new OutputStreamWriter(System.out));
@@ -153,16 +183,19 @@ public class JavaCompiler {
 
                 long startTime = System.currentTimeMillis();
                 Object userAnswer = future.get(to, TimeUnit.MILLISECONDS);
-                long timeElapsed = System.currentTimeMillis() - startTime;
+                long endTime = System.currentTimeMillis();
+                long timeElapsed = endTime - startTime;
                 Object answerValue = getParameterOrAnswerValue(answer);
-                if (answerValue.equals(userAnswer)) {
-                    printOutput("$answer|", outputWriter);
+                String formattedAnswer = toStringAnswer(answerValue);
+                String formattedUserAnswer = toStringAnswer(userAnswer);
+                if (formattedAnswer.equals(formattedUserAnswer)) {
+                    printOutput("\n$answer|", outputWriter);
                 } else {
-                    printOutput("$notAnswer|" + answerValue + "|" + String.valueOf(userAnswer), outputWriter);
+                    printOutput("\n$notAnswer|" + formattedAnswer + "|" +formattedUserAnswer, outputWriter);
                 }
-                printOutput("$time|" + timeElapsed, outputWriter);
+                printOutput("\n$time|" + timeElapsed, outputWriter);
             } catch (TimeoutException te) {
-                printError("$timeout|", errorWriter);
+                printError("\n$timeout|", errorWriter);
             } catch (Exception e) {
                 e.printStackTrace(System.err);
             } finally {
@@ -186,12 +219,5 @@ public class JavaCompiler {
 
     public static void main(String[] args) throws Exception {
         new JavaCompiler(args);
-        // String[] testArgs = new String[] { "timeout:5000", "integerArray:[1, 2, 3,
-        // 4]", "integer:10" };
-        // new JavaCompiler(testArgs);
     }
-
-    // public int solution(int[] array) {
-    // return Arrays.stream(array).reduce(0, (a, b) -> a + b);
-    // }
 }

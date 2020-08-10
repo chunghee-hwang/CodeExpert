@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class MarkResultDto {
+    private int testcaseNumber;
     private Boolean isTimeOut;
     private Boolean isAnswer;
     private Double timeElapsed;

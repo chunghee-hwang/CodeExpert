@@ -61,7 +61,7 @@ std::string to_string_output(bool output){
     }
 }
 std::string to_string_output(std::string output){
-    return output;
+    return "\""+output+"\"";
 }
 std::string to_string_output(std::vector<int> output){
     std::string vectorOutput = "";
@@ -149,7 +149,9 @@ std::string to_string_output(std::vector<std::string> output){
     vectorOutput+=prefix;
     for (auto o : output)
     {
+        vectorOutput+="\"";
         vectorOutput+=(o);
+        vectorOutput+="\"";
         if(idx != vectorSize -1){
             vectorOutput+=delimiter;
         }
@@ -168,14 +170,13 @@ int main(int argc, char **argv)
         {{answerDataType}}answer = {{answerValue}};
         {{answerDataType}}userAnswer = result.answer;
         float timeElapsed = result.timeElapsed;
-
         if (answer == userAnswer)
         {
-            fprintf(stdout, "%s\n", "$answer|");
+            fprintf(stdout, "%s\n", "\n$answer|");
         }
         else
         {
-            fprintf(stdout, "%s", "$notAnswer|");
+            fprintf(stdout, "%s", "\n$notAnswer|");
             fprintf(stdout, "%s", to_string_output(answer).c_str());
             fprintf(stdout, "%s", "|");
             fprintf(stdout, "%s\n", to_string_output(userAnswer).c_str());
@@ -192,7 +193,7 @@ int main(int argc, char **argv)
         }
         else
         {
-            fprintf(stderr, "%s\n", "e.what()");
+            fprintf(stderr, "%s\n", e.what());
         }
         fflush(stdout);
         exit(1);

@@ -17,16 +17,21 @@ function ProblemSolutionSection(props) {
                 <>
                     <div id="code-title-bar">
                         <div id="code-file-name">{`solution.${props.code.language.fileExtension}`}</div>
-                        <select className="custom-select" id="language-select-input" onChange={e => props.onChangeLanguage(e.target.options[e.target.selectedIndex].dataset.languageid)}>
-                            {getLanguageOptions()}
-                        </select>
+                        {(props.isMarking||props.isResetting) ?
+                            <select className="custom-select" id="language-select-input" disabled>
+                                {getLanguageOptions()}
+                            </select> :
+                            <select className="custom-select" id="language-select-input" onChange={e => props.onChangeLanguage(e.target.options[e.target.selectedIndex].dataset.languageid)}>
+                                {getLanguageOptions()}
+                            </select>
+                        }
                     </div>
 
                     <Split className="problem-solution-section"
                         sizes={[50, 50]}
                         minSize={0}
                         expandToMin={true}
-                        gutterSize={10}
+                        gutterSize={5}
                         gutterAlign="center"
                         snapOffset={30}
                         dragInterval={1}
@@ -34,7 +39,7 @@ function ProblemSolutionSection(props) {
                         cursor="row-resize"
                     >
                         <CodeSection code={props.code} />
-                        <AnswerSection isMarking={props.isMarking} isResetting={props.isResetting} codeResults={props.codeResults} />
+                        <AnswerSection isMarking={props.isMarking} isResetting={props.isResetting} codeResults={props.codeResults} which={props.which} problemActions={props.problemActions}/>
                     </Split>
                 </>
             }

@@ -29,8 +29,7 @@ function ProblemInfoSection(props) {
                         <div className="time-memory-limit mb-4">
                             <div className="mt-2">
                                 <span className="problem-info-subtitle">제한 시간</span> {problem.timeLimit} ms
-                    &nbsp;<span className="problem-info-subtitle align-right">메모리 제한</span> {problem.memoryLimit} MB
-                    </div>
+                            </div>
                         </div>
                     </div>
                 </>

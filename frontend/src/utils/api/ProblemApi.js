@@ -104,7 +104,7 @@ export const submitProblemCode = ({ problemId, submittedCode, languageId }) => {
     return graphQLFetch(
         `mutation{
             submitProblemCode(problemId:${problemId}, submittedCode:"${submittedCode}", languageId:${languageId}){
-              actual,errorMessage,expected,isAnswer,isTimeOut,outputMessage,timeElapsed
+              testcaseNumber, actual,errorMessage,expected,isAnswer,isTimeOut,outputMessage,timeElapsed
             }
           }`
     ).then(res=>{
@@ -116,9 +116,14 @@ export const submitProblemCode = ({ problemId, submittedCode, languageId }) => {
  * 코드 리셋
  */
 export const resetProblemCode = ({ problemId, languageId }) => {
-    return {
-        clearCodeSuccess: true
-    }
+    return graphQLFetch(
+    `mutation{
+        resetCode(problemId:${problemId}, languageId:${languageId}){
+            id
+        }
+    }`).then(res=>{
+        return res.resetCode;
+    });
 
 }
 

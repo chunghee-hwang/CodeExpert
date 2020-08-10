@@ -36,7 +36,12 @@
 }
 
 .bottom-bar{
-  height:180px;
+  width: 100%;
+  text-align: center;
+}
+.bottom-bar-content{
+  width: 100%;
+  text-align: center;
 }
 
 .home-button{

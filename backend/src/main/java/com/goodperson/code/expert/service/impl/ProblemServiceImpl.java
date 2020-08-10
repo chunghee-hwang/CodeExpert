@@ -2,6 +2,7 @@ package com.goodperson.code.expert.service.impl;
 
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -161,7 +162,6 @@ public class ProblemServiceImpl implements ProblemService {
         problem.setContent(request.getProblemContent());
         problem.setLimitExplain(request.getLimitExplain());
         problem.setTimeLimit(request.getTimeLimit());
-        problem.setMemoryLimit(request.getMemoryLimit());
         problem.setProblemLevel(problemLevel);
         problem.setProblemType(problemType);
         problem.setCreator(authenticatedUser);
@@ -251,10 +251,11 @@ public class ProblemServiceImpl implements ProblemService {
         return markResultDtos;
     }
 
+    @GraphQLMutation(name="resetCode")
     @Override
-    public void resetCode(Long problemId, Long languageId) throws Exception {
-        // 코드 초기화시 솔루션과 코드 엔티티에 있는 내용 모두 삭제한다.
-        // 코드 삭제하면 솔루션도 cascade로 삭제된다.
+    public Code resetCode(Long problemId, Long languageId) throws Exception {
+        // 코드 초기화시 코드 엔티티에 있는 내용 모두 삭제한다.
+        // 코드 삭제하면 솔루션 또한 삭제된다(CASCADE).
         User authenticatedUser = accountService.getAuthenticatedUser();
         Optional<Language> languageOptional = languageRepository.findById(languageId);
         Optional<Problem> problemOptional = problemRepository.findById(problemId);
@@ -265,11 +266,12 @@ public class ProblemServiceImpl implements ProblemService {
         final Language language = languageOptional.get();
         final Problem problem = problemOptional.get();
         Optional<Code> codeOptional = codeRepository.findByProblemAndLanguageAndCreatorAndIsInitCode(problem, language, authenticatedUser, false);
+        Code code = null;
         if(codeOptional.isPresent()){
-            codeRepository.delete(codeOptional.get());
-        }else{
-            throw new Exception("The code info was not found");
+            code = codeOptional.get();
+            codeRepository.delete(code);
         }
+        return code;
     }
 
     @GraphQLQuery(name="userResolvedProblemCount")
@@ -473,7 +475,9 @@ public class ProblemServiceImpl implements ProblemService {
             String returnValue = returnValues.get(idx);
             CompileOption compileOption = compileManager.makeCompileOption(problemParameters, problemReturn,
                     problemParameterValues, returnValue, problem.getTimeLimit());
+            final int testcaseNumber = idx+1;
             final Consumer<? super MarkResultDto> resultHandler = res -> {
+                res.setTestcaseNumber(testcaseNumber);
                 markResults.add(res);
             };
             switch (languageName) {
@@ -493,6 +497,7 @@ public class ProblemServiceImpl implements ProblemService {
         /** Busy waiting */
         compileManager.waitForAllTestcasesMarked(testcaseSize, markResults,compileErrorDto).get();
         if (markResults.size() == testcaseSize) {
+            Collections.sort(markResults, (result1, result2)->result1.getTestcaseNumber() - result2.getTestcaseNumber());
             saveCodeMarkResult(markResults, submittedCode, authenticatedUser, problem, language);
         } else {
             throw new Exception("An error occured when marking the codes");
@@ -549,7 +554,6 @@ public class ProblemServiceImpl implements ProblemService {
         problemTypeDto.setName(problemType.getName());
         response.setProblemType(problemTypeDto);
         response.setLimitExplain(problem.getLimitExplain());
-        response.setMemoryLimit(problem.getMemoryLimit());
         ProblemLevel problemLevel = problem.getProblemLevel();
         ProblemLevelDto problemLevelDto = new ProblemLevelDto();
         problemLevelDto.setId(problemLevel.getId());

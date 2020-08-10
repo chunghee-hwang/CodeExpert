@@ -115,7 +115,6 @@
 | content | 문제 내용 |
 | limit_explain | 제한 사항 설명 |
 | time_limit | 시간 제한(ms) |
-| memory_limit | 메모리 제한(MB) |
 | created_date | 생성 날짜 |
 | modified_date | 수정 날짜 |
 | problem_level_id(fk) | 문제 난이도 아이디(problem_level) |

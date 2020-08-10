@@ -6,6 +6,7 @@ import java.util.Map;
 import com.goodperson.code.expert.dto.MarkResultDto;
 import com.goodperson.code.expert.dto.ProblemMetaDataDto;
 import com.goodperson.code.expert.dto.RegisterOrUpdateProblemRequestDto;
+import com.goodperson.code.expert.model.Code;
 import com.goodperson.code.expert.model.Problem;
 
 public interface ProblemService {
@@ -17,7 +18,7 @@ public interface ProblemService {
 
         List<MarkResultDto> submitProblemCode(Long problemId, Long languageId, String code) throws Exception;
 
-        void resetCode(Long problemId, Long languageId) throws Exception;
+        Code resetCode(Long problemId, Long languageId) throws Exception;
 
         long getUserResolvedProblemCount() throws Exception;
 

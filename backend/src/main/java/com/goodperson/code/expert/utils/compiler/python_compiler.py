@@ -54,10 +54,9 @@ def argv_to_python_code(data_type_and_value):
         value = list(map(bool, splitArray_value(value)))
     elif data_type == 'doubleArray':
         value = list(map(float, split_array_value(value)))
-    elif data_type == 'stringAray':
+    elif data_type == 'stringArray':
         value = list(map(str, split_array_value(value)))
     return value
-
 
 if __name__ == '__main__':
     argv = sys.argv
@@ -71,13 +70,14 @@ if __name__ == '__main__':
     try:
         start_time = time.monotonic()
         user_answer = solution(*parameters)
-        time_elapsed = round((time.monotonic() - start_time)*1000, 2)
+        end_time = time.monotonic()
+        time_elapsed = round((end_time - start_time)*1000, 2)
         if answer == user_answer:
-            print('$answer|')
+            print('\n$answer|')
         else:
-            print('$notAnswer|'+str(answer)+'|' + str(user_answer))
-        print('$time|'+str(time_elapsed))
+            print('\n$notAnswer|'+str(answer)+'|' + str(user_answer))
+        print('\n$time|'+str(time_elapsed))
     except TimeoutError as toe:
-        print('$timeout|', file=sys.stderr)
+        print('\n$timeout|', file=sys.stderr)
     except Exception as e:
         print(e, file=sys.stderr)

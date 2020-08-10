@@ -135,7 +135,6 @@ public class ProblemApiTest {
         problem.setContent(request.getProblemContent());
         problem.setLimitExplain(request.getLimitExplain());
         problem.setTimeLimit(request.getTimeLimit());
-        problem.setMemoryLimit(request.getMemoryLimit());
         problem.setProblemLevel(problemLevel);
         problem.setProblemType(problemType);
         problem.setCreator(authenticatedUser);
@@ -225,7 +224,6 @@ public class ProblemApiTest {
         reservedProblem.setContent("");
         reservedProblem.setCreator(null);
         reservedProblem.setLimitExplain("");
-        reservedProblem.setMemoryLimit(0);
         reservedProblem.setProblemLevel(null);
         reservedProblem.setProblemType(null);
         reservedProblem.setTimeLimit(0);
@@ -456,7 +454,9 @@ public class ProblemApiTest {
             String returnValue = returnValues.get(idx);
             CompileOption compileOption = compileManager.makeCompileOption(problemParameters, problemReturn,
                     problemParameterValues, returnValue, problem.getTimeLimit());
+            final int testcaseNumber = idx;
             final Consumer<? super MarkResultDto> resultHandler = res -> {
+                res.setTestcaseNumber(testcaseNumber);
                 markResults.add(res);
             };
             switch (languageName) {
@@ -585,7 +585,6 @@ public class ProblemApiTest {
         request.setProblemTitle("배열을 하이폰으로 구분해서 스트링으로 나타내기");
         request.setProblemTypeId(2L);
         request.setLimitExplain("제한 사항");
-        request.setMemoryLimit(256);
         request.setProblemLevelId(1L);
         request.setTimeLimit(1000);
         request.setProblemContent("문제 설명");
@@ -638,7 +637,6 @@ public class ProblemApiTest {
         problemTypeDto.setName(problemType.getName());
         response.setProblemType(problemTypeDto);
         response.setLimitExplain(problem.getLimitExplain());
-        response.setMemoryLimit(problem.getMemoryLimit());
         ProblemLevel problemLevel = problem.getProblemLevel();
         ProblemLevelDto problemLevelDto = new ProblemLevelDto();
         problemLevelDto.setId(problemLevel.getId());

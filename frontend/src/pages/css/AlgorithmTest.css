@@ -1,7 +1,7 @@
 #code-editor{
     width:100%;
     height: 100%;
-    font-size: 1.1rem;
+    font-size: 1rem;
 }
 
 .algorithm-test{
@@ -30,9 +30,15 @@
 
 
 .gutter {
-    background-color: rgba(219, 250, 255, 0.37);
-    border: dotted 0.5px rgba(156, 184, 189, 0.37);
+    background-color: rgba(119, 119, 119, 0.37);
+    border: dotted 0.5px rgba(53, 53, 53, 0.37);
 }
+
+.gutter:hover{
+    background-color: rgba(105, 78, 78, 0.37);
+    border: dotted 0.5px rgba(58, 33, 33, 0.37);
+}
+
 .gutter.gutter-horizontal {
     cursor: col-resize;
 }
@@ -68,7 +74,7 @@
     width: 100%;
     padding: 1vh 1vw;
     display: flex;
-    align-items: flex-end;
+    align-items: flex-start;
     border-bottom: solid 2px darkgrey;
 }
 
@@ -83,7 +89,10 @@
     font-weight: bold;
     margin-top: 2vh;
     margin-bottom: 1vh;
+    text-align: center;
 }
+
+
 
 #test-result-table{
     width: calc(100% - 3vw);

@@ -17,8 +17,6 @@ public class RegisterOrUpdateProblemRequestDto {
 
     private Integer timeLimit;
 
-    private Integer memoryLimit;
-
     private Long problemLevelId;
 
     private InputOutputTableDto answerTable;

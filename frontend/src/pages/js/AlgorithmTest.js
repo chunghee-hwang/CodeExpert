@@ -34,7 +34,7 @@ function AlgorithmTest(props) {
     const isResetting = isProgressing && which === 'resetProblemCode';
 
     const problemInfoSection = <ProblemInfoSection problemMetaData={data.problemMetaData ? data.problemMetaData : null} problem={data.problemDataAndCode ? data.problemDataAndCode.problem : null} />;
-    const problemSolutionSection = <ProblemSolutionSection codes={data.problemDataAndCode ? data.problemDataAndCode.codes : null} code={code} onChangeLanguage={langaugeId => changeLangauge(langaugeId)} codeResults={data.submitResults} isMarking={isMarking} isResetting={isResetting} />;
+    const problemSolutionSection = <ProblemSolutionSection codes={data.problemDataAndCode ? data.problemDataAndCode.codes : null} code={code} onChangeLanguage={langaugeId => changeLangauge(langaugeId)} codeResults={data.submitResults} isMarking={isMarking} isResetting={isResetting} which={which} problemActions={problemActions}/>;
 
 
     return (
@@ -48,7 +48,7 @@ function AlgorithmTest(props) {
                             sizes={[50, 50]}
                             minSize={0}
                             expandToMin={true}
-                            gutterSize={10}
+                            gutterSize={5}
                             gutterAlign="center"
                             snapOffset={30}
                             dragInterval={1}
@@ -105,7 +105,7 @@ function AlgorithmTest(props) {
     }
 
     function resetCode() {
-        showWarningAlert({ title: '정말 코드를 초기화 할까요?', btnText: '초기화' }).then((willReset) => {
+        showWarningAlert({ title: '정말 코드를 초기화 할까요?', text:'초기화하면 코드 정보를 다시 되돌릴 수 없고, 정답 기록 또한 초기화 됩니다.', btnText: '초기화' }).then((willReset) => {
             if (willReset) {
                 //- request reset problem code
                 problemActions.resetProblemCode({ problemId, languageId: code.language.id });

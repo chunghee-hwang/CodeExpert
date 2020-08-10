@@ -250,7 +250,7 @@ public class CodeGenerateManager {
             case "booleanArray":
             case "stringArray":
                 String prefix = getCppDataTypeExpression(dataTypeName);
-                valueExpression = prefix + value.replace("[", "{").replace("]", "}");
+                valueExpression = prefix + value.replaceAll("\\[", "{").replaceAll("\\]", "}");
                 break;
             default:
                 valueExpression = "";
@@ -264,6 +264,7 @@ public class CodeGenerateManager {
         if (dataTypeName.endsWith("Array")) 
         {
             dataTypeExpression = "{}";
+            return dataTypeExpression;
         }
         switch (dataTypeName) {
             case "integer":

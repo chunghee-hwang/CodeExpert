@@ -32,7 +32,10 @@ def timeout(timeout_deco):
 
 
 def split_array_value(array_value):
-    return re.sub('[\\[\\]\'\"\s+]', '', array_value).split(',')
+    if ',' in array_value:
+        return re.sub('[\\[\\]\'\"\s+]', '', array_value).split(',')
+    else:
+        return []
 
 
 def argv_to_python_code(data_type_and_value):
@@ -75,7 +78,10 @@ if __name__ == '__main__':
         if answer == user_answer:
             print('\n$answer|')
         else:
-            print('\n$notAnswer|'+str(answer)+'|' + str(user_answer))
+            print('\n$notAnswer|')
+        print('\n$expected|'+str(answer))
+        print('\n$actual|'+str(user_answer))
+        print('\n$input|'+str(*parameters))
         print('\n$time|'+str(time_elapsed))
     except TimeoutError as toe:
         print('\n$timeout|', file=sys.stderr)

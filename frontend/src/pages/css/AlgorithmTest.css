@@ -10,18 +10,24 @@
 }
 
 .problem-solution-section{
-    height:98vh;
+    height: 100vh;
+    overflow: auto;
 }
 
 .problem-info-section{
     z-index:0;
-    overflow-y: scroll;
+    overflow: auto;
 
 }
 
 .answer-section{
     z-index: -1;
-    overflow-y: scroll;
+    overflow: scroll;
+}
+
+.code-section{
+    overflow: scroll;
+    min-height: 50vh;
 }
 
 .problem-info-section, .problem-solution-section, .code-section, .answer-section{
@@ -94,14 +100,14 @@
 
 
 
-#test-result-table{
+.test-result-table{
     width: calc(100% - 3vw);
     border-collapse: collapse;
     border-radius: 5px;
     margin: 2vh auto;
 }
 
-#test-result-table td{
+.test-result-table td{
     border:solid grey 1px;
     padding:5px;
 
@@ -116,6 +122,16 @@
 .result-fail{
     color:rgb(255, 82, 82);
 }
+.mark-result-title{
+    margin-top:2vh;
+    text-align: center;
+    width:100%;
+}
+
+.mark-result-subtitle{
+    text-align: center;
+    width:100%;
+}
 /* 
   ##Device = Desktops
 */
@@ -123,9 +139,6 @@
 @media (min-width: 1025px){
     .algorithm-test{
         display: flex;
-    }
-    .problem-info-section{
-        height:105vh;
     }
   }
   

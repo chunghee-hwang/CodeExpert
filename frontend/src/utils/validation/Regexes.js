@@ -7,7 +7,7 @@ export const dataTypeRegexs = {
     integer: /^[+-]?\d+$/,
     integerArray: /^\[([+-]?\d+(,)?(\s)?)*\]$/,
     integer2dArray: /^\[(\[([+-]?\d+(,)?(\s)?)*\](,)?(\s)?)*\]$/,
-    long: /^\d+$/,
+    long: /^[+-]?\d+$/,
     longArray: /^\[([+-]?\d+(,)?(\s)?)*\]$/,
     long2dArray: /^\[(\[([+-]?\d+(,)?(\s)?)*\](,)?(\s)?)*\]$/,
     double: /^[+-]?\d+(.)?(\d+)?$/,

@@ -8,6 +8,7 @@ public class MarkResultDto {
     private Boolean isTimeOut;
     private Boolean isAnswer;
     private Double timeElapsed;
+    private String input;
     private String expected;
     private String actual;
     private String errorMessage;

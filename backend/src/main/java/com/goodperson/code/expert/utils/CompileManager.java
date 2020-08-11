@@ -96,6 +96,7 @@ public class CompileManager {
     public CompletableFuture<MarkResultDto> compilePython(String code, CompileOption compileOption, CompileErrorDto compileErrorDto) throws Exception {
         final String validateCode = getValidateCode(pythonCompilerPath);
         code = code + "\n" + validateCode;
+        code.replaceAll("\t", "    "); // tab-> 공백 4개(indent error 방지)
         File compileDirectory = makeCompileDirectory();
         File compileFile = makeCompileFile(compileDirectory, code, LocalDateTime.now(), "py");
         compileOption.setCompileFile(compileFile);
@@ -117,7 +118,6 @@ public class CompileManager {
         String[] lines = code.split("(?<=;)(?<=\n)?");
 
         for (String line : lines) {
-            line = line.replaceAll("^\\s+", "");
             if (line.startsWith("import")) {
                 importCode.append(line);
             } else {
@@ -266,6 +266,7 @@ public class CompileManager {
         final String compileFileName = compileFile.getName();
         final String compileFileExtension = fileUtils.getFileExtension(compileFileFullPath);
         execProcess.waitFor(compileOption.getTimeOutInMilliseconds()+10000, TimeUnit.MILLISECONDS);
+        
         try (BufferedReader execInput = new BufferedReader(new InputStreamReader(execProcess.getInputStream()));
                 BufferedReader execError = new BufferedReader(new InputStreamReader(execProcess.getErrorStream()));) {
             String line = "";
@@ -274,6 +275,7 @@ public class CompileManager {
             boolean isTimeOut = false;
             boolean isAnswer = false;
             Double timeElapsed = null;
+            String input = null;
             String expected = null;
             String actual = null;
             String errorMessage = null;
@@ -281,7 +283,8 @@ public class CompileManager {
 
             while ((line = execError.readLine()) != null) {
                 line = line.replaceAll(compileFileFullPath+"|"+compileFileName, "solution".concat(compileFileExtension));
-                if (line.startsWith("$timeout|")) {
+                String trimmedLine = line.trim();
+                if (trimmedLine.startsWith("$timeout|")) {
                     isTimeOut = true;
                     timeElapsed = (double) timeOutInMilliseconds;
                     break;
@@ -293,13 +296,21 @@ public class CompileManager {
             while ((line = execInput.readLine()) != null) {
                 if(line.isEmpty()) continue;
                 line = line.replaceAll(compileFileFullPath, "solution".concat(compileFileExtension));
-                if (line.equals("$answer|")) {
+                String trimmedLine= line.trim();
+                if (trimmedLine.equals("$answer|")) {
                     isAnswer = true;
-                } else if (line.startsWith("$notAnswer|")) {
-                    String[] splitted = line.split("\\|");
-                    expected = splitted[1];
-                    actual = splitted[2];
-                } else if (line.startsWith("$time|")) {
+                } else if (trimmedLine.equals("$notAnswer|")) {
+                    isAnswer = false;
+                } 
+                else if(trimmedLine.startsWith("$input|")){
+                    input = line.split("\\|")[1];
+                }
+                else if(trimmedLine.startsWith("$expected|")){
+                    expected = line.split("\\|")[1];
+                }else if(trimmedLine.startsWith("$actual|")){
+                    actual = line.split("\\|")[1];
+                }
+                else if (trimmedLine.startsWith("$time|")) {
                     String[] splitted = line.split("\\|");
                     timeElapsed = Double.valueOf(splitted[1]);
                 } else {
@@ -312,6 +323,7 @@ public class CompileManager {
 
             markResultDto.setActual(actual);
             markResultDto.setErrorMessage(errorMessage);
+            markResultDto.setInput(input);
             markResultDto.setExpected(expected);
             markResultDto.setIsAnswer(isAnswer);
             markResultDto.setIsTimeOut(isTimeOut);

@@ -16,7 +16,7 @@ public interface ProblemService {
 
         Problem deleteProblem(Long problemId) throws Exception;
 
-        List<MarkResultDto> submitProblemCode(Long problemId, Long languageId, String code) throws Exception;
+        Map<String, List<MarkResultDto>> submitProblemCode(Long problemId, Long languageId, String code) throws Exception;
 
         Code resetCode(Long problemId, Long languageId) throws Exception;
 

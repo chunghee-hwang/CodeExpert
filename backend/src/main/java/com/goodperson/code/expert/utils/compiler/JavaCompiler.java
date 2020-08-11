@@ -160,6 +160,11 @@ public class JavaCompiler {
         }
     }
 
+    private String formatParameterValues(Object[] parameterValues){
+        String formattedParameterValues = Arrays.deepToString(parameterValues);
+        return formattedParameterValues.substring(1, formattedParameterValues.length()-1);
+    }
+
     public JavaCompiler(String[] args) throws Exception {
         try (BufferedWriter outputWriter = new BufferedWriter(new OutputStreamWriter(System.out));
                 BufferedWriter errorWriter = new BufferedWriter(new OutputStreamWriter(System.err));) {
@@ -191,8 +196,11 @@ public class JavaCompiler {
                 if (formattedAnswer.equals(formattedUserAnswer)) {
                     printOutput("\n$answer|", outputWriter);
                 } else {
-                    printOutput("\n$notAnswer|" + formattedAnswer + "|" +formattedUserAnswer, outputWriter);
+                    printOutput("\n$notAnswer|",outputWriter);
                 }
+                printOutput("\n$expected|"+formattedAnswer, outputWriter);
+                printOutput("\n$actual|"+formattedUserAnswer, outputWriter);
+                printOutput("\n$input|"+formatParameterValues(parameterValues), outputWriter);
                 printOutput("\n$time|" + timeElapsed, outputWriter);
             } catch (TimeoutException te) {
                 printError("\n$timeout|", errorWriter);

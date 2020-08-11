@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import Split from 'react-split'
 import CodeSection from './CodeSection';
 import AnswerSection from './AnswerSection';
@@ -10,7 +10,16 @@ function ProblemSolutionSection(props) {
             return accumulator;
         }, [])
     }, [props.codes]);
-
+    useEffect(()=>{
+        if(props.code){
+            const languageSelect = document.getElementById('language-select-input');
+            const foundCodeIndex = props.codes.findIndex(code=>props.code.language.id === code.language.id);
+            if(languageSelect && foundCodeIndex!==-1){
+                if(languageSelect.selectedIndex !== foundCodeIndex)
+                    languageSelect.selectedIndex= foundCodeIndex;
+            }
+        }
+    },[props.codes, props.code]);
     return (
         <div className="problem-solution-section">
             {!props.codes || !props.code ? <LoadingScreen label="코드 정보를 불러오는 중입니다." /> :
@@ -39,7 +48,7 @@ function ProblemSolutionSection(props) {
                         cursor="row-resize"
                     >
                         <CodeSection code={props.code} />
-                        <AnswerSection isMarking={props.isMarking} isResetting={props.isResetting} codeResults={props.codeResults} which={props.which} problemActions={props.problemActions}/>
+                        <AnswerSection isMarking={props.isMarking} isResetting={props.isResetting} markResults={props.markResults} which={props.which} problemActions={props.problemActions}/>
                     </Split>
                 </>
             }

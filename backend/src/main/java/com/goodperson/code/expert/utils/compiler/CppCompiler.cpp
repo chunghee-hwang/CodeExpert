@@ -50,7 +50,9 @@ std::string to_string_output(long output){
     return std::to_string(output);
 }
 std::string to_string_output(double output){
-    return std::to_string(output);
+    std::ostringstream stream;
+    stream << output;
+    return stream.str();
 }
 std::string to_string_output(bool output){
     if(output){
@@ -173,16 +175,24 @@ int main(int argc, char **argv)
         if (answer == userAnswer)
         {
             fprintf(stdout, "%s\n", "\n$answer|");
+            fflush(stdout);
         }
         else
         {
-            fprintf(stdout, "%s", "\n$notAnswer|");
-            fprintf(stdout, "%s", to_string_output(answer).c_str());
-            fprintf(stdout, "%s", "|");
-            fprintf(stdout, "%s\n", to_string_output(userAnswer).c_str());
+            fprintf(stdout, "%s\n", "\n$notAnswer|");
+            fflush(stdout);
         }
-        fprintf(stdout, "%s", "$time|");
-        fprintf(stdout, "%.1f\n", timeElapsed);
+        fprintf(stdout, "%s", "\n$expected|");
+        fprintf(stdout, "%s\n", to_string_output(answer).c_str());
+        fflush(stdout);
+        fprintf(stdout, "%s", "\n$actual|");
+        fprintf(stdout, "%s\n", to_string_output(userAnswer).c_str());
+        fflush(stdout);
+        fprintf(stdout, "%s", "\n$input|");
+        fprintf(stdout, "%s\n", "{{parameterValues}}");
+        fflush(stdout);
+        fprintf(stdout, "%s", "\n$time|");
+        fprintf(stdout, "%.2f\n", timeElapsed);
         fflush(stdout);
     }
     catch (std::runtime_error &e)

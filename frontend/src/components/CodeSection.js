@@ -13,7 +13,7 @@ function CodeSection(props) {
     }, [props.code]);
 
     return (
-        <div style={{ "display": "relative" }}>
+        <div className="code-section" style={{ "display": "relative" }}>
             <div id="code-editor">
 
             </div>

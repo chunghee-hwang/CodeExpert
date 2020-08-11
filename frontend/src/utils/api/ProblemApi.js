@@ -103,9 +103,7 @@ export const submitProblemCode = ({ problemId, submittedCode, languageId }) => {
     submittedCode = encodeURI(submittedCode);
     return graphQLFetch(
         `mutation{
-            submitProblemCode(problemId:${problemId}, submittedCode:"${submittedCode}", languageId:${languageId}){
-              testcaseNumber, actual,errorMessage,expected,isAnswer,isTimeOut,outputMessage,timeElapsed
-            }
+            submitProblemCode(problemId:${problemId}, submittedCode:"${submittedCode}", languageId:${languageId})
           }`
     ).then(res=>{
         return res.submitProblemCode;

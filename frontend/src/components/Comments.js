@@ -12,17 +12,17 @@ function Comments(props) {
             switch (which) {
                 case 'registerComment':
                     if (!isSuccess) {
-                        showErrorAlert({ errorWhat: '댓글 등록' });
+                        showErrorAlert({ errorWhat: '댓글 등록', appendFailureText:true });
                     }
                     break;
                 case 'updateComment':
                     if (!isSuccess) {
-                        showErrorAlert({ errorWhat: '댓글 수정' });
+                        showErrorAlert({ errorWhat: '댓글 수정', appendFailureText:true});
                     }
                     break;
                 case 'deleteComment':
                     if (!isSuccess) {
-                        showErrorAlert({ errorWhat: '댓글 삭제' });
+                        showErrorAlert({ errorWhat: '댓글 삭제', appendFailureText:true });
                     }
                     break;
                 default:

@@ -24,7 +24,7 @@ function LogoutManager(props) {
                 moveToPage(props.history, paths.pages.loginForm);
             }
             else {
-                showErrorAlert({ errorWhat: '로그아웃', text: data }).then(() => {
+                showErrorAlert({ errorWhat: '로그아웃', text: data, appendFailureText:true }).then(() => {
                     moveToPage(props.history, paths.pages.problemList);
                 });
             }

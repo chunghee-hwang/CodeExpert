@@ -37,7 +37,7 @@ function LoginForm(props) {
                 if (isSuccess) {
                     if(AuthenticateManager.isUserLoggedIn())moveToPage(props.history, paths.pages.problemList);
                 } else {
-                    showErrorAlert({ errorWhat: successOrErrorWhat, text: data });
+                    showErrorAlert({ errorWhat: successOrErrorWhat, text: data, appendFailureText:true });
                 }
             }
         }

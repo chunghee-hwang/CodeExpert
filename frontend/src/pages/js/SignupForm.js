@@ -21,12 +21,12 @@ function SignupForm(props) {
         if (which === 'signup') {
             if (!isProgressing) {
                 if (isSuccess) {
-                    showSuccessAlert({ successWhat: "회원 가입", text: "회원가입을 완료했습니다. 가입하신 정보로 로그인 해주세요." }).then(() => {
+                    showSuccessAlert({ successWhat: "회원 가입", text: "회원가입을 완료했습니다. 가입하신 정보로 로그인 해주세요.", appendSuccessText:true }).then(() => {
                         moveToPage(props.history, paths.pages.loginForm);
                     });
                 }
                 else {
-                    showErrorAlert({ errorWhat: "회원 가입", text: data });
+                    showErrorAlert({ errorWhat: "회원 가입", text: data, appendFailureText:true });
                 }
             }
         }

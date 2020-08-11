@@ -35,9 +35,9 @@ function AccountManagement(props) {
 
         if (successOrErrorWhat && !isProgressing) {
             if (isSuccess) {
-                showSuccessAlert({ successWhat: successOrErrorWhat, text: data });
+                showSuccessAlert({ successWhat: successOrErrorWhat, text: data, appendSuccessText:true });
             } else {
-                showErrorAlert({ successWhat: successOrErrorWhat, text: data });
+                showErrorAlert({ successWhat: successOrErrorWhat, text: data, appendFailureText:true });
             }
             accountActions.clearWhich();
         }

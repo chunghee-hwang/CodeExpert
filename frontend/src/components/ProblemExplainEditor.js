@@ -38,7 +38,7 @@ function ProblemExplainEditor(props) {
         }
         // Not supported
         else {
-            showErrorAlert({ errorWhat: "브라우저 호환" });
+            showErrorAlert({ errorWhat: "브라우저 호환", appendFailureText:true});
             throw new Error("The file Reader is not supported.");
         }
 
@@ -91,7 +91,7 @@ function ProblemExplainEditor(props) {
                 Array.from(files).forEach(file => addImage(file));
                 event.target.value='';
             }catch(e){
-                showErrorAlert({errorWhat:"이미지 첨부", text:e.message});
+                showErrorAlert({errorWhat:"이미지 첨부", text:e.message, appendFailureText:true});
             }
         }
     }

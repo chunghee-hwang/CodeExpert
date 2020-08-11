@@ -23,7 +23,7 @@ export const showErrorAlert = ({ errorWhat, text, btnText, appendFailureText }) 
     if (errorWhat) {
         title = errorWhat;
         if(appendFailureText){
-            title+="실패";
+            title+=" 실패";
         }
     }
     return swal({
@@ -56,7 +56,7 @@ export const showValidationFailureAlert = ({ validation, failWhat, btnText }) =>
             validation.failedElement.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
         }
     };
-    return showErrorAlert({ errorWhat: failWhat, text: validation.failCause, btnText }).then(afterValidate);
+    return showErrorAlert({ errorWhat: failWhat, text: validation.failCause, btnText, appendFailureText:true }).then(afterValidate);
 }
 
 export const showTextInputAlert = ({ title, text, btnText, defaultValue }) => {

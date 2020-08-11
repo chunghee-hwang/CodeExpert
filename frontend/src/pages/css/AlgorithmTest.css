@@ -1,9 +1,3 @@
-#code-editor{
-    width:100%;
-    height: 100%;
-    font-size: 1rem;
-}
-
 .algorithm-test{
     border-top: solid 2px darkgrey;
     border-bottom: solid 2px darkgrey;
@@ -18,16 +12,6 @@
     z-index:0;
     overflow: auto;
 
-}
-
-.answer-section{
-    z-index: -1;
-    overflow: scroll;
-}
-
-.code-section{
-    overflow: scroll;
-    min-height: 50vh;
 }
 
 .problem-info-section, .problem-solution-section, .code-section, .answer-section{
@@ -141,7 +125,14 @@
         display: flex;
     }
   }
-  
+  .answer-section{
+    z-index: -1;
+    overflow: scroll;
+}
+
+.code-section{
+    overflow: scroll;
+}
   /* 
     ##Device = Most of the Smartphones Mobiles (Portrait)
   */
@@ -153,5 +144,12 @@
     #code-title-bar{
         border-top: solid 2px darkgrey;
     }
-
+    .answer-section{
+        z-index: -1;
+        overflow: auto;
+    }
+    
+    .code-section{
+        overflow: auto;
+    }
   }

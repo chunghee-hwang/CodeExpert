@@ -27,7 +27,6 @@ function AnswerSection(props) {
         }
         else if (props.markResults) {
             const exampleTableMarkResults = props.markResults.exampleTableMarkResults;
-            debugger;
             const answerTableMarkResults = props.markResults.answerTableMarkResults;
             let exampleTableResultTableRows = null;
             let answerTableResultTableRows = null;
@@ -58,7 +57,7 @@ function AnswerSection(props) {
                 </table>
                 <h5 className="mark-result-title">정답 테스트케이스</h5>
                 {!answerTableResultTableRows ?
-                    <div className="mark-result-subtitle"><h7>입출력 예시 테스트케이스를 모두 통과해야 정답 테스트케이스를 채점할 수 있습니다.</h7></div>
+                    <div className="mark-result-subtitle"><div>입출력 예시 테스트케이스를 모두 통과해야 정답 테스트케이스를 채점할 수 있습니다.</div></div>
                     :
                     <table className="test-result-table">
                         <tbody>

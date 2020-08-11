@@ -4,7 +4,7 @@ import 'pages/css/AlgorithmTest.css';
 import Split from 'react-split';
 import ProblemInfoSection from 'components/ProblemInfoSection';
 import ProblemSolutionSection from 'components/ProblemSolutionSection';
-import { Button, Nav } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import Media from 'react-media';
 import { paths } from 'constants/Paths';
 import { getIntegerPathParameter, moveToPage } from 'utils/PageControl';

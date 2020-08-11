@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { initAceEditor } from 'utils/AceEditor';
-
 import 'pages/css/OthersSolutions.css';
 import { Pagination, Nav, ProgressBar } from 'react-bootstrap';
 import { paths } from 'constants/Paths';
@@ -10,6 +8,11 @@ import { getIntegerPathParameter, moveToPage } from 'utils/PageControl';
 import LoadingScreen from 'components/LoadingScreen';
 import AuthenticateManager from 'utils/AuthenticateManager';
 import { useParams } from 'react-router-dom';
+import AceEditor from 'react-ace';
+import "ace-builds/src-noconflict/mode-java";
+import "ace-builds/src-noconflict/mode-python";
+import "ace-builds/src-noconflict/mode-c_cpp";
+import "ace-builds/src-noconflict/theme-monokai";
 function OthersSolutions(props) {
     const problemId = getIntegerPathParameter(useParams()['problemId']);
     const [page, setPage] = useState(1);
@@ -20,7 +23,7 @@ function OthersSolutions(props) {
     const [languageId, setLanguageId] = useState(null);
     useEffect(() => {
         if (!user || !problemId || !AuthenticateManager.isUserLoggedIn()) {
-            
+
             moveToPage(props.history, paths.pages.loginForm);
             return;
         }
@@ -34,19 +37,12 @@ function OthersSolutions(props) {
                     const languageSelect = document.querySelector('#others-solution-language-select');
                     const languageSelectIdx = Array.from(languageSelect.children).findIndex(option => Number(option.dataset.languageid) === languageId);
                     if (languageSelectIdx !== -1) languageSelect.selectedIndex = languageSelectIdx;
-
-                    const codeViewers = document.querySelectorAll('.code-viewer');
-                    codeViewers.forEach(codeViewer => {
-                        const solution = solutionData.othersSolutions.solutions[codeViewer.dataset.solutionidx];
-                        initAceEditor(solution.code, solution.language.aceName, codeViewer, true);
-                    });
                 }
             }
         }
 
 
     }, [user, props.history, languageId, page, problemId, solutionData.othersSolutions, solutionActions, problemActions, problemData.problemMetaData]);
-
 
     const getLanguageOptions = () => {
         return problemData.problemMetaData.languages.reduce((accumulator, language) => {
@@ -72,8 +68,21 @@ function OthersSolutions(props) {
             accumulator.push(
                 <div key={idx} className="others-solution">
                     <h5 className="font-weight-bold">{decodeURI(solution.user.nickname)}</h5>
-                    <div id={`code-viewer${idx}`} className="code-viewer" data-solutionidx={idx}>
-                    </div>
+                    <AceEditor
+                        className="code-viewer"
+                        data-solutionidx={idx}
+                        mode={solution.language.aceName}
+                        theme="monokai"
+                        defaultValue={solution.code}
+                        name={`code-viewer${idx}`} // id
+                        width="100%"
+                        fontSize="1.0rem"
+                        readOnly={true}
+                        highlightActiveLine={false}
+                        showGutter={false}
+
+                        onLoad={onLoadReadonlyAceEditor}
+                    />
                     <div className="others-solution-like">
                         <LikeBtn solutionId={solution.id} likes={solution.likes} which={solutionWhich} isSuccess={isSolutionSuccess} isProgressing={isSolutionProgressing} solutionActions={solutionActions} />
                     </div>
@@ -88,6 +97,13 @@ function OthersSolutions(props) {
         }, []);
     }
 
+    const onLoadReadonlyAceEditor = (editor) => {
+        const newHeight = editor.getSession().getScreenLength() *
+            (editor.renderer.lineHeight + editor.renderer.scrollBar.getWidth());
+        editor.container.style.height = `${newHeight}px`;
+        editor.resize();
+        editor.renderer.$cursorLayer.element.style.display = "none"
+    }
 
     const updateOthersSolutions = () => {
         solutionActions.clearOthersSolutions();

@@ -46,7 +46,9 @@ const GET_USER_RESOLVED_PROBLEM_COUNT_FAILURE = "GET_USER_RESOLVED_PROBLEM_COUNT
 
 const CLEAR_PROBLEM_LIST = "CLEAR_PROBLEM_LIST"; // 문제 목록 초기화
 const CLEAR_WHICH = "CLEAR_WHICH";
-
+const UPDATE_CODE_FROM_PROBLEM_DATA="UPDATE_CODE_FROM_PROBLEM_DATA"; // 코드 채점 전에 스토어에 있는 코드 정보 수정
+const UPDATE_CODE_FROM_PROBLEM_DATA_SUCCESS="UPDATE_CODE_FROM_PROBLEM_DATA_SUCCESS";
+const UPDATE_CODE_FROM_PROBLEM_DATA_FAILURE="UPDATE_CODE_FROM_PROBLEM_DATA_FAILURE";
 export const getProblemMetaData = createAction(GET_PROBLEM_META_DATA);
 export const getProblemData = createAction(GET_PROBLEM_DATA, data => data);
 export const getProblemDataAndCode = createAction(GET_PROBLEM_DATA_AND_CODE, data => data);
@@ -60,6 +62,7 @@ export const getUserResolvedProblemCount = createAction(GET_USER_RESOLVED_PROBLE
 export const clearProblemList = createAction(CLEAR_PROBLEM_LIST);
 export const clearSubmitResults = createAction(CLEAR_SUBMIT_RESULTS);
 export const clearWhich = createAction(CLEAR_WHICH);
+export const updateCodeFromProblemData = createAction(UPDATE_CODE_FROM_PROBLEM_DATA, data=>data);
 function* getProblemMetaDataSaga(action) {
     try {
         const response = yield call(ProblemApi.getProblemMetaData);
@@ -156,6 +159,13 @@ function* getUserResolvedProblemCountSaga(action){
         yield put({ type: GET_USER_RESOLVED_PROBLEM_COUNT_FAILURE, payload: getErrorMessageFromResponse(e) });
     }
 }
+function* updateCodeFromProblemDataSaga(action){
+    try{
+        yield put({ type: UPDATE_CODE_FROM_PROBLEM_DATA_SUCCESS, payload: action.payload });
+    }catch(e){
+        yield put({ type: UPDATE_CODE_FROM_PROBLEM_DATA_FAILURE, payload: getErrorMessageFromResponse(e) });
+    }
+}
 
 export function* problemSaga() {
     yield takeEvery(GET_PROBLEM_META_DATA, getProblemMetaDataSaga);
@@ -168,6 +178,7 @@ export function* problemSaga() {
     yield takeEvery(RESET_PROBLEM_CODE, resetProblemCodeSaga);
     yield takeEvery(GET_PROBLEM_LIST, getProblemListSaga);
     yield takeEvery(GET_USER_RESOLVED_PROBLEM_COUNT, getUserResolvedProblemCountSaga);
+    yield takeEvery(UPDATE_CODE_FROM_PROBLEM_DATA, updateCodeFromProblemDataSaga);
 }
 
 const initialState = {
@@ -493,6 +504,38 @@ export default handleActions({
             ...state,
             which:null
         }
-    }
+    },
+    [UPDATE_CODE_FROM_PROBLEM_DATA]: (state, action) => {
+        return {
+            ...state,
+            isProgressing: true,
+            isSuccess: false,
+            data: {
+                ...state.data,
+            }
+        }
+    },
+    [UPDATE_CODE_FROM_PROBLEM_DATA_SUCCESS]: (state, action) => {
+        let newData = {...state.data};
+        const {submittedCode, languageId} = action.payload;
+        if(newData.problemDataAndCode){
+            let foundCode = newData.problemDataAndCode.codes.find(code=>code.language.id === languageId);
+            if(foundCode){
+                foundCode.prevCode = submittedCode;
+            }
+        }
+        return {
+            isProgressing: false,
+            isSuccess: true,
+            data: newData
+        };
+    },
+    [UPDATE_CODE_FROM_PROBLEM_DATA_FAILURE]: (state, action) => {
+        return {
+            ...state,
+            isProgressing: false,
+            isSuccess: false,
+        };
+    },
 
 }, initialState);

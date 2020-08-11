@@ -101,7 +101,6 @@ function ProblemList(props) {
         setPage(1);
         updateProblemList();
     }
-    debugger;
     return (
         <div className="problem-page align-center">
             <div className="left-panel">

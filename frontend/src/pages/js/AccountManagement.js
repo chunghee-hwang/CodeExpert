@@ -127,7 +127,7 @@ function AccountManagement(props) {
                 <Card.Header>회원 탈퇴</Card.Header>
                 <Card.Body>
                     <div className="text-center">
-                        <span className="mx-3">테스트 결과, 프로필이 삭제됩니다.</span>
+                        <span className="mx-3">내 테스트 결과, 내가 출제한 문제, 내 프로필이 삭제됩니다.</span>
                         {which === 'account' && isProgressing ?
                             <Button variant="dark" disabled><Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true" />삭제 중...</Button>
                             :

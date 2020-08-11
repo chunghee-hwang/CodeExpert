@@ -1,153 +1,72 @@
 import languages from "constants/Languages";
+import { graphQLFetch } from "utils/GraphQLFetchManager";
 export const getOthersSolutions = ({ problemId, languageId, page }) => {
-    let response;
-    if (page === 1) {
-        response = {
-            maxPageNumber: 3,
-            problem: {
-                id: problemId,
-                title: '오름차순으로 정렬하기'
-            },
-            solutions:
-                [{
-                    id: 2,
-                    user: {
-                        id: 2,
-                        nickname: '사용자2'
+    return graphQLFetch(
+        `{
+            othersSolutions(problemId:${problemId}, languageId:${languageId}, page:${page})
+            {
+                maxPageNumber, 
+                problem{id,title}, 
+                solutions{
+                    id, 
+                    user{
+                      id, nickname
                     },
-                    code: "int[] solution(String param1, String param2)\n{\n\treturn new int[]{50, 10}\n}",
-                    language: {
-                        id: 1,
-                        name: 'java'
-                    },
-                    likes: {
-                        likeCount: 24,
-                        isLikePressed: false
-                    },
-                    comments: []
-                }]
-        }
-    }
-    else {
-        response = {
-            maxPageNumber: 3,
-            problem: {
-                id: problemId,
-                title: '오름차순으로 정렬하기'
-            },
-            solutions:
-                [{
-                    id: 1,
-                    user: {
-                        id: 1,
-                        nickname: '사용자1'
-                    },
-                    code: "int[] solution(String param1, String param2)\n{\n\treturn new int[]{1, 2};\n}",
-                    language: {
-                        id: 1,
-                        name: 'java'
-                    },
-                    likes: {
-                        likeCount: 24,
-                        isLikePressed: false
-                    },
-                    comments: [
-                        {
-                            id: 1,
-                            user: {
-                                id: 1,
-                                nickname: '사용자2',
-                            },
-                            timestamp: new Date(),
-                            content: '정말 간단하네요!'
-                        },
-                        {
-                            id: 2,
-                            user: {
-                                id: 2,
-                                nickname: '사용자3',
-                            },
-                            timestamp: new Date(),
-                            content: 'map 함수가 뭔지 찾아봐야겠네요.'
-                        },
-                        {
-                            id: 3,
-                            user: {
-                                id: 3,
-                                nickname: '사용자3',
-                            },
-                            timestamp: new Date(),
-                            content: 'sort와 sorted 함수의 차이가 뭔가요?'
-                        }]
-                },
-                {
-                    id: 2,
-                    user: {
-                        id: 2,
-                        nickname: '사용자2'
-                    },
-                    code: "int[] solution(String param1, String param2)\n{\n\treturn new int[]{50, 10}\n}",
-                    language: {
-                        id: 1,
-                        name: 'java'
-                    },
-                    likes: {
-                        likeCount: 24,
-                        isLikePressed: false
-                    },
-                    comments: []
-                }]
-        };
-    }
-
-    addLanguageDetailToSolutions(response.solutions);
-    return response;
+                    code, 
+                    language{
+                      id,name
+                    }, 
+                    likes{
+                      isLikePressed,likeCount
+                    }, 
+                    comments{
+                      id, content, createdDate,modifiedDate,
+                      user{id, nickname}
+                    }
+                }
+            }
+          }`
+    ).then(res => {
+        let othersSolutions = res.othersSolutions;
+        addLanguageDetailToSolutions(othersSolutions.solutions);
+        return othersSolutions;
+    });
 }
 export const registerComment = ({ commentContent, solutionId }) => {
-
-    return {
-        solutionId,
-        comment: {
-            id: 3,
-            user: {
-                id: 1,
-                nickname: '사용자5',
-            },
-            timestamp: new Date(),
-            content: commentContent
-        }
-    }
+    return graphQLFetch(
+        `mutation{
+            registerComment(commentContent:"${commentContent}", solutionId:${solutionId})
+        }`
+    ).then(res => {
+        return res.registerComment;
+    });
 }
 export const updateComment = ({ commentId, commentContent }) => {
-    return {
-        solutionId: 2,
-        comment: {
-            id: commentId,
-            user: {
-                id: 1,
-                nickname: '사용자5',
-            },
-            timestamp: new Date(),
-            content: commentContent
-        }
-    }
+    return graphQLFetch(
+        `mutation{
+            updateComment(commentId:${commentId}, commentContent:"${commentContent}")
+        }`
+    ).then(res => {
+        return res.updateComment;
+    });
 }
 export const deleteComment = ({ commentId }) => {
-    return {
-        solutionId: 2,
-        comment: {
-            id: commentId,
-        }
-    }
+    return graphQLFetch(
+        `mutation{
+            deleteComment(commentId:${commentId})
+        }`
+    ).then(res=>{
+        return res.deleteComment;
+    });
 }
 export const likeOrCancelLike = ({ solutionId }) => {
-    return {
-        solutionId: solutionId,
-        likes: {
-            likeCount: 100,
-            isLikePressed: true
-        },
-    }
+    return graphQLFetch(
+        `mutation{
+            likeOrCancelLike(solutionId:${solutionId})
+        }`
+    ).then(res=>{
+        return res.likeOrCancelLike;
+    });
 }
 
 const addLanguageDetailToSolutions = (solutions) => {

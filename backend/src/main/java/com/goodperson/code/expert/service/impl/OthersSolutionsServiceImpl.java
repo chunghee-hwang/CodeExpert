@@ -26,6 +26,7 @@ import com.goodperson.code.expert.repository.ProblemRepository;
 import com.goodperson.code.expert.repository.SolutionCommentRepository;
 import com.goodperson.code.expert.repository.SolutionLikeUserInfoRepository;
 import com.goodperson.code.expert.repository.SolutionRepository;
+import com.goodperson.code.expert.service.AccountService;
 import com.goodperson.code.expert.service.OthersSolutionsService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +35,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import io.leangen.graphql.annotations.GraphQLMutation;
+import io.leangen.graphql.annotations.GraphQLQuery;
+import io.leangen.graphql.metadata.strategy.query.AnnotatedResolverBuilder;
+import io.leangen.graphql.spqr.spring.annotations.GraphQLApi;
+import io.leangen.graphql.spqr.spring.annotations.WithResolverBuilder;
+
 @Service
+@GraphQLApi
+@WithResolverBuilder(AnnotatedResolverBuilder.class)
 public class OthersSolutionsServiceImpl implements OthersSolutionsService {
     @Autowired
     private SolutionRepository solutionRepository;
@@ -48,11 +57,15 @@ public class OthersSolutionsServiceImpl implements OthersSolutionsService {
     private LanguageRepository languageRepository;
     @Autowired
     private ProblemRepository problemRepository;
-
+    @Autowired
+    private AccountService accountService;
+    
     @Override
-    public OthersSolutionsDto getOthersSolutions(Long problemId, Long languageId, Integer page, User authenticatedUser)
+    @GraphQLQuery(name="othersSolutions")
+    public OthersSolutionsDto getOthersSolutions(Long problemId, Long languageId, Integer page)
             throws Exception {
         final int numberOfShow = 5;
+        User authenticatedUser = accountService.getAuthenticatedUser();
         Optional<Problem> problemOptional = problemRepository.findById(problemId);
         if (!problemOptional.isPresent())
             throw new Exception("The problem info is not correct");
@@ -72,9 +85,11 @@ public class OthersSolutionsServiceImpl implements OthersSolutionsService {
     }
 
     @Override
-    public Map<String, Object> registerComment(Long solutionId, String commentContent, User authenticatedUser)
+    @GraphQLMutation(name="registerComment")
+    public Map<String, Object> registerComment(Long solutionId, String commentContent)
             throws Exception {
         Map<String, Object> data = new HashMap<>();
+        User authenticatedUser = accountService.getAuthenticatedUser();
         Optional<Solution> solutionOptional = solutionRepository.findById(solutionId);
         if (!solutionOptional.isPresent())
             throw new Exception("The solution info is not correct");
@@ -89,9 +104,11 @@ public class OthersSolutionsServiceImpl implements OthersSolutionsService {
     }
 
     @Override
-    public Map<String, Object> updateComment(Long commentId, String commentContent, User authenticatedUser)
+    @GraphQLMutation(name="updateComment")
+    public Map<String, Object> updateComment(Long commentId, String commentContent)
             throws Exception {
         Map<String, Object> data = new HashMap<>();
+        User authenticatedUser = accountService.getAuthenticatedUser();
         Optional<SolutionComment> solutionCommentOptional = solutionCommentRepository.findById(commentId);
         if (!solutionCommentOptional.isPresent())
             throw new Exception("The comment info is not correct");
@@ -106,8 +123,10 @@ public class OthersSolutionsServiceImpl implements OthersSolutionsService {
     }
 
     @Override
-    public Map<String, Object> deleteComment(Long commentId, User authenticatedUser) throws Exception {
+    @GraphQLMutation(name="deleteComment")
+    public Map<String, Object> deleteComment(Long commentId) throws Exception {
         Map<String, Object> data = new HashMap<>();
+        User authenticatedUser = accountService.getAuthenticatedUser();
         Optional<SolutionComment> solutionCommentOptional = solutionCommentRepository.findById(commentId);
         if (!solutionCommentOptional.isPresent())
             throw new Exception("The comment info is not correct");
@@ -121,8 +140,10 @@ public class OthersSolutionsServiceImpl implements OthersSolutionsService {
     }
 
     @Override
-    public Map<String, Object> likeOrCancelLike(Long solutionId, User authenticatedUser) throws Exception {
+    @GraphQLMutation(name="likeOrCancelLike")
+    public Map<String, Object> likeOrCancelLike(Long solutionId) throws Exception {
         Map<String, Object> data = new HashMap<>();
+        User authenticatedUser = accountService.getAuthenticatedUser();
         Optional<Solution> solutionOptional = solutionRepository.findById(solutionId);
         if (!solutionOptional.isPresent())
             throw new Exception("The solution info is not correct");
@@ -136,7 +157,6 @@ public class OthersSolutionsServiceImpl implements OthersSolutionsService {
     private OthersSolutionsDto convertSolutionsToOtherSolutionsDto(List<Object[]> solutionAndLikeCounts, int totalPages,
             Problem problem, User authenticatedUser) {
         OthersSolutionsDto othersSolutionsDto = new OthersSolutionsDto();
-
         ProblemDto problemDto = new ProblemDto();
         problemDto.setId(problem.getId());
         problemDto.setTitle(problem.getTitle());

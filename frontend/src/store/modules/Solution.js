@@ -148,7 +148,7 @@ export default handleActions({
         }
     },
     [REGISTER_COMMENT_SUCCESS]: (state, action) => {
-        const error = new Error('Fail to add comment');;
+        const error = new Error('Fail to add comment');
         let registerCommentResult = action.payload;
         if (!state.data.othersSolutions) {
             throw error;

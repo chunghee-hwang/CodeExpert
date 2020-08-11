@@ -29,15 +29,15 @@ function OthersSolutions(props) {
         }
         if (!problemData.problemMetaData) problemActions.getProblemMetaData();
         else {
+            if (!languageId) setLanguageId(problemData.problemMetaData.languages[0].id);
             //- request others solutions using problemId, languageId, page
-            if (!solutionData.othersSolutions) solutionActions.getOthersSolutions({ problemId, page, languageId });
+            else if (!solutionData.othersSolutions) {
+                solutionActions.getOthersSolutions({ problemId, page, languageId });
+            }
             else {
-                if (!languageId && problemData.problemMetaData.languages) setLanguageId(problemData.problemMetaData.languages[0].id);
-                if (languageId) {
-                    const languageSelect = document.querySelector('#others-solution-language-select');
-                    const languageSelectIdx = Array.from(languageSelect.children).findIndex(option => Number(option.dataset.languageid) === languageId);
-                    if (languageSelectIdx !== -1) languageSelect.selectedIndex = languageSelectIdx;
-                }
+                const languageSelect = document.querySelector('#others-solution-language-select');
+                const languageSelectIdx = Array.from(languageSelect.children).findIndex(option => Number(option.dataset.languageid) === languageId);
+                if (languageSelectIdx !== -1) languageSelect.selectedIndex = languageSelectIdx;
             }
         }
 
@@ -64,7 +64,11 @@ function OthersSolutions(props) {
     }
 
     const getSolutionsAndComments = () => {
-        return solutionData.othersSolutions.solutions.reduce((accumulator, solution, idx) => {
+        const solutions = solutionData.othersSolutions.solutions;
+        if (solutions.length === 0) {
+            return <h6 className="others-solutions-empty">아직 해당 언어로 풀이되지 않았습니다.</h6>
+        }
+        return solutions.reduce((accumulator, solution, idx) => {
             accumulator.push(
                 <div key={idx} className="others-solution">
                     <h5 className="font-weight-bold">{decodeURI(solution.user.nickname)}</h5>
@@ -79,8 +83,6 @@ function OthersSolutions(props) {
                         fontSize="1.0rem"
                         readOnly={true}
                         highlightActiveLine={false}
-                        showGutter={false}
-
                         onLoad={onLoadReadonlyAceEditor}
                     />
                     <div className="others-solution-like">
@@ -120,7 +122,6 @@ function OthersSolutions(props) {
                                 {solutionData.othersSolutions.problem.title}
                             </Nav.Link>
                         </div>
-
                         <select id="others-solution-language-select" className="custom-select" onChange={e => {
                             setLanguageId(Number(e.target.options[e.target.selectedIndex].dataset.languageid));
                             setPage(1);
@@ -128,29 +129,32 @@ function OthersSolutions(props) {
                         }}>
                             {getLanguageOptions()}
                         </select>
+
                     </div>
+
                     {isSolutionProgressing ? <ProgressBar animated now={100} /> : null}
                     {getSolutionsAndComments()}
-                    <div className="pages horizontal-scroll">
+                    {solutionData.othersSolutions.maxPageNumber > 0 &&
+                        <div className="pages horizontal-scroll">
+                            <Pagination className="align-center">
+                                <Pagination.Prev onClick={e => {
+                                    if (page > 1) {
+                                        setPage(page - 1);
+                                        updateOthersSolutions();
+                                    }
+                                }} />
+                                {getPaginationItems()}
+                                <Pagination.Next onClick={e => {
+                                    if (page < solutionData.othersSolutions.maxPageNumber) {
+                                        setPage(page + 1);
+                                        updateOthersSolutions();
+                                    }
 
-                        <Pagination className="align-center">
-                            <Pagination.Prev onClick={e => {
-                                if (page > 1) {
-                                    setPage(page - 1);
-                                    updateOthersSolutions();
-                                }
-                            }} />
-                            {getPaginationItems()}
-                            <Pagination.Next onClick={e => {
-                                if (page < solutionData.othersSolutions.maxPageNumber) {
-                                    setPage(page + 1);
-                                    updateOthersSolutions();
-                                }
+                                }} />
+                            </Pagination>
+                        </div>
+                    }
 
-                            }} />
-                        </Pagination>
-
-                    </div>
 
                 </>
             }

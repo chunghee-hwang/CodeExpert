@@ -38,10 +38,17 @@ function Comments(props) {
             return <div>댓글이 없습니다.</div>
         }
         return comments.reduce((accumulator, comment, idx) => {
+            const isModifiedComment = comment.modifiedDate !== comment.createdDate;
+            let commentDate = null;
+            if(isModifiedComment){
+                commentDate = comment.modifiedDate;
+            }else{
+                commentDate = comment.createdDate;
+            }
             accumulator.push(
                 <div key={idx} className="others-solution-comment-container mb-2">
                     <span className="others-solution-comment-username font-weight-bold">{decodeURI(comment.user.nickname)}</span>
-                    <span className="others-solution-comment-timestamp"><Moment date={comment.timestamp} format="YYYY-MM-DD HH:mm" /></span>
+                    <span className="others-solution-comment-timestamp"><Moment date={commentDate} format="YYYY-MM-DD HH:mm" />{isModifiedComment && <span>(수정됨)</span>}</span>
                     <span className="others-solution-comment-content">
                         {
                             comment.content

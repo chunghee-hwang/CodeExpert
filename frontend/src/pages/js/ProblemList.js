@@ -3,13 +3,13 @@ import 'pages/css/ProblemList.css';
 import ProblemItemBox from 'components/ProblemItemBox';
 import { Pagination } from 'react-bootstrap';
 import { paths } from 'constants/Paths';
-import LoadingScreen from 'components/LoadingScreen';
 import { moveToPage } from 'utils/PageControl';
 import AuthenticateManager from 'utils/AuthenticateManager';
+import LoadingScreen from 'components/LoadingScreen';
 function ProblemList(props) {
     const [page, setPage] = useState(1);
     const { user } = props.account;
-    const { data } = props.problem;
+    const { data, isProgressing } = props.problem;
     const { problemActions } = props;
     const [levelFilters, setLevelFilters] = useState(new Set());
     const [typeFilters, setTypeFilters] = useState(new Set());
@@ -31,25 +31,26 @@ function ProblemList(props) {
         problemActions.clearProblemList();
     }
 
-    if (!data.problemsAndMaxPage) {
-        return <LoadingScreen label="문제 목록을 불러오는 중입니다." />;
+    const getPaginationItems = () => {
+        // 끝 페이지 (props 대체 예정)
+        let endPageNumber = data.problemsAndMaxPage.maxPage;
+        let paginationItems = [];
+        for (let number = 1; number <= endPageNumber; number++) {
+            paginationItems.push(
+                <Pagination.Item key={number} active={page === number} onClick={e => { setPage(number); updateProblemList(); }}>{number}</Pagination.Item>
+            );
+        }
+        return paginationItems;
     }
 
-    // 끝 페이지 (props 대체 예정)
-    let endPageNumber = data.problemsAndMaxPage.maxPage;
-    let paginationItems = [];
-    for (let number = 1; number <= endPageNumber; number++) {
-        paginationItems.push(
-            <Pagination.Item key={number} active={page === number} onClick={e => { setPage(number); updateProblemList(); }}>{number}</Pagination.Item>
-        );
+    const getProblemBoxes = () => {
+        return data.problemsAndMaxPage.problems.reduce((accumulator, problem) => {
+            accumulator.push(
+                <ProblemItemBox key={problem.id} problem={problem} />
+            );
+            return accumulator;
+        }, []);
     }
-
-    let problemBoxes = data.problemsAndMaxPage.problems.reduce((accumulator, problem) => {
-        accumulator.push(
-            <ProblemItemBox key={problem.id} problem={problem} />
-        );
-        return accumulator;
-    }, []);
 
     let problemTypeCheckboxes = [];
     let levelCheckboxes = [];
@@ -100,6 +101,7 @@ function ProblemList(props) {
         setPage(1);
         updateProblemList();
     }
+    debugger;
     return (
         <div className="problem-page align-center">
             <div className="left-panel">
@@ -124,9 +126,9 @@ function ProblemList(props) {
             </div>
             <div className="problems-and-pages">
                 <div className="problem-list">
-                    {problemBoxes}
+                    {data.problemsAndMaxPage && getProblemBoxes()}
                 </div>
-                {endPageNumber > 0 ?
+                {data.problemsAndMaxPage && data.problemsAndMaxPage.maxPage > 0 ?
                     <div className="pages horizontal-scroll ">
                         <Pagination className="align-center">
                             <Pagination.Prev onClick={e => {
@@ -135,9 +137,9 @@ function ProblemList(props) {
                                     updateProblemList();
                                 }
                             }} />
-                            {paginationItems}
+                            {getPaginationItems()}
                             <Pagination.Next onClick={e => {
-                                if (page < endPageNumber) {
+                                if (page < data.problemsAndMaxPage.maxPage) {
                                     setPage(page + 1);
                                     updateProblemList();
                                 }
@@ -146,7 +148,7 @@ function ProblemList(props) {
                         </Pagination>
                     </div>
                     :
-                    <h3 className="text-center">문제 목록이 비어있습니다.</h3>
+                    <div className="text-center">{isProgressing ? <LoadingScreen label="문제 목록을 불러오는 중입니다." /> : <>문제 목록이 비어있습니다.</>}</div>
                 }
 
             </div>

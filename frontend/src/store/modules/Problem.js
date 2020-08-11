@@ -508,11 +508,6 @@ export default handleActions({
     [UPDATE_CODE_FROM_PROBLEM_DATA]: (state, action) => {
         return {
             ...state,
-            isProgressing: true,
-            isSuccess: false,
-            data: {
-                ...state.data,
-            }
         }
     },
     [UPDATE_CODE_FROM_PROBLEM_DATA_SUCCESS]: (state, action) => {
@@ -525,16 +520,13 @@ export default handleActions({
             }
         }
         return {
-            isProgressing: false,
-            isSuccess: true,
+            ...state,
             data: newData
         };
     },
     [UPDATE_CODE_FROM_PROBLEM_DATA_FAILURE]: (state, action) => {
         return {
             ...state,
-            isProgressing: false,
-            isSuccess: false,
         };
     },
 

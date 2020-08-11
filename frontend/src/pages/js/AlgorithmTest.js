@@ -120,9 +120,9 @@ function AlgorithmTest(props) {
     function submitCode() {
         const submittedCode = window.ace.edit('code-editor').getValue();
         const languageId = code.language.id;
-        problemActions.updateCodeFromProblemData({submittedCode, languageId});
         //- request Marking the code using problemId, submittedCode, languageId
         problemActions.submitProblemCode({ problemId, submittedCode, languageId });
+        problemActions.updateCodeFromProblemData({submittedCode, languageId});
     }
 }
 

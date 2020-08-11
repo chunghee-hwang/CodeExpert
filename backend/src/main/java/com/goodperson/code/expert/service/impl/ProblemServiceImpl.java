@@ -1,5 +1,6 @@
 package com.goodperson.code.expert.service.impl;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -206,11 +207,21 @@ public class ProblemServiceImpl implements ProblemService {
         final Language language = languageOptional.get();
         final Problem problem = problemOptional.get();
 
+        submittedCode = decodeCode(submittedCode);
+
+        // 제출한 코드 먼저 저장
+        Code code = saveCode(submittedCode, authenticatedUser, problem, language);
+
         // 코드 생성 및 채점
-        List<MarkResultDto> exampleTableMarkResults = createValidateCodeAndMarkCode(submittedCode, problem, language, authenticatedUser, 'e');
+        List<MarkResultDto> exampleTableMarkResults = createValidateCodeAndMarkCode(submittedCode, problem, language,
+                authenticatedUser, 'e');
         List<MarkResultDto> answerTableMarkResults = null;
-        if(isMarkResultAnswer(exampleTableMarkResults)){ // 예시 테이블이 모두 만족할 경우에만 정답 테이블로 채점
-            answerTableMarkResults = createValidateCodeAndMarkCode(submittedCode, problem, language, authenticatedUser, 'a');
+        if (isMarkResultAnswer(exampleTableMarkResults)) { // 예시 테이블을 모두 만족할 경우에만 정답 테이블로 채점
+            answerTableMarkResults = createValidateCodeAndMarkCode(submittedCode, problem, language, authenticatedUser,
+                    'a');
+            if (isMarkResultAnswer(answerTableMarkResults)) { // 정답 테이블을 모두 만족하면 solution 엔티티에 코드 저장
+                saveSolution(code, authenticatedUser);
+            }
         }
         Map<String, List<MarkResultDto>> results = new HashMap<>();
         results.put("exampleTableMarkResults", exampleTableMarkResults);
@@ -223,9 +234,10 @@ public class ProblemServiceImpl implements ProblemService {
             User authenticatedUser, char tableType) throws Exception {
         // 코드 생성 및 채점
         List<ProblemParameter> problemParameters = problemParameterRepository.findAllByProblemAndTableType(problem,
-        tableType);
+                tableType);
         ProblemReturn problemReturn = problemReturnRepository.findByProblemAndTableType(problem, tableType);
-        List<ProblemTestcase> problemTestcases = problemTestcaseRepository.findAllByProblemAndTableType(problem, tableType);
+        List<ProblemTestcase> problemTestcases = problemTestcaseRepository.findAllByProblemAndTableType(problem,
+                tableType);
         List<List<ProblemParameterValue>> parameterValues = new ArrayList<>();
         List<String> returnValues = new ArrayList<>();
 
@@ -465,10 +477,16 @@ public class ProblemServiceImpl implements ProblemService {
         }
     }
 
+    private String decodeCode(String submittedCode) throws UnsupportedEncodingException {
+        submittedCode = URLDecoder.decode(submittedCode, "UTF-8");
+        submittedCode = submittedCode.replaceAll("(\\$)plus;", "+");
+        return submittedCode;
+    }
+
     private List<MarkResultDto> markCode(String submittedCode, Problem problem, Language language,
             List<ProblemParameter> problemParameters, ProblemReturn problemReturn,
-            List<List<ProblemParameterValue>> parameterValues, List<String> returnValues, User authenticatedUser, char tableType)
-            throws Exception {
+            List<List<ProblemParameterValue>> parameterValues, List<String> returnValues, User authenticatedUser,
+            char tableType) throws Exception {
         List<MarkResultDto> markResults = new ArrayList<>();
 
         // 코드 생성
@@ -476,8 +494,6 @@ public class ProblemServiceImpl implements ProblemService {
         if (StringUtils.isEmpty(submittedCode)) {
             throw new Exception("The submitted code is empty");
         }
-        submittedCode = URLDecoder.decode(submittedCode, "UTF-8");
-        submittedCode = submittedCode.replaceAll("(\\$)plus;", "+");
         String languageName = language.getName();
         final int testcaseSize = parameterValues.size();
         CompileErrorDto compileErrorDto = new CompileErrorDto();
@@ -508,26 +524,21 @@ public class ProblemServiceImpl implements ProblemService {
 
         /** Busy waiting */
         compileManager.waitForAllTestcasesMarked(testcaseSize, markResults, compileErrorDto).get();
-      
+
         if (markResults.size() == testcaseSize) {
             Collections.sort(markResults,
                     (result1, result2) -> result1.getTestcaseNumber() - result2.getTestcaseNumber());
-            if(tableType == 'a'){
-                saveCodeMarkResult(markResults, submittedCode, authenticatedUser, problem, language);
-            }
         } else {
             throw new Exception("An error occured when marking the codes");
         }
         return markResults;
     }
 
-    private boolean isMarkResultAnswer(List<MarkResultDto> markResults){
+    private boolean isMarkResultAnswer(List<MarkResultDto> markResults) {
         return markResults.stream().allMatch(result -> result.getIsAnswer());
     }
 
-    private void saveCodeMarkResult(List<MarkResultDto> results, String submittedCode, User authenticatedUser,
-            Problem problem, Language language) {
-        boolean isAnswer = isMarkResultAnswer(results);
+    private Code saveCode(String submittedCode, User authenticatedUser, Problem problem, Language language) {
         // 정답이든 아니든 code 엔티티에 저장(코드 저장)
         Optional<Code> codeOptional = codeRepository.findByProblemAndLanguageAndCreatorAndIsInitCode(problem, language,
                 authenticatedUser, false);
@@ -544,24 +555,25 @@ public class ProblemServiceImpl implements ProblemService {
         code.setContent(submittedCode);
         code.setCreator(authenticatedUser);
         codeRepository.save(code);
+        return code;
+    }
 
-        // 정답일 경우 solution 엔티티에 저장
-        if (isAnswer) {
-            Optional<Solution> solutionOptional = solutionRepository.findByCode(code);
-            Solution solution = null;
-            // 이전에 작성된 솔루션이 있으면 덮어쓴다.
-            if (solutionOptional.isPresent()) {
-                solution = solutionOptional.get();
-                if (!solution.getCreator().getId().equals(authenticatedUser.getId()))
-                    return;
-            } else {
-                solution = new Solution();
-                solution.setProblem(problem);
-                solution.setCreator(authenticatedUser);
-            }
-            solution.setCode(code);
-            solutionRepository.save(solution);
+    // 정답일 경우 solution 엔티티에 저장
+    private void saveSolution(Code code, User authenticatedUser) {
+        Optional<Solution> solutionOptional = solutionRepository.findByCode(code);
+        Solution solution = null;
+        // 이전에 작성된 솔루션이 있으면 덮어쓴다.
+        if (solutionOptional.isPresent()) {
+            solution = solutionOptional.get();
+            if (!solution.getCreator().getId().equals(authenticatedUser.getId()))
+                return;
+        } else {
+            solution = new Solution();
+            solution.setProblem(code.getProblem());
+            solution.setCreator(authenticatedUser);
         }
+        solution.setCode(code);
+        solutionRepository.save(solution);
     }
 
     private ProblemDetailDto createProblemDataResponseDto(Problem problem, Boolean exceptAnswerTable, User creator) {

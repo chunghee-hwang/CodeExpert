@@ -117,7 +117,7 @@ export const resetProblemCode = ({ problemId, languageId }) => {
     return graphQLFetch(
     `mutation{
         resetCode(problemId:${problemId}, languageId:${languageId}){
-            id
+            id, language{id, name}, isInitCode
         }
     }`).then(res=>{
         return res.resetCode;

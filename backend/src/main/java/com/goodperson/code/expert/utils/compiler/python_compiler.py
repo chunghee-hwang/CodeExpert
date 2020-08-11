@@ -81,7 +81,7 @@ if __name__ == '__main__':
             print('\n$notAnswer|')
         print('\n$expected|'+str(answer))
         print('\n$actual|'+str(user_answer))
-        print('\n$input|'+str(*parameters))
+        print('\n$input|'+str(parameters)[1:-1])
         print('\n$time|'+str(time_elapsed))
     except TimeoutError as toe:
         print('\n$timeout|', file=sys.stderr)

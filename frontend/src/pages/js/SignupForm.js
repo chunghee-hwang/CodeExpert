@@ -3,7 +3,7 @@ import { Form, Button, Spinner } from 'react-bootstrap'
 import 'pages/css/Form.css'
 import { paths } from 'constants/Paths'
 import { inputNames } from 'constants/FormInputNames'
-import { validateSignup } from 'utils/validation/SignupValidation';
+import { validateSignup } from 'utils/validation/AccountValidation';
 import { showValidationFailureAlert, showSuccessAlert, showErrorAlert } from 'utils/AlertManager';
 import { moveToPage } from 'utils/PageControl';
 

@@ -1,5 +1,9 @@
 import { inputNames } from "constants/FormInputNames";
-import { idRegex, passwordRegex, nicknameRegex } from './CodeValidation';
+
+const emailRegex = /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$/;
+const passwordRegex = /^.*(?=^.{8,30}$)(?=.*\d)(?=.*[a-zA-Z])(?=.*[!@#$%^&+=]).*$/; //특수문자 / 문자 / 숫자 포함 형태의 8~30자리 이내의 암호 정규식
+const nicknameRegex = /^[a-zA-Z가-힣0-9|\s]{2,15}$/
+
 export function validateNewNickname(form, prevNickname) {
     const values = {
         [inputNames.newNickname]: form[inputNames.newNickname].value.trim(),
@@ -20,7 +24,8 @@ export function validateNewNickname(form, prevNickname) {
     else if (!nicknameRegex.test(values[inputNames.newNickname])) {
         validation.failCause = "닉네임은 2자 이상 15자 이내로, 영어, 자음 모음 합쳐진 한글, 숫자만 입력 가능합니다.";
     }
-    else {
+    else
+     {
         validation.isValid = true;
     }
 
@@ -53,7 +58,8 @@ export function validateNewPassword(form) {
         validation.failCause = "새로운 비밀번호와 비밀번호 확인 입력값이 일치하지 않습니다."
         validation.failedElement = form[inputNames.newPasswordCheck];
     }
-    else {
+    else 
+    {
         validation.isValid = true;
     }
     return validation;
@@ -73,7 +79,7 @@ export function validateLogin(form) {
     if (!values[inputNames.email] || !values[inputNames.password]) {
         validation.failCause = "아이디 또는 비밀번호를 입력해주세요.";
         validation.failedElement = form[inputNames.email];
-    } else if (!idRegex.test(values[inputNames.email])) {
+    } else if (!emailRegex.test(values[inputNames.email])) {
         validation.failCause = "아이디는 이메일 형식으로 입력해주세요.";
     }
     else if (!passwordRegex.test(values[inputNames.password])) {
@@ -83,5 +89,55 @@ export function validateLogin(form) {
         validation.isValid = true;
     }
 
+    return validation;
+}
+
+export function validateSignup(form) {
+    const values = {
+        [inputNames.email]: form[inputNames.email].value.trim(),
+        [inputNames.nickname]: form[inputNames.nickname].value.trim(),
+        [inputNames.password]: form[inputNames.password].value.trim(),
+        [inputNames.passwordCheck]: form[inputNames.passwordCheck].value.trim()
+    }
+    let validation = {
+        isValid: false,
+        failCause: null,
+        failedElement: null,
+        values
+    }
+
+    if (!values[inputNames.email]) {
+        validation.failCause = "아이디를 입력해주세요";
+        validation.failedElement = form[inputNames.email];
+    }
+    else if (!values[inputNames.nickname]) {
+        validation.failCause = "닉네임을 입력해주세요";
+        validation.failedElement = form[inputNames.nickname];
+    }
+    else if (!values[inputNames.password] || !values[inputNames.passwordCheck]) {
+        validation.failCause = "비밀번호와 비밀번호 확인을 입력해주세요";
+        validation.failedElement = form[inputNames.password];
+    }
+    else if (!nicknameRegex.test(values[inputNames.nickname])) {
+        validation.failCause = "닉네임은 2자 이상 15자 이내로, 영어, 자음 모음 합쳐진 한글, 숫자만 입력 가능합니다.";
+        validation.failedElement = form[inputNames.nickname];
+    }
+    else if (!emailRegex.test(values[inputNames.email])) {
+        validation.failCause = "아이디는 이메일 형식으로 입력해주세요.";
+        validation.failedElement = form[inputNames.email];
+    }
+    else if (!passwordRegex.test(values[inputNames.password])) {
+        validation.failCause = "비밀번호는 특수문자, 문자, 숫자를 포함하여 8~15자리 이내로 입력해주세요."
+        validation.failedElement = form[inputNames.password];
+    }
+    else if (values[inputNames.password] !== values[inputNames.passwordCheck]) {
+        validation.failCause = "비밀번호와 비밀번호 확인 입력값이 일치하지 않습니다."
+        validation.failedElement = form[inputNames.password];
+    }
+    else 
+    {
+        validation.isValid = true;
+    }
+    validation.values[inputNames.nickname] = encodeURI(values[inputNames.nickname]);
     return validation;
 }

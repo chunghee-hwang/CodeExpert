@@ -1,4 +1,5 @@
-import { integerParamRegex } from 'utils/validation/CodeValidation';
+// URL 정규식
+const integerParamRegex = /^\d+$/;
 
 /**
  * 다른 페이지로 이동하는 메소드

@@ -1,5 +1,65 @@
 import { inputNames } from 'constants/FormInputNames';
-import { dataTypeRegexs, valueNameRegex, isKeyword } from './CodeValidation';
+// 자료형 정규식
+export const dataTypeRegexs = {
+    integer: /^[+-]?\d+$/,
+    integerArray: /^\[([+-]?\d+(,)?(\s)?)*\]$/,
+    integer2dArray: /^\[(\[([+-]?\d+(,)?(\s)?)*\](,)?(\s)?)*\]$/,
+    long: /^[+-]?\d+$/,
+    longArray: /^\[([+-]?\d+(,)?(\s)?)*\]$/,
+    long2dArray: /^\[(\[([+-]?\d+(,)?(\s)?)*\](,)?(\s)?)*\]$/,
+    double: /^[+-]?\d+(.)?(\d+)?$/,
+    doubleArray: /^\[([+-]?\d+(.)?(\d+)?(,)?(\s)?)*\]$/,
+    double2dArray: /^\[(\[([+-]?\d+(.)?(\d+)?(,)?(\s)?)*\](,)?(\s)?)*\]$/,
+    boolean: /^(true|false)$/,
+    booleanArray: /^\[((true|false)(,)?(\s)?)*\]$/,
+    string: /^"[^"]*"$/,
+    stringArray: /^\[("[^"]*"(,)?(\s)?)*\]$/,
+}
+
+// 파라미터 이름 정규식 (변수명 규칙)
+export const valueNameRegex = /^[^0-9][\w]+$/
+
+const javaKeywords =
+    ["abstract", "assert", "boolean",
+        "break", "byte", "case", "catch", "char", "class", "const",
+        "continue", "default", "do", "double", "else", "extends", "false",
+        "final", "finally", "float", "for", "goto", "if", "implements",
+        "import", "instanceof", "int", "interface", "long", "native",
+        "new", "null", "package", "private", "protected", "public",
+        "return", "short", "static", "strictfp", "super", "switch",
+        "synchronized", "this", "throw", "throws", "transient", "true",
+        "try", "void", "volatile", "while"];
+
+const python3Keywords = ['False', 'None', 'True', 'and', 'as', 'assert',
+    'async', 'await', 'break', 'class', 'continue', 'def', 'del', 'elif',
+    'else', 'except', 'finally', 'for', 'from', 'global', 'if', 'import',
+    'in', 'is', 'lambda', 'nonlocal', 'not', 'or', 'pass',
+    'raise', 'return', 'try', 'while', 'with', 'yield'];
+
+const cppKeywords = ['asm', 'else', 'new', 'this',
+    'auto', 'enum', 'operator', 'throw',
+    'bool', 'explicit', 'private', 'true',
+    'break', 'export', 'protected', 'try',
+    'case', 'extern', 'public', 'typedef',
+    'catch', 'false', 'register', 'typeid',
+    'char', 'float', 'reinterpret_cast', 'typename',
+    'class', 'for', 'return', 'union',
+    'const', 'friend', 'short', 'unsigned',
+    'const_cast', 'goto', 'signed', 'using',
+    'continue', 'if', 'sizeof', 'virtual',
+    'default', 'inline', 'static', 'void',
+    'delete', 'int', 'static_cast', 'volatile',
+    'do', 'long', 'struct', 'wchar_t',
+    'double', 'mutable', 'switch', 'while',
+    'dynamic_cast', 'namespace', 'template', 'And', 'bitor', 'not_eq', 'xor',
+    'and_eq', 'compl', 'or', 'xor_eq',
+    'bitand', 'not', 'or_eq'];
+
+// 예약어인지 판단하는 메소드 (모든 언어의 키워드를 검사)
+export const isKeyword = (word) => {
+    return cppKeywords.indexOf(word) !== -1 || javaKeywords.indexOf(word) !== -1 || python3Keywords.indexOf(word) !== -1;
+}
+
 export function validateMakeProblem(form, answerTableInfo, exampleTableInfo) {
     
     const problemExplainEditor = form.querySelector('#problem-explain-editor');
@@ -196,8 +256,11 @@ function validateIoTable(tableInfo) {
     let testcases = tableInfo.testcases;
     let paramNames = null;
     paramNames = params.reduce((ac, param) => { ac.push(param.name); return ac; }, []);
+    if(params.length < 1){
+        validation.failCause = "파라미터는 하나 이상이여야합니다.";
+    }
     // 파라미터 이름들 누락 확인
-    if (!paramNames.every(paramName => paramName && paramName.length > 1)) {
+    else if (!paramNames.every(paramName => paramName && paramName.length > 1)) {
         validation.failCause = "파라미터명은 두 글자 이상으로 입력해주세요.";
     }
     // 파라미터의 자료형 누락 확인

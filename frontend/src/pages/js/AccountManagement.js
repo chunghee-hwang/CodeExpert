@@ -4,7 +4,7 @@ import 'pages/css/AccountManagement.css';
 import 'pages/css/Form.css';
 import { paths } from 'constants/Paths';
 import { inputNames } from 'constants/FormInputNames';
-import { validateNewNickname, validateNewPassword } from 'utils/validation/AccountManagementValidation';
+import { validateNewNickname, validateNewPassword } from 'utils/validation/AccountValidation';
 import { showSuccessAlert, showErrorAlert, showValidationFailureAlert, showWarningAlert } from 'utils/AlertManager';
 import { moveToPage } from 'utils/PageControl';
 import AuthenticateManager from 'utils/AuthenticateManager';

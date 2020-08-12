@@ -54,6 +54,8 @@ import com.goodperson.code.expert.service.ProblemService;
 import com.goodperson.code.expert.utils.CodeGenerateManager;
 import com.goodperson.code.expert.utils.CompileManager;
 import com.goodperson.code.expert.utils.CompileOption;
+import com.goodperson.code.expert.utils.validation.CodeValidation;
+import com.goodperson.code.expert.utils.validation.ProblemValidation;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -113,6 +115,12 @@ public class ProblemServiceImpl implements ProblemService {
     @Autowired
     private AccountService accountService;
 
+    @Autowired
+    private CodeValidation codeValidation;
+
+    @Autowired
+    private ProblemValidation problemValidation;
+
     @Override
     @GraphQLQuery(name = "problemMetaData")
     public ProblemMetaDataDto getProblemMetaData() throws Exception {
@@ -150,6 +158,8 @@ public class ProblemServiceImpl implements ProblemService {
         if (!problemLevelOptional.isPresent()) {
             throw new Exception("The problem level info is not correct");
         }
+        problemValidation.validateRegisterOrUpdateProblem(request);
+
         ProblemType problemType = problemTypeOptional.get();
         ProblemLevel problemLevel = problemLevelOptional.get();
 
@@ -208,7 +218,7 @@ public class ProblemServiceImpl implements ProblemService {
         final Problem problem = problemOptional.get();
 
         submittedCode = decodeCode(submittedCode);
-
+        codeValidation.validateSubmitProblemCode(submittedCode, language.getName());
         // 제출한 코드 먼저 저장
         Code code = saveCode(submittedCode, authenticatedUser, problem, language);
 
@@ -291,7 +301,7 @@ public class ProblemServiceImpl implements ProblemService {
         if (page <= 0) {
             throw new Exception("The page should > 0");
         }
-        final int numberOfShow = 5;
+        final int numberOfShow = 6;
         final PageRequest pageRequest = PageRequest.of(page - 1, numberOfShow);
         Page<Problem> problemPage;
         // filtering
@@ -333,14 +343,27 @@ public class ProblemServiceImpl implements ProblemService {
         return data;
     }
 
+    /**
+     * @param exceptAnswerTable   정답 테이블 정보 제외 여부
+     * @param checkCreatorIsValid 문제 정보에 문제를 만든 사람만 접근할 수 있도록 함
+     */
     @GraphQLQuery(name = "problemDetail")
     @Override
-    public Map<String, Object> getProblemDetail(Long problemId, Boolean exceptAnswerTable) throws Exception {
+    public Map<String, Object> getProblemDetail(Long problemId, Boolean exceptAnswerTable, Boolean checkCreatorIsValid)
+            throws Exception {
         Map<String, Object> problemData = new HashMap<>();
-        User authenticatedUser = accountService.getAuthenticatedUser();
-        Optional<Problem> problemOptional = problemRepository.findById(problemId);
-        if (!problemOptional.isPresent())
-            throw new Exception("The problem info is not correct");
+        final User authenticatedUser = accountService.getAuthenticatedUser();
+        Optional<Problem> problemOptional;
+        if (checkCreatorIsValid) {
+            problemOptional = problemRepository.findByIdAndCreator(problemId, authenticatedUser);
+            if (!problemOptional.isPresent())
+                throw new Exception("The problem info is not correct or you are not creator of the problem.");
+        } else {
+            problemOptional = problemRepository.findById(problemId);
+            if (!problemOptional.isPresent())
+                throw new Exception("The problem info is not correct.");
+        }
+
         Problem problem = problemOptional.get();
         ProblemDetailDto problemDetailDto = createProblemDataResponseDto(problem, exceptAnswerTable, authenticatedUser);
         problemData.put("problem", problemDetailDto);

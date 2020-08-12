@@ -1,6 +1,7 @@
 package com.goodperson.code.expert.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.goodperson.code.expert.model.Problem;
 import com.goodperson.code.expert.model.User;
@@ -25,5 +26,7 @@ public interface ProblemRepository extends PagingAndSortingRepository<Problem, L
 
     // 난이도, 페이지를 가지고 문제 목록을 가져오는 메소드
     public Page<Problem> findAllByProblemLevelIdIn(List<Long> levelIds, Pageable pageable);
+
+	public Optional<Problem> findByIdAndCreator(Long problemId, User authenticatedUser);
 
 }

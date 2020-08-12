@@ -189,7 +189,7 @@ int main(int argc, char **argv)
         fprintf(stdout, "%s\n", to_string_output(userAnswer).c_str());
         fflush(stdout);
         fprintf(stdout, "%s", "\n$input|");
-        fprintf(stdout, "%s\n", "{{parameterValues}}");
+        fprintf(stdout, "%s\n", "{{input}}");
         fflush(stdout);
         fprintf(stdout, "%s", "\n$time|");
         fprintf(stdout, "%.2f\n", timeElapsed);

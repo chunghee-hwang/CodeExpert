@@ -186,10 +186,11 @@ public class CompileManager {
             parameterValues.append(codeGenerateManager.getCppParameterValueExpression(parameterDataTypeAndValue[0],
                     parameterDataTypeAndValue[1]));
             if (idx != parameterSize - 1)
-                parameterValues.append(",");
+                parameterValues.append(", ");
         }
+        String input = parameterValues.toString().replaceAll("\"", "");
         return validateCode.replaceAll("\\{\\{answerDataType\\}\\}", answerDataType)
-                .replace("{{answerValue}}", answerValue).replace("{{parameterValues}}", parameterValues.toString());
+                .replace("{{answerValue}}", answerValue).replace("{{parameterValues}}", parameterValues.toString()).replace("{{input}}", input);
     }
 
     @Async

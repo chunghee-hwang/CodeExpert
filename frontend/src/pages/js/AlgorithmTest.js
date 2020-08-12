@@ -33,7 +33,7 @@ function AlgorithmTest(props) {
                     problemActions.getProblemMetaData();
                 }
                 else {
-                    setCode(data.problemDataAndCode.codes[0]);
+                    if(code == null) setCode(data.problemDataAndCode.codes[0]);
                 }
             }
         }

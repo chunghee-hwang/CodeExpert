@@ -217,6 +217,7 @@ export default handleActions({
             isProgressing: true,
             isSuccess: false,
             data: null,
+            user:null
         };
     },
     [LOGIN_SUCCESS]: (state, action) => {

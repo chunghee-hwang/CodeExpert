@@ -1,5 +1,5 @@
 import { inputNames } from 'constants/FormInputNames';
-import { dataTypeRegexs } from './Regexes';
+import { dataTypeRegexs, valueNameRegex, isKeyword } from './CodeValidation';
 export function validateMakeProblem(form, answerTableInfo, exampleTableInfo) {
     
     const problemExplainEditor = form.querySelector('#problem-explain-editor');
@@ -190,8 +190,7 @@ function validateIoTable(tableInfo) {
         isValid: false
     }
 
-    // 파라미터 이름 정규식 (변수명 규칙)
-    const valueNameRegex = /^[^0-9][\w]+$/
+    
     let params = tableInfo.params;
     let returns = tableInfo.returns;
     let testcases = tableInfo.testcases;
@@ -199,35 +198,39 @@ function validateIoTable(tableInfo) {
     paramNames = params.reduce((ac, param) => { ac.push(param.name); return ac; }, []);
     // 파라미터 이름들 누락 확인
     if (!paramNames.every(paramName => paramName && paramName.length > 1)) {
-        validation.failCause = "파라미터명은 두 글자 이상으로 입력해주세요."
+        validation.failCause = "파라미터명은 두 글자 이상으로 입력해주세요.";
     }
     // 파라미터의 자료형 누락 확인
     else if (!params.every(param => (param.dataType && param.dataType.id))) {
-        validation.failCause = "파라미터의 자료형을 입력해주세요."
+        validation.failCause = "파라미터의 자료형을 입력해주세요.";
     }
     // 결과값의 자료형 누락 확인
     else if (!(returns.dataType && returns.dataType.id)) {
-        validation.failCause = "결과값의 자료형을 입력해주세요."
+        validation.failCause = "결과값의 자료형을 입력해주세요.";
     }
     // 입력값, 결과값 누락 확인
     else if (!testcases.every(testcase => (testcase.params.every(param => param) && testcase.returns))) {
-        validation.failCause = "입력값 또는 결과값을 입력해주세요."
+        validation.failCause = "입력값 또는 결과값을 입력해주세요.";
     }
     // 파라미터 이름 중복 확인
     else if (paramNames.length !== new Set(paramNames).size) {
-        validation.failCause = "파라미터명은 서로 다르게 지어주세요."
+        validation.failCause = "파라미터명은 서로 다르게 지어주세요.";
     }
     // 파라미터 이름 형식 확인
     else if (!paramNames.every(paramName => valueNameRegex.test(paramName))) {
-        validation.failCause = "파라미터명은 변수명 규칙을 따라주세요."
+        validation.failCause = "파라미터명은 변수명 규칙을 따라주세요.";
+    }
+    // 파라미터형 이름이 키워드가 아닌지 확인
+    else if(paramNames.some(paramName => isKeyword(paramName))){
+        validation.failCause = "파라미터명은 예약어를 사용할 수 없습니다.(cpp, java, python 모두 포함)";
     }
     // 입력값 형식 확인
     else if (!testcases.every(testcase => testcase.params.every((value, idx) => dataTypeRegexs[params[idx].dataType.name].test(value)))) {
-        validation.failCause = "입력값의 자료형이 일치하지 않습니다.\n표 옆의 ? 버튼 눌러서 입력 형식을 확인하세요."
+        validation.failCause = "입력값의 자료형이 일치하지 않습니다.\n표 옆의 ? 버튼 눌러서 입력 형식을 확인하세요.";
     }
     // 결과값 형식 확인
     else if (!testcases.every(testcase => dataTypeRegexs[returns.dataType.name].test(testcase.returns))) {
-        validation.failCause = "결과값의 자료형이 일치하지 않습니다.\n표 옆의 ? 버튼 눌러서 입력 형식을 확인하세요."
+        validation.failCause = "결과값의 자료형이 일치하지 않습니다.\n표 옆의 ? 버튼 눌러서 입력 형식을 확인하세요.";
     }
     else {
         validation.isValid = true;

@@ -1,5 +1,5 @@
 import { inputNames } from "constants/FormInputNames";
-import { passwordRegex, nicknameRegex } from './Regexes';
+import { passwordRegex, nicknameRegex } from './CodeValidation';
 export function validateNewNickname(form, prevNickname) {
     const values = {
         [inputNames.newNickname]: form[inputNames.newNickname].value.trim(),

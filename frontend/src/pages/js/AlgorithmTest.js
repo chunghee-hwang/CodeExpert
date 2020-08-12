@@ -8,8 +8,9 @@ import { Button } from 'react-bootstrap';
 import Media from 'react-media';
 import { paths } from 'constants/Paths';
 import { getIntegerPathParameter, moveToPage } from 'utils/PageControl';
-import { showWarningAlert } from 'utils/AlertManager';
+import { showWarningAlert, showErrorAlert } from 'utils/AlertManager';
 import AuthenticateManager from 'utils/AuthenticateManager';
+import { validateSubmitCode } from 'utils/validation/CodeValidation';
 function AlgorithmTest(props) {
     const { user } = props.account;
     const { isProgressing, data, which } = props.problem;
@@ -120,9 +121,15 @@ function AlgorithmTest(props) {
     function submitCode() {
         const submittedCode = window.ace.edit('code-editor').getValue();
         const languageId = code.language.id;
-        //- request Marking the code using problemId, submittedCode, languageId
-        problemActions.submitProblemCode({ problemId, submittedCode, languageId });
-        problemActions.updateCodeFromProblemData({submittedCode, languageId});
+        const validation = validateSubmitCode({code: submittedCode, language:code.language});
+        if(validation.isValid){
+            //- request Marking the code using problemId, submittedCode, languageId
+            problemActions.submitProblemCode({ problemId, submittedCode, languageId });
+            problemActions.updateCodeFromProblemData({submittedCode, languageId});
+        }else{
+            showErrorAlert({errorWhat:'코드 제출', text:validation.failCause, appendFailureText:true});
+        }
+       
     }
 }
 

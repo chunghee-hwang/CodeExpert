@@ -1,5 +1,5 @@
 import { inputNames } from "constants/FormInputNames";
-import { idRegex, passwordRegex, nicknameRegex } from './Regexes';
+import { idRegex, passwordRegex, nicknameRegex } from './CodeValidation';
 export function validateSignup(form) {
     const values = {
         [inputNames.email]: form[inputNames.email].value.trim(),

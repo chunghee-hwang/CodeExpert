@@ -1,4 +1,4 @@
-import { integerParamRegex } from 'utils/validation/Regexes';
+import { integerParamRegex } from 'utils/validation/CodeValidation';
 
 /**
  * 다른 페이지로 이동하는 메소드

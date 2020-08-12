@@ -14,6 +14,10 @@ const languages = {
         aceName: 'c_cpp',
         fileExtension: 'cpp',
     }
-}
+};
+
+export const languageNames=[
+    languages.java.name, languages.python3.name, languages.cpp.name
+];
 
 export default languages;

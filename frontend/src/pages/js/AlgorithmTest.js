@@ -1,19 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import 'pages/css/AlgorithmTest.css';
-import Split from 'react-split';
 import ProblemInfoSection from 'components/ProblemInfoSection';
 import ProblemSolutionSection from 'components/ProblemSolutionSection';
+import { paths } from 'constants/Paths';
+import 'pages/css/AlgorithmTest.css';
+import React, { useEffect, useState } from 'react';
 import { Button } from 'react-bootstrap';
 import Media from 'react-media';
-import { paths } from 'constants/Paths';
-import { getIntegerPathParameter, moveToPage } from 'utils/PageControl';
-import { showWarningAlert, showErrorAlert } from 'utils/AlertManager';
+import { useParams } from 'react-router-dom';
+import Split from 'react-split';
+import { showErrorAlert, showWarningAlert } from 'utils/AlertManager';
 import AuthenticateManager from 'utils/AuthenticateManager';
+import { getIntegerPathParameter, moveToPage } from 'utils/PageControl';
 import { validateSubmitCode } from 'utils/validation/CodeValidation';
 function AlgorithmTest(props) {
     const { user } = props.account;
-    const { isProgressing, data, which } = props.problem;
+    const { isProgressing, data, which, isSuccess } = props.problem;
     const { problemActions } = props;
     const [code, setCode] = useState(null);
     const problemId = getIntegerPathParameter(useParams()['problemId']);
@@ -22,15 +22,22 @@ function AlgorithmTest(props) {
             moveToPage(props.history, paths.pages.loginForm);
         }
         else if (problemId) {
-            if (!data.problemDataAndCode) {
-                //- request problem data and code using problem id
-                problemActions.getProblemDataAndCode({ problemId });
-            } else if (!data.problemMetaData) problemActions.getProblemMetaData();
-            else {
-                setCode(data.problemDataAndCode.codes[0]);
+            if(!isProgressing){
+                if (!data.problemDataAndCode) {
+                    if(which === 'problemDataAndCode' && !isSuccess)return;
+
+                    //- request problem data and code using problem id
+                    problemActions.getProblemDataAndCode({ problemId });
+                } else if (!data.problemMetaData) {
+                    if (which === 'problemMetaData' && !isSuccess) return;
+                    problemActions.getProblemMetaData();
+                }
+                else {
+                    setCode(data.problemDataAndCode.codes[0]);
+                }
             }
         }
-    }, [user, props.history, data.problemDataAndCode, problemActions, problemId, data.problemMetaData]);
+    }, [user, props.history, data.problemDataAndCode, problemActions, problemId, data.problemMetaData, data.failCause, isSuccess, which, isProgressing]);
     const isMarking = isProgressing && which === 'submitProblemCode';
     const isResetting = isProgressing && which === 'resetProblemCode';
 

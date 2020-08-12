@@ -3,7 +3,7 @@ import { Form, Button, Spinner } from 'react-bootstrap'
 import 'pages/css/Form.css'
 import { paths } from 'constants/Paths'
 import { inputNames } from 'constants/FormInputNames'
-import { validateLogin } from 'utils/validation/LoginValidation';
+import { validateLogin } from 'utils/validation/AccountManagementValidation';
 import { showErrorAlert, showValidationFailureAlert } from 'utils/AlertManager';
 import { moveToPage } from 'utils/PageControl';
 import AuthenticateManager from 'utils/AuthenticateManager';
@@ -13,7 +13,6 @@ function LoginForm(props) {
         isSuccess,
         data,
         which, user, accountActions } = props;
-
 
 
     const login = form => {

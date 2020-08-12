@@ -213,7 +213,11 @@ export default handleActions({
             ...state,
             isProgressing: false,
             isSuccess: false,
-            which: 'problemMetaData'
+            which: 'problemMetaData',
+            data:{
+                ...state.data,
+                failCause: action.payload
+            }
         };
     },
 
@@ -222,7 +226,8 @@ export default handleActions({
             ...state,
             isProgressing: true,
             isSuccess: false,
-            which: 'problemData'
+            which: 'problemData',
+
         }
     },
     [GET_PROBLEM_DATA_SUCCESS]: (state, action) => {
@@ -242,6 +247,10 @@ export default handleActions({
             isProgressing: false,
             isSuccess: false,
             which: 'problemData',
+            data:{
+                ...state.data,
+                failCause: action.payload
+            }
         };
     },
 
@@ -250,6 +259,7 @@ export default handleActions({
             ...state,
             isProgressing: true,
             isSuccess: false,
+            which:"problemDataAndCode",
         }
     },
     [GET_PROBLEM_DATA_AND_CODE_SUCCESS]: (state, action) => {
@@ -259,7 +269,9 @@ export default handleActions({
             data: {
                 ...state.data,
                 problemDataAndCode: action.payload
-            }
+            },
+            which:"problemDataAndCode",
+            
         };
     },
     [GET_PROBLEM_DATA_AND_CODE_FAILURE]: (state, action) => {
@@ -267,6 +279,11 @@ export default handleActions({
             ...state,
             isProgressing: false,
             isSuccess: false,
+            data:{
+                ...state.data,
+                failCause: action.payload
+            },
+            which:"problemDataAndCode",
         };
     },
 
@@ -424,11 +441,10 @@ export default handleActions({
             ...state,
             isProgressing: true,
             isSuccess: false,
+            which:"problemList",
             data: {
                 ...state.data,
-
                 filters: action.payload
-
             }
         }
     },
@@ -436,6 +452,7 @@ export default handleActions({
         return {
             isProgressing: false,
             isSuccess: true,
+            which:"problemList",
             data: {
                 ...state.data,
                 problemsAndMaxPage: action.payload
@@ -447,6 +464,7 @@ export default handleActions({
             ...state,
             isProgressing: false,
             isSuccess: false,
+            which:"problemList",
         };
     },
     [GET_USER_RESOLVED_PROBLEM_COUNT]: (state, action) => {
@@ -454,6 +472,7 @@ export default handleActions({
             ...state,
             isProgressing: true,
             isSuccess: false,
+            which:"userResolvedProblemCount",
             data: {
                 ...state.data,
             }
@@ -463,6 +482,7 @@ export default handleActions({
         return {
             isProgressing: false,
             isSuccess: true,
+            which:"userResolvedProblemCount",
             data: {
                 ...state.data,
                 userResolvedProblemCount: action.payload.userResolvedProblemCount
@@ -474,6 +494,7 @@ export default handleActions({
             ...state,
             isProgressing: false,
             isSuccess: false,
+            which:"userResolvedProblemCount",
         };
     },
     [CLEAR_PROBLEM_LIST]: (state, action) => {

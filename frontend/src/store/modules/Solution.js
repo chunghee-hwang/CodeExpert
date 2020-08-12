@@ -102,7 +102,7 @@ export default handleActions({
             ...state,
             isProgressing: true,
             isSuccess: false,
-            which: 'getOthersSolutions'
+            which: 'othersSolutions'
         }
     },
     [GET_OTHERS_SOLUTIONS_SUCCESS]: (state, action) => {
@@ -113,7 +113,7 @@ export default handleActions({
                 ...state.data,
                 othersSolutions: action.payload
             },
-            which: 'getOthersSolutions'
+            which: 'othersSolutions'
         }
     },
     [GET_OTHERS_SOLUTIONS_FAILURE]: (state, action) => {
@@ -124,7 +124,7 @@ export default handleActions({
                 ...state.data,
                 failCause: action.payload
             },
-            which: 'getOthersSolutions'
+            which: 'othersSolutions'
         }
     },
     [CLEAR_OTHERS_SOLUTIONS]: (state, action) => {
@@ -135,7 +135,7 @@ export default handleActions({
                 ...state.data,
                 othersSolutions: null
             },
-            which: 'getOthersSolutions'
+            which: 'othersSolutions'
         }
     },
 

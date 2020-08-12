@@ -1,48 +1,51 @@
-import React, { useEffect, useState } from 'react';
-import 'pages/css/OthersSolutions.css';
-import { Pagination, Nav, ProgressBar } from 'react-bootstrap';
-import { paths } from 'constants/Paths';
-import LikeBtn from 'components/LikeBtn';
-import Comments from 'components/Comments';
-import { getIntegerPathParameter, moveToPage } from 'utils/PageControl';
-import LoadingScreen from 'components/LoadingScreen';
-import AuthenticateManager from 'utils/AuthenticateManager';
-import { useParams } from 'react-router-dom';
-import AceEditor from 'react-ace';
+import "ace-builds/src-noconflict/mode-c_cpp";
 import "ace-builds/src-noconflict/mode-java";
 import "ace-builds/src-noconflict/mode-python";
-import "ace-builds/src-noconflict/mode-c_cpp";
 import "ace-builds/src-noconflict/theme-monokai";
+import Comments from 'components/Comments';
+import LikeBtn from 'components/LikeBtn';
+import LoadingScreen from 'components/LoadingScreen';
+import { paths } from 'constants/Paths';
+import 'pages/css/OthersSolutions.css';
+import React, { useEffect, useState } from 'react';
+import AceEditor from 'react-ace';
+import { Nav, Pagination, ProgressBar } from 'react-bootstrap';
+import { useParams } from 'react-router-dom';
+import AuthenticateManager from 'utils/AuthenticateManager';
+import { getIntegerPathParameter, moveToPage } from 'utils/PageControl';
 function OthersSolutions(props) {
     const problemId = getIntegerPathParameter(useParams()['problemId']);
     const [page, setPage] = useState(1);
     const { user } = props.account;
     const { solutionActions, problemActions } = props;
     const { data: solutionData, which: solutionWhich, isProgressing: isSolutionProgressing, isSuccess: isSolutionSuccess } = props.solution;
-    const { data: problemData } = props.problem;
+    const { data: problemData, isSuccess: isProblemSuccess, which:problemWhich, isProgressing: isProblemProgressing } = props.problem;
     const [languageId, setLanguageId] = useState(null);
     useEffect(() => {
         if (!user || !problemId || !AuthenticateManager.isUserLoggedIn()) {
-
             moveToPage(props.history, paths.pages.loginForm);
             return;
         }
-        if (!problemData.problemMetaData) problemActions.getProblemMetaData();
-        else {
-            if (!languageId) setLanguageId(problemData.problemMetaData.languages[0].id);
-            //- request others solutions using problemId, languageId, page
-            else if (!solutionData.othersSolutions) {
-                solutionActions.getOthersSolutions({ problemId, page, languageId });
-            }
+        if(!isSolutionProgressing && !isProblemProgressing ){
+            if (!problemData.problemMetaData){
+                if (problemWhich === 'problemMetaData' && !isProblemSuccess) return;
+                problemActions.getProblemMetaData();
+            } 
             else {
-                const languageSelect = document.querySelector('#others-solution-language-select');
-                const languageSelectIdx = Array.from(languageSelect.children).findIndex(option => Number(option.dataset.languageid) === languageId);
-                if (languageSelectIdx !== -1) languageSelect.selectedIndex = languageSelectIdx;
+                if (!languageId) setLanguageId(problemData.problemMetaData.languages[0].id);
+                //- request others solutions using problemId, languageId, page
+                else if (!solutionData.othersSolutions) {
+                    if (problemWhich === 'othersSolutions' && !isSolutionSuccess) return;
+                    solutionActions.getOthersSolutions({ problemId, page, languageId });
+                }
+                else {
+                    const languageSelect = document.querySelector('#others-solution-language-select');
+                    const languageSelectIdx = Array.from(languageSelect.children).findIndex(option => Number(option.dataset.languageid) === languageId);
+                    if (languageSelectIdx !== -1) languageSelect.selectedIndex = languageSelectIdx;
+                }
             }
         }
-
-
-    }, [user, props.history, languageId, page, problemId, solutionData.othersSolutions, solutionActions, problemActions, problemData.problemMetaData]);
+    }, [user, props.history, languageId, page, problemId, solutionData.othersSolutions, solutionActions, problemActions, problemData.problemMetaData, problemData.failCause, problemWhich, isProblemSuccess,isSolutionProgressing,isProblemProgressing, isSolutionSuccess]);
 
     const getLanguageOptions = () => {
         return problemData.problemMetaData.languages.reduce((accumulator, language) => {

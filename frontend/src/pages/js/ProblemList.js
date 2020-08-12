@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import 'pages/css/ProblemList.css';
-import ProblemItemBox from 'components/ProblemItemBox';
-import { Pagination } from 'react-bootstrap';
-import { paths } from 'constants/Paths';
-import { moveToPage } from 'utils/PageControl';
-import AuthenticateManager from 'utils/AuthenticateManager';
 import LoadingScreen from 'components/LoadingScreen';
+import ProblemItemBox from 'components/ProblemItemBox';
+import { paths } from 'constants/Paths';
+import 'pages/css/ProblemList.css';
+import React, { useEffect, useState } from 'react';
+import { Pagination } from 'react-bootstrap';
+import AuthenticateManager from 'utils/AuthenticateManager';
+import { moveToPage } from 'utils/PageControl';
 function ProblemList(props) {
     const [page, setPage] = useState(1);
     const { user } = props.account;
-    const { data, isProgressing } = props.problem;
+    const { data, isProgressing, which, isSuccess } = props.problem;
     const { problemActions } = props;
     const [levelFilters, setLevelFilters] = useState(new Set());
     const [typeFilters, setTypeFilters] = useState(new Set());
@@ -19,13 +19,23 @@ function ProblemList(props) {
             moveToPage(props.history, paths.pages.loginForm);
             return;
         }
-
-        //-request problem list and page info using type, level, page
-        // fetch(`/problems?type=${typeIds.join(',')}&level=${levels.join(',')}&page=${page}`);
-        if (!data.problemMetaData) problemActions.getProblemMetaData();
-        else if (!data.problemsAndMaxPage) problemActions.getProblemList({ typeIds: Array.from(typeFilters), levelIds: Array.from(levelFilters), page });
-        else if (!data.userResolvedProblemCount) problemActions.getUserResolvedProblemCount();
-    }, [props.history, data.problemMetaData, data.problemsAndMaxPage, data.userResolvedProblemCount, user, page, levelFilters, problemActions, typeFilters]);
+        if (!isProgressing) {
+            //-request problem list and page info using type, level, page
+            // fetch(`/problems?type=${typeIds.join(',')}&level=${levels.join(',')}&page=${page}`);
+            if (!data.problemMetaData) {
+                if (which === 'problemMetaData' && !isSuccess) return;
+                problemActions.getProblemMetaData();
+            }
+            else if (!data.problemsAndMaxPage) {
+                if (which === 'problemList' && !isSuccess) return;
+                problemActions.getProblemList({ typeIds: Array.from(typeFilters), levelIds: Array.from(levelFilters), page });
+            }
+            else if (!data.userResolvedProblemCount) {
+                if (which === 'userResolvedProblemCount' && !isSuccess) return;
+                problemActions.getUserResolvedProblemCount();
+            }
+        }
+    }, [props.history, data.problemMetaData, data.problemsAndMaxPage, data.userResolvedProblemCount, user, page, levelFilters, problemActions, typeFilters, data.failCause, isSuccess, which, isProgressing]);
 
     const updateProblemList = () => {
         problemActions.clearProblemList();

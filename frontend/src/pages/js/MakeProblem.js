@@ -28,7 +28,10 @@ function MakeProblem(props) {
             return;
         } else if (!isProgressing) {
             //- request get problemTypes, levels
-            if (!data.problemMetaData) problemActions.getProblemMetaData();
+            if (!data.problemMetaData) {
+                if (which === 'problemMetaData' && !isSuccess) return;
+                problemActions.getProblemMetaData();
+            }
             //- request get problem data if problemId is not null 
             else if (problemId) {
                 if (data.problemData) {
@@ -44,7 +47,9 @@ function MakeProblem(props) {
                 }
                 else if (!data.problemData) {
                     if (which === 'problemData' && !isSuccess) {
-                        moveToPage(props.history, paths.pages.problemList);
+                        showErrorAlert({errorWhat:'문제 정보 가져오기', text: data.failCause, appendFailureText:true}).then(()=>{
+                            moveToPage(props.history, paths.pages.problemList);
+                        });
                         return;
                     }
                     problemActions.getProblemData({ problemId });

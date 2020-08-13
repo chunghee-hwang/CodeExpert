@@ -21,7 +21,6 @@ function ProblemList(props) {
         }
         if (!isProgressing) {
             //-request problem list and page info using type, level, page
-            // fetch(`/problems?type=${typeIds.join(',')}&level=${levels.join(',')}&page=${page}`);
             if (!data.problemMetaData) {
                 if (which === 'problemMetaData' && !isSuccess) return;
                 problemActions.getProblemMetaData();
@@ -30,7 +29,7 @@ function ProblemList(props) {
                 if (which === 'problemList' && !isSuccess) return;
                 problemActions.getProblemList({ typeIds: Array.from(typeFilters), levelIds: Array.from(levelFilters), page });
             }
-            else if (!data.userResolvedProblemCount) {
+            else if (data.userResolvedProblemCount===null) {
                 if (which === 'userResolvedProblemCount' && !isSuccess) return;
                 problemActions.getUserResolvedProblemCount();
             }

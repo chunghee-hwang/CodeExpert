@@ -37,7 +37,7 @@ function AlgorithmTest(props) {
                 }
             }
         }
-    }, [user, props.history, data.problemDataAndCode, problemActions, problemId, data.problemMetaData, data.failCause, isSuccess, which, isProgressing]);
+    }, [user, props.history, data.problemDataAndCode, problemActions, problemId, data.problemMetaData, data.failCause, isSuccess, which, isProgressing,code]);
     const isMarking = isProgressing && which === 'submitProblemCode';
     const isResetting = isProgressing && which === 'resetProblemCode';
 

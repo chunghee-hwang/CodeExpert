@@ -241,3 +241,6 @@ table_type 속성으로 둘을 구분한다.<br/>
 | like_user_id(fk) | 좋아요 버튼을 누른 사용자 아이디(user) |
 
 </details>
+
+### API 스펙
+https://hch0821.gitbook.io/code-expert-api

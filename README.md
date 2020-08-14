@@ -257,5 +257,5 @@ Ubuntu 20.04 LTS x64
 * Java: ```java --illegal-access=warn FILENAME```
 * Python: ```python3 FILENAME```
 * C++: 
- - 컴파일: ```clang++ -pthread -std=c++1z -o OUTPUT_FILENAME```
- - 실행: ```./OUTPUT_FILENAME```
+  컴파일: ```clang++ -pthread -std=c++1z -o OUTPUT_FILENAME```
+  실행: ```./OUTPUT_FILENAME```

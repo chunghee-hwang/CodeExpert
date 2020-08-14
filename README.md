@@ -244,3 +244,18 @@ table_type 속성으로 둘을 구분한다.<br/>
 
 ### API 스펙
 https://hch0821.gitbook.io/code-expert-api
+
+### 서버 운영체제
+Ubuntu 20.04 LTS x64
+
+### 알고리즘 테스트 컴파일러
+* Java: openjdk 14.0.1
+* Python: Python 3.8.2
+* C++: clang 9.0.1-12
+
+#### 컴파일 옵션
+* Java: ```java --illegal-access=warn FILENAME```
+* Python: ```python3 FILENAME```
+* C++: 
+ - 컴파일: ```clang++ -pthread -std=c++1z -o OUTPUT_FILENAME```
+ - 실행: ```./OUTPUT_FILENAME```

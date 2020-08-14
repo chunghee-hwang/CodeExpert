@@ -44,13 +44,21 @@ function InputOutputTable(props) {
     const initTable = useCallback(() => {
         if (props.dataTypes) {
             createReturnDiv(props);
-            if (props.tableMode === tableMode.write.paramAndTestcase) {
+            const testcaseCount = getTestcaseCount(props);
+            if(!props.initValue){
+                if (props.tableMode === tableMode.write.paramAndTestcase) {
                 
-                if (getParamsCount(props) < 1) {
-                    addParam(props, { name: '', dataType: props.dataTypes[0] });
+                    if (getParamsCount(props) < 1) {
+                        addParam(props, { name: '', dataType: props.dataTypes[0] });
+                    }
+                    if (testcaseCount < 1) {
+                        addTestcase(props);
+                    }
                 }
-                if (getTestcaseCount(props) < 1) {
-                    addTestcase(props);
+                else if(props.tableMode === tableMode.write.testcase){
+                    if (testcaseCount < 1) {
+                        addTestcase(props);
+                    }
                 }
             }
             fillWithParametersAndTestcases(props);

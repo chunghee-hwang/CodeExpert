@@ -29,7 +29,7 @@ function ProblemList(props) {
                 if (which === 'problemList' && !isSuccess) return;
                 problemActions.getProblemList({ typeIds: Array.from(typeFilters), levelIds: Array.from(levelFilters), page });
             }
-            else if (data.userResolvedProblemCount ===null || data.userResolvedProblemCount == undefined ) {
+            else if (data.userResolvedProblemCount ===null || data.userResolvedProblemCount === undefined ) {
                 if (which === 'userResolvedProblemCount' && !isSuccess) return;
                 problemActions.getUserResolvedProblemCount();
             }
@@ -110,7 +110,6 @@ function ProblemList(props) {
         setPage(1);
         updateProblemList();
     }
-    debugger;
     return (
         <div className="problem-page align-center">
             <div className="left-panel">

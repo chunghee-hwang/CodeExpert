@@ -60,6 +60,16 @@ function ProblemSolutionSection(props) {
                                     dragInterval={1}
                                     direction="vertical"
                                     cursor="row-resize"
+                                    onDragEnd={()=>{
+                                        let heightPercent = document.querySelector(".code-section").style.height;
+                                        heightPercent = heightPercent.split("% - ")[0];
+                                        heightPercent = Number(heightPercent.substring(5))
+                                        let height = (document.querySelector(".problem-solution-section").clientHeight*(heightPercent/100.0))+"px";
+                                        document.querySelector("#code-editor").style.height=height;
+                                        let editor = window.ace.edit('code-editor');
+                                        editor.resize();
+                                    }}
+
                                 >
                                     {codeSection}
                                     {answerSection}

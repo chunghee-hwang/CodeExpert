@@ -72,15 +72,8 @@ export function fillWithParametersAndTestcases(tableProps) {
 
     if (tableProps.initValue) {
         //파라미터 채우기
-        const root = document.querySelector(`#${tableProps.id}`);
-        const paramTr = root.querySelector('table .param-tr');
-        let paramThs = root.querySelectorAll('table .param-th');
-        if (paramThs) {
-            paramThs.forEach(paramTh => {
-                paramTh.remove();
-            });
-        }
-        if (tableProps.initValue.params) {
+        if (tableProps.initValue.params && getParamsCount(tableProps) ===0) {
+            
             const initParamCount = tableProps.initValue.params.length;
             for (let idx = 0; idx < initParamCount; idx++) {
                 addParam(tableProps, tableProps.initValue.params[idx]);
@@ -92,19 +85,12 @@ export function fillWithParametersAndTestcases(tableProps) {
             createReturnDiv(tableProps, tableProps.initValue.returns.dataType);
         }
 
-        //테스트케이스 채우기
-
-        let tbody = root.querySelector('table > tbody');
-        tbody.innerHTML = '';
-        tbody.append(paramTr);
-        if (tableProps.initValue.testcases) {
+        // //테스트케이스 채우기
+        if (tableProps.initValue.testcases && getTestcaseCount(tableProps)===0) {
             const initTestcaseCount = tableProps.initValue.testcases.length;
             for (let idx = 0; idx < initTestcaseCount; idx++) {
                 addTestcase(tableProps, tableProps.initValue.testcases[idx]);
             }
-        } else {
-            // 사용자가 테스트케이스 입력할 수 있도록 한 행 추가하기
-            addTestcase(tableProps);
         }
 
     }
@@ -197,11 +183,20 @@ export function addParam(tableProps, param = null) {
     let lastTh = paramTr.querySelector('th:last-child');
     lastTh.insertAdjacentElement('beforebegin', newTh);
     let trs = root.querySelectorAll('table > tbody > .io-tr')
-
+    const paramsCount = getParamsCount(tableProps);
     trs.forEach((tr) => {
-        let newTd = createElementWithElement('td', createTextInput('입력 값', '', 'put-input'), 'input-td');
-        let lastTd = tr.querySelector('td:last-child');
-        lastTd.previousElementSibling.insertAdjacentElement('beforebegin', newTd);
+        const inputTdsCount = tr.querySelectorAll('.input-td').length;
+        if(paramsCount > inputTdsCount){
+            let newTd = createElementWithElement('td', createTextInput('입력 값', '', 'put-input'), 'input-td');
+            let lastTd = tr.querySelector('td:last-child');
+            lastTd.previousElementSibling.insertAdjacentElement('beforebegin', newTd);
+        }else if(paramsCount < inputTdsCount){
+            for(let idx = 0; idx < inputTdsCount - paramsCount; idx++){
+                let lastInputTd = tr.querySelector('.input-td:last-child');
+                if(lastInputTd) lastInputTd.remove();
+            }
+        }
+       
     });
     if (tableProps.tableMode === tableMode.write.paramAndTestcase)
         updateParamRemoveButtons(tableProps);
@@ -214,6 +209,8 @@ export function createReturnDiv(tableProps, returnDataType = null) {
     if (!returnDataType) {
         returnDataType = tableProps.dataTypes[0];
     }
+    let returnTh = document.querySelector(`#${tableProps.id} table .return-th`);
+    let prevReturnDiv = returnTh.querySelector('.return-div');
     let div = document.createElement('div');
     div.setAttribute('class', 'return-div');
     let returnSpan = createElementWithText('span', 'Return', 'text-weight-bold');
@@ -226,8 +223,7 @@ export function createReturnDiv(tableProps, returnDataType = null) {
         returnDataTypeSpan.setAttribute('data-datatypeid', returnDataType.id);
         div.append(returnDataTypeSpan);
     }
-    let returnTh = document.querySelector(`#${tableProps.id} table .return-th`);
-    let prevReturnDiv = returnTh.querySelector('.return-div');
+    
     if (prevReturnDiv) prevReturnDiv.remove();
     returnTh.append(div);
 }
@@ -261,6 +257,19 @@ export function getTestcaseCount(tableProps) {
     return document.querySelector(`#${tableProps.id}`)
         .querySelector('table > tbody')
         .childElementCount - 1;
+}
+
+export function updateParameters(tableProps, newParams){
+    if(tableProps.tableMode === tableMode.write.testcase)
+    {
+        let root = document.querySelector(`#${tableProps.id}`);
+        let params = newParams.params;
+        let returns = newParams.returns;
+        createReturnDiv(tableProps, returns.dataType);
+        root.querySelectorAll(".param-th").forEach(paramTh=>paramTh.remove());
+        params.forEach(param=>addParam(tableProps, param));
+        
+    }
 }
 
 function updateParamRemoveButtons(tableProps) {

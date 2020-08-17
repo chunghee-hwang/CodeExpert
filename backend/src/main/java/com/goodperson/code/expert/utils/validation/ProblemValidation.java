@@ -13,6 +13,7 @@ import com.goodperson.code.expert.dto.ReturnDto;
 import com.goodperson.code.expert.dto.TestcaseDto;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -53,6 +54,20 @@ public class ProblemValidation {
             "dynamic_cast", "namespace", "template", "And", "bitor", "not_eq", "xor", "and_eq", "compl", "or", "xor_eq",
             "bitand", "not", "or_eq" };
 
+    @Value("${problem.title.length.downlimit}")
+    private int problemTitleLengthDownLimit;
+
+    @Value("${problem.limitExplain.length.downlimit}")
+    private int problemLimitExplainLengthDownLimit;
+
+    @Value("${problem.parameter.length.uplimit}")
+    private int problemParameterLengthUpLimit;
+    @Value("${problem.timeLimit.length.downlimit}")
+    private int problemTimeLimitLengthDownLimit;
+    
+    @Value("${problem.parameterName.length.uplimit}")
+    private int problemParameterNameLengthUpLimit;
+
     private boolean isWordKeyword(String[] keywords, String word) {
         return Arrays.asList(keywords).indexOf(word) != -1;
     }
@@ -77,14 +92,14 @@ public class ProblemValidation {
                 || StringUtils.isBlank(limitExplain)) {
             throw new Exception("The required fields are empty.");
         }
-        if (problemTitle.length() > 100) {
-            throw new Exception("The problem title length must <=100.");
+        if (problemTitle.length() > problemTitleLengthDownLimit) {
+            throw new Exception("The problem title length must <="+problemTitleLengthDownLimit);
         }
-        if (limitExplain.length() > 200) {
-            throw new Exception("The limit explain length must <=200.");
+        if (limitExplain.length() > problemLimitExplainLengthDownLimit) {
+            throw new Exception("The limit explain length must <="+problemLimitExplainLengthDownLimit);
         }
-        if (String.valueOf(timeLimit).length() > 5) {
-            throw new Exception("The time limit length must <=5.");
+        if (String.valueOf(timeLimit).length() > problemTimeLimitLengthDownLimit) {
+            throw new Exception("The time limit length must <="+problemTimeLimitLengthDownLimit);
         }
         if (!(String.valueOf(timeLimit).matches("^\\d+$") && timeLimit > 0)) {
             throw new Exception("The time limit must > 0");
@@ -154,11 +169,11 @@ public class ProblemValidation {
         Objects.requireNonNull(returnsDataType.getId());
 
         final List<String> paramNames = params.stream().map(param -> param.getName()).collect(Collectors.toList());
-        if (params.stream().count() < 1) {
-            throw new Exception("The parameter must > 0");
+        if (params.stream().count() < problemParameterLengthUpLimit) {
+            throw new Exception("The parameter length must >= "+problemParameterLengthUpLimit);
         }
-        if (paramNames.stream().anyMatch(paramName -> paramName.length() < 2)) {
-            throw new Exception("The parameter name length must >= 2");
+        if (paramNames.stream().anyMatch(paramName -> paramName.length() < problemParameterNameLengthUpLimit)) {
+            throw new Exception("The parameter name length must >= "+problemParameterNameLengthUpLimit);
         }
         if (params.stream().anyMatch(param -> param.getDataType() == null || param.getDataType().getId() == null)) {
             throw new Exception("The parameter data type is empty.");

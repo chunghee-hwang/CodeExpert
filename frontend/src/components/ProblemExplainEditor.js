@@ -7,16 +7,7 @@ import { showErrorAlert } from 'utils/AlertManager';
 // 문제 설명 에디터
 // 참고: http://spectrumdig.blogspot.com/2015/06/contenteditable-html-wyswyg.html
 function ProblemExplainEditor(props) {
-    const [range, setRange] = useState(null);
     const { isProgressing } = props;
-
-    // 이미지가 추가될 경우 커서 위치 다시 불러옴
-    const loadRange = useCallback(() => {
-        if (!range) return;
-        window.getSelection().removeAllRanges();
-        window.getSelection().addRange(range);
-    }, [range]);
-
     const addImage = useCallback(file => {
         if(!file.type.startsWith("image/")){
             throw new Error("The file(s) is(are) not image format.");
@@ -47,18 +38,10 @@ function ProblemExplainEditor(props) {
         editor.focus();
         // editor 태그에 focus가 잡힐 때까지 기다리기 위해 이벤트큐에 이 코드 push
         setTimeout(() => {
-            loadRange();
-            if (window.getSelection) {
-                let sel = window.getSelection();
-                if (sel.getRangeAt && sel.rangeCount) {
-                    let range = sel.getRangeAt(0);
-                    range.insertNode(span);
-                    window.getSelection().removeAllRanges();
-                }
-            }
-        }, 10);
+            editor.append(span);
+        }, 0);
 
-    }, [loadRange]);
+    }, []);
     return (
         <div className="editorContainer">
             <div className="picControl text-right">
@@ -75,7 +58,7 @@ function ProblemExplainEditor(props) {
                     </>
                 }
             </div>
-            <div id="problem-explain-editor" onBlur={e => saveRange()} contentEditable="true" name={inputNames.problemExplain} dangerouslySetInnerHTML={props.content ? { __html: props.content } : { __html: '' }}></div>
+            <div id="problem-explain-editor" contentEditable="true" name={inputNames.problemExplain} dangerouslySetInnerHTML={props.content ? { __html: props.content } : { __html: '' }}></div>
         </div>
     );
 
@@ -88,21 +71,11 @@ function ProblemExplainEditor(props) {
          */
         if(files) {
             try{
-                Array.from(files).forEach(file => addImage(file));
+                Array.from(files).forEach(file => setTimeout(()=>addImage(file), 0));
                 event.target.value='';
             }catch(e){
                 showErrorAlert({errorWhat:"이미지 첨부", text:e.message, appendFailureText:true});
             }
-        }
-    }
-
-    // editor에서 포커스가 나가면 커서 위치 저장
-    function saveRange() {
-        let rangeCount = window.getSelection().rangeCount;
-        if (rangeCount > 0) {
-            setRange(window.getSelection().getRangeAt(window.getSelection().rangeCount - 1));
-        } else {
-            setRange(null);
         }
     }
 }

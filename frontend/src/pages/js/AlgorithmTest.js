@@ -42,10 +42,11 @@ function AlgorithmTest(props) {
             document.querySelector(".algorithm-test").style.height =
             (window.screen.availHeight -
                 document.getElementById("top-nav").clientHeight -
-                document.getElementById("bottom-nav").clientHeight -
                 document.getElementById('answer-btn-bar').clientHeight
             ) + "px";
+
         }
+        document.getElementById('bottom-nav').style.display="none";
     }, [user, props.history, data.problemDataAndCode, problemActions, problemId, data.problemMetaData, data.failCause, isSuccess, which, isProgressing, code]);
     const isMarking = isProgressing && which === 'submitProblemCode';
     const isResetting = isProgressing && which === 'resetProblemCode';

@@ -71,7 +71,7 @@ public class JwtWebSecurityConfig extends WebSecurityConfigurerAdapter {
             authenticationPath,"/logoutAccount","/signup"
         };
         final String[] accessableGetUrls = new String[]{
-            "/static/**", "/", "/logo.svg", "/favicon.ico"
+            "/static/**", "/", "/logo.svg", "/favicon.ico", "/manifest.json"
         };
         webSecurity.ignoring()
         .antMatchers(HttpMethod.POST, accessablePostUrls)

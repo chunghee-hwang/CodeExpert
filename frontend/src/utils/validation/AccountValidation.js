@@ -2,7 +2,7 @@ import { inputNames } from "constants/FormInputNames";
 
 const emailRegex = /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$/;
 const passwordRegex = /^.*(?=^.{8,30}$)(?=.*\d)(?=.*[a-zA-Z])(?=.*[!@#$%^&+=]).*$/; //특수문자 / 문자 / 숫자 포함 형태의 8~30자리 이내의 암호 정규식
-const nicknameRegex = /^[a-zA-Z가-힣0-9|\s]{2,15}$/
+const nicknameRegex = /^[a-zA-Z가-힣0-9]{2,15}$/
 
 export function validateNewNickname(form, prevNickname) {
     const values = {

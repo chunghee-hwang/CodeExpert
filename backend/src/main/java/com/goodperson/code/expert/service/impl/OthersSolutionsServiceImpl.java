@@ -77,7 +77,6 @@ public class OthersSolutionsServiceImpl implements OthersSolutionsService {
         Language language = languageOptional.get();
         Page<Object[]> solutionAndLikeCountsPage = solutionRepository.findAllSolutionAndLikeCountByProblemAndLanguage(
                 language, problem, PageRequest.of(page - 1, numberOfShow), Sort.by("likeCount").descending());
-        System.out.println(solutionAndLikeCountsPage);
         List<Object[]> solutionAndLikeCounts = solutionAndLikeCountsPage.getContent();
         OthersSolutionsDto othersSolutionsDto = convertSolutionsToOtherSolutionsDto(solutionAndLikeCounts,
                 solutionAndLikeCountsPage.getTotalPages(), problem, authenticatedUser);

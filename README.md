@@ -11,8 +11,8 @@
 |내용|설명|
 |:---:|:---:|
 | 백엔드 |Spring Boot, Spring Data JPA, Spring Security, GraphQL, Restful, MySQL|
-| 프론트엔드 |React.js, React Redux, Javascript, AJAX, HTML, CSS|
-
+| 프론트엔드 |React.js, React Redux, Redux Saga, Javascript, AJAX, HTML, CSS|
+| 배포 방법 | Amazon EC2, Amazon RDS |
 ### 앱 기능
 |내용|설명|
 |:---:|:---:|
@@ -259,3 +259,30 @@ Ubuntu 20.04 LTS x64
 * C++: 
   컴파일: ```clang++ -pthread -std=c++1z -o OUTPUT_FILENAME```
   실행: ```./OUTPUT_FILENAME```
+
+#### 클론 후 앱 실행 방법(백앤드 & 프론트엔드)
+반드시 유닉스 환경에서 실행.
+
+1. openjdk 14.0.1, Python 3.8.2, clang 9.0.1-12 설치
+
+2. 메이븐 설치
+```bash
+sudo apt install maven
+```
+
+3. 서버 및 클라이언트 빌드 후, 서버 클라이언트 모두 동봉된 war파일 실행
+```bash
+cd CodeExpert/backend
+mvn clean
+mvn install -DskipTests
+sudo java -jar target/code.expert-0.0.1-SNAPSHOT.war # 포트 번호 80번은 sudo 권한 필요
+```
+
+4. 브라우저로 웹 서버 접속(포트: 80 - 생략 가능)
+http://127.0.0.1/
+
+### 서버 배포 결과
+(진행중)
+
+### 시연
+(진행중)

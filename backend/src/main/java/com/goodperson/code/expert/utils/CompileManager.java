@@ -4,10 +4,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -21,8 +19,10 @@ import com.goodperson.code.expert.model.ProblemParameter;
 import com.goodperson.code.expert.model.ProblemParameterValue;
 import com.goodperson.code.expert.model.ProblemReturn;
 
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Component;
@@ -42,6 +42,9 @@ public class CompileManager {
     private String cppCompilerPath;
     @Value("${compiler.file.python.path}")
     private String pythonCompilerPath;
+
+    @Value("${problem.compile.file.directory}")
+    private String compileFileDirectory;  
 
     public CompileOption makeCompileOption(List<ProblemParameter> problemParameters, ProblemReturn problemReturn,
             List<ProblemParameterValue> problemParameterValues, String returnValue, int timeOutInMilliseconds) {
@@ -64,18 +67,22 @@ public class CompileManager {
         return compileOption;
     }
 
-    private String getValidateCode(String relativeCompilerFilePath) throws Exception {
-        String workPath = System.getProperty("user.dir");
-        final String fullCompilerFilePath = workPath + relativeCompilerFilePath;
-        File compilerFile = new File(fullCompilerFilePath);
-        if(!compilerFile.exists())throw new Exception("The compiler file is not exists");
-        final Path validaterFilePath = Paths.get(fullCompilerFilePath);
-        return Files.readString(validaterFilePath);
+    private String getValidateCode(String compilerFilePath){
+        try{
+            ClassPathResource resource = new ClassPathResource(compilerFilePath);
+            try(InputStream is = resource.getInputStream()){
+                String validateCode = IOUtils.toString(is, "UTF-8");
+                return validateCode;
+            }
+        }
+        catch(Exception e){
+            return "";
+        }
     }
 
     private File makeCompileDirectory() {
         String workPath = System.getProperty("user.home");
-        File compileDirectory = new File(workPath + "/codeExpertCompile");
+        File compileDirectory = new File(workPath + "/"+compileFileDirectory);
         if (!compileDirectory.exists())
             compileDirectory.mkdirs();
         return compileDirectory;
@@ -213,7 +220,6 @@ public class CompileManager {
                 compileOption.getParameters(), compileOption.getAnswer());
         final String compileFileExtension = "cpp";
         File compileDirectory = makeCompileDirectory();
-
         final String execFileName = now.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS")) + "_exec.out";
         code = code.concat("\n").concat(validateCode);
         File compileFile = makeCompileFile(compileDirectory, code, now, compileFileExtension);
@@ -228,7 +234,6 @@ public class CompileManager {
 
         Process compileProcess = runtime.exec(compileCommands);
         compileProcess.waitFor(10000, TimeUnit.MILLISECONDS);
-
         // 다른 언어는 컴파일후 바로 실행 결과가 나오지만 c++은 컴파일 후, 실행 파일을 실행한다.
 
         // 코드 컴파일
@@ -249,7 +254,6 @@ public class CompileManager {
                 return new AsyncResult<>(markResultDto).completable();
             }
         }
-
         // 실행
         MarkResultDto markResultDto = execCodeAndGetMarkResult(execCommands, compileOption);
         deleteCompiledOrExecFile(compileFile, execFile);
@@ -267,7 +271,6 @@ public class CompileManager {
         final String compileFileName = compileFile.getName();
         final String compileFileExtension = fileUtils.getFileExtension(compileFileFullPath);
         execProcess.waitFor(compileOption.getTimeOutInMilliseconds()+10000, TimeUnit.MILLISECONDS);
-        
         try (BufferedReader execInput = new BufferedReader(new InputStreamReader(execProcess.getInputStream()));
                 BufferedReader execError = new BufferedReader(new InputStreamReader(execProcess.getErrorStream()));) {
             String line = "";

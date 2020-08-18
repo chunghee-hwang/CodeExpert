@@ -17,7 +17,7 @@ function CodeSection(props) {
         undoManager.reset();
         session.setUndoManager(undoManager);
         editor.moveCursorTo(0, 0);
-    });
+    },[props.code.language.name]);
     return (
         <div className="code-section" style={{ "display": "relative" }}>
             <AceEditor

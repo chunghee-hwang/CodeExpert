@@ -8,8 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -62,7 +60,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.scheduling.annotation.Async;
 
 @SpringBootTest
 public class ProblemApiTest {
@@ -455,26 +452,19 @@ public class ProblemApiTest {
             CompileOption compileOption = compileManager.makeCompileOption(problemParameters, problemReturn,
                     problemParameterValues, returnValue, problem.getTimeLimit());
             final int testcaseNumber = idx;
-            final Consumer<? super MarkResultDto> resultHandler = res -> {
-                res.setTestcaseNumber(testcaseNumber);
-                markResults.add(res);
-            };
             switch (languageName) {
                 case "java":
-                    compileManager.compileJava(submittedCode, compileOption, compileErrorDto).thenAccept(resultHandler);
+                    compileManager.compileJava(submittedCode, compileOption, compileErrorDto);
                     break;
                 case "python3":
-                    compileManager.compilePython(submittedCode, compileOption, compileErrorDto).thenAccept(resultHandler);
+                    compileManager.compilePython(submittedCode, compileOption, compileErrorDto);
                     break;
                 case "cpp":
-                    compileManager.compileCpp(submittedCode, compileOption, compileErrorDto).thenAccept(resultHandler);
+                    compileManager.compileCpp(submittedCode, compileOption, compileErrorDto);
                     break;
             }
             Thread.sleep(10);
         }
-
-        /** Busy waiting */
-        waitForAllTestcasesMarked(testcaseSize, markResults).get();
 
         if (markResults.size() == testcaseSize) {
             saveCodeMarkResult(markResults, submittedCode, authenticatedUser, problem, language);
@@ -482,18 +472,6 @@ public class ProblemApiTest {
             throw new Exception("An error occured when marking the codes");
         }
         return markResults;
-    }
-
-    @Async
-    private CompletableFuture<Boolean> waitForAllTestcasesMarked(int testcaseSize, List<MarkResultDto> markResults) {
-        while (markResults.size() != testcaseSize) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException ie) {
-                break;
-            }
-        }
-        return CompletableFuture.completedFuture(true);
     }
 
     private void saveCodeMarkResult(List<MarkResultDto> results, String submittedCode, User authenticatedUser,

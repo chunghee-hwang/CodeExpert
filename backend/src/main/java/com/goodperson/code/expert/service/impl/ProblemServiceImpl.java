@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 import com.goodperson.code.expert.dto.CodeDto;
 import com.goodperson.code.expert.dto.CompileErrorDto;
@@ -526,28 +525,27 @@ public class ProblemServiceImpl implements ProblemService {
             CompileOption compileOption = compileManager.makeCompileOption(problemParameters, problemReturn,
                     problemParameterValues, returnValue, problem.getTimeLimit());
             final int testcaseNumber = idx + 1;
-            final Consumer<? super MarkResultDto> resultHandler = res -> {
-                res.setTestcaseNumber(testcaseNumber);
-                markResults.add(res);
-            };
+            MarkResultDto markResultDto = null;
             switch (languageName) {
                 case "java":
-                    compileManager.compileJava(submittedCode, compileOption, compileErrorDto).thenAccept(resultHandler);
+                markResultDto = compileManager.compileJava(submittedCode, compileOption, compileErrorDto);
                     break;
                 case "python3":
-                    compileManager.compilePython(submittedCode, compileOption, compileErrorDto)
-                            .thenAccept(resultHandler);
+                markResultDto =compileManager.compilePython(submittedCode, compileOption, compileErrorDto);
                     break;
                 case "cpp":
-                    compileManager.compileCpp(submittedCode, compileOption, compileErrorDto).thenAccept(resultHandler);
+                markResultDto = compileManager.compileCpp(submittedCode, compileOption, compileErrorDto);
                     break;
             }
+            if(compileErrorDto.isCompileError()){
+                throw new Exception("An error occured while compile");
+            }
+            if(markResultDto!=null){
+                markResultDto.setTestcaseNumber(testcaseNumber);
+            }
+            markResults.add(markResultDto);
             Thread.sleep(10);
         }
-
-        /** Busy waiting */
-        compileManager.waitForAllTestcasesMarked(testcaseSize, markResults, compileErrorDto).get();
-
         if (markResults.size() == testcaseSize) {
             Collections.sort(markResults,
                     (result1, result2) -> result1.getTestcaseNumber() - result2.getTestcaseNumber());

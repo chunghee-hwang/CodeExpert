@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import com.goodperson.code.expert.dto.CompileErrorDto;
@@ -23,8 +22,6 @@ import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -99,23 +96,31 @@ public class CompileManager {
         return compileFile;
     }
 
-    @Async
-    public CompletableFuture<MarkResultDto> compilePython(String code, CompileOption compileOption, CompileErrorDto compileErrorDto) throws Exception {
-        final String validateCode = getValidateCode(pythonCompilerPath);
-        code = code + "\n" + validateCode;
-        code.replaceAll("\t", "    "); // tab-> 공백 4개(indent error 방지)
-        File compileDirectory = makeCompileDirectory();
-        File compileFile = makeCompileFile(compileDirectory, code, LocalDateTime.now(), "py");
-        compileOption.setCompileFile(compileFile);
-        List<String> commands = new ArrayList<>();
-        commands.add("python3");
-        commands.add(compileFile.getAbsolutePath());
-        commands.add(String.valueOf(compileOption.getTimeOutInMilliseconds()));
-        commands.addAll(compileOption.getParameters());
-        commands.add(compileOption.getAnswer());
-        MarkResultDto markResultDto = execCodeAndGetMarkResult(commands.toArray(String[]::new), compileOption);
-        deleteCompiledOrExecFile(compileFile);
-        return new AsyncResult<>(markResultDto).completable();
+    public MarkResultDto compilePython(String code, CompileOption compileOption, CompileErrorDto compileErrorDto)
+    {
+        MarkResultDto markResultDto = null;
+        try{
+            final String validateCode = getValidateCode(pythonCompilerPath);
+            code = code + "\n" + validateCode;
+            code.replaceAll("\t", "    "); // tab-> 공백 4개(indent error 방지)
+            File compileDirectory = makeCompileDirectory();
+            File compileFile = makeCompileFile(compileDirectory, code, LocalDateTime.now(), "py");
+            compileOption.setCompileFile(compileFile);
+            List<String> commands = new ArrayList<>();
+            commands.add("python3");
+            commands.add(compileFile.getAbsolutePath());
+            commands.add(String.valueOf(compileOption.getTimeOutInMilliseconds()));
+            commands.addAll(compileOption.getParameters());
+            commands.add(compileOption.getAnswer());
+            markResultDto = execCodeAndGetMarkResult(commands.toArray(String[]::new), compileOption);
+            deleteCompiledOrExecFile(compileFile);
+            return markResultDto;
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            compileErrorDto.setCompileError(true);
+            return markResultDto;
+        }
     }
 
     // "import java.util.Arrays;\nimport java.util.stream.Collectors;\n
@@ -140,8 +145,7 @@ public class CompileManager {
         return removedCode.delete(removedCode.lastIndexOf("}"), removedCode.length()).toString();
     }
 
-    @Async
-    public CompletableFuture<MarkResultDto> compileJava(String code, CompileOption compileOption, CompileErrorDto compileErrorDto)
+    public MarkResultDto compileJava(String code, CompileOption compileOption, CompileErrorDto compileErrorDto)
     {
         MarkResultDto markResultDto=null;
         try{
@@ -161,11 +165,11 @@ public class CompileManager {
             commands.add(compileOption.getAnswer());
             markResultDto = execCodeAndGetMarkResult(commands.toArray(String[]::new), compileOption);
             deleteCompiledOrExecFile(compileFile);
-            return new AsyncResult<>(markResultDto).completable();
+            return markResultDto;
         }
         catch(Exception e){
             compileErrorDto.setCompileError(true);
-            return new AsyncResult<>(markResultDto).completable();
+            return markResultDto;
         }
     }
 
@@ -200,64 +204,60 @@ public class CompileManager {
                 .replace("{{answerValue}}", answerValue).replace("{{parameterValues}}", parameterValues.toString()).replace("{{input}}", input);
     }
 
-    @Async
-    public CompletableFuture<Boolean> waitForAllTestcasesMarked(int testcaseSize, List<MarkResultDto> markResults, CompileErrorDto CompileErrorDto){
-        while (markResults.size() != testcaseSize && !CompileErrorDto.isCompileError()) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException ie) {
-                break;
+
+    public MarkResultDto compileCpp(String code, CompileOption compileOption, CompileErrorDto compileErrorDto){
+        MarkResultDto markResultDto = null;
+        try{
+            LocalDateTime now = LocalDateTime.now();
+            final String validateCode = applyDetailToCppValidateCode(
+                    getValidateCode(cppCompilerPath),
+                    compileOption.getParameters(), compileOption.getAnswer());
+            final String compileFileExtension = "cpp";
+            File compileDirectory = makeCompileDirectory();
+            final String execFileName = now.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS")) + "_exec.out";
+            code = code.concat("\n").concat(validateCode);
+            File compileFile = makeCompileFile(compileDirectory, code, now, compileFileExtension);
+            File execFile = new File(compileDirectory, execFileName);
+            final String compileFileFullPath = compileFile.getAbsolutePath();
+            compileOption.setCompileFile(compileFile);
+            String[] compileCommands = new String[] { "clang++", "-pthread","-w", "-std=c++1z", compileFile.getAbsolutePath(),
+                    "-o", execFile.getAbsolutePath() };
+            String[] execCommands = new String[] { execFile.getAbsolutePath(),
+                    String.valueOf(compileOption.getTimeOutInMilliseconds()) };
+            Runtime runtime = Runtime.getRuntime();
+    
+            Process compileProcess = runtime.exec(compileCommands);
+            compileProcess.waitFor(10000, TimeUnit.MILLISECONDS);
+            // 다른 언어는 컴파일후 바로 실행 결과가 나오지만 c++은 컴파일 후, 실행 파일을 실행한다.
+    
+            // 코드 컴파일
+            try (BufferedReader compileError = new BufferedReader(
+                    new InputStreamReader(compileProcess.getErrorStream()));) {
+                markResultDto = new MarkResultDto();
+                String line = "";
+                StringBuffer errorBuffer = new StringBuffer();
+                while ((line = compileError.readLine()) != null) {
+                    line = line.replaceAll(compileFileFullPath, "solution.".concat(compileFileExtension));
+                    errorBuffer.append(line);
+                    errorBuffer.append("\n");
+                }
+                if (errorBuffer.length() != 0) {
+                    markResultDto.setIsAnswer(false);
+                    markResultDto.setErrorMessage(errorBuffer.toString());
+                    deleteCompiledOrExecFile(compileFile);
+                    return markResultDto;
+                }
             }
+            // 실행
+            markResultDto = execCodeAndGetMarkResult(execCommands, compileOption);
+            deleteCompiledOrExecFile(compileFile, execFile);
+            return markResultDto;
         }
-        return new AsyncResult<>(true).completable();
-    }
-
-    @Async
-    public CompletableFuture<MarkResultDto> compileCpp(String code, CompileOption compileOption, CompileErrorDto compileErrorDto) throws Exception {
-        LocalDateTime now = LocalDateTime.now();
-        final String validateCode = applyDetailToCppValidateCode(
-                getValidateCode(cppCompilerPath),
-                compileOption.getParameters(), compileOption.getAnswer());
-        final String compileFileExtension = "cpp";
-        File compileDirectory = makeCompileDirectory();
-        final String execFileName = now.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS")) + "_exec.out";
-        code = code.concat("\n").concat(validateCode);
-        File compileFile = makeCompileFile(compileDirectory, code, now, compileFileExtension);
-        File execFile = new File(compileDirectory, execFileName);
-        final String compileFileFullPath = compileFile.getAbsolutePath();
-        compileOption.setCompileFile(compileFile);
-        String[] compileCommands = new String[] { "clang++", "-pthread","-w", "-std=c++1z", compileFile.getAbsolutePath(),
-                "-o", execFile.getAbsolutePath() };
-        String[] execCommands = new String[] { execFile.getAbsolutePath(),
-                String.valueOf(compileOption.getTimeOutInMilliseconds()) };
-        Runtime runtime = Runtime.getRuntime();
-
-        Process compileProcess = runtime.exec(compileCommands);
-        compileProcess.waitFor(10000, TimeUnit.MILLISECONDS);
-        // 다른 언어는 컴파일후 바로 실행 결과가 나오지만 c++은 컴파일 후, 실행 파일을 실행한다.
-
-        // 코드 컴파일
-        try (BufferedReader compileError = new BufferedReader(
-                new InputStreamReader(compileProcess.getErrorStream()));) {
-            MarkResultDto markResultDto = new MarkResultDto();
-            String line = "";
-            StringBuffer errorBuffer = new StringBuffer();
-            while ((line = compileError.readLine()) != null) {
-                line = line.replaceAll(compileFileFullPath, "solution.".concat(compileFileExtension));
-                errorBuffer.append(line);
-                errorBuffer.append("\n");
-            }
-            if (errorBuffer.length() != 0) {
-                markResultDto.setIsAnswer(false);
-                markResultDto.setErrorMessage(errorBuffer.toString());
-                deleteCompiledOrExecFile(compileFile);
-                return new AsyncResult<>(markResultDto).completable();
-            }
+        catch(Exception e){
+            e.printStackTrace();
+            compileErrorDto.setCompileError(true);
+            return markResultDto;
         }
-        // 실행
-        MarkResultDto markResultDto = execCodeAndGetMarkResult(execCommands, compileOption);
-        deleteCompiledOrExecFile(compileFile, execFile);
-        return new AsyncResult<>(markResultDto).completable();
     }
 
     // 코드 실행 결과 가져오는 메소드

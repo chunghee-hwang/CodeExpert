@@ -287,7 +287,9 @@ sudo java -jar target/code.expert-0.0.1-SNAPSHOT.war # 포트 번호 80번은 su
 http://hostname/
 
 ### 서버 배포 결과
-(진행중)
+
+#### Amazon EC2(Web Server), Amazon RDS(MySQL Server) 적용 결과
+http://ec2-13-124-43-63.ap-northeast-2.compute.amazonaws.com/
 
 ### 시연
 (진행중)

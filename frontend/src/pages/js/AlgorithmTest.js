@@ -22,9 +22,9 @@ function AlgorithmTest(props) {
             moveToPage(props.history, paths.pages.loginForm);
         }
         else if (problemId) {
-            if(!isProgressing){
+            if (!isProgressing) {
                 if (!data.problemDataAndCode) {
-                    if(which === 'problemDataAndCode' && !isSuccess)return;
+                    if (which === 'problemDataAndCode' && !isSuccess) return;
 
                     //- request problem data and code using problem id
                     problemActions.getProblemDataAndCode({ problemId });
@@ -33,11 +33,20 @@ function AlgorithmTest(props) {
                     problemActions.getProblemMetaData();
                 }
                 else {
-                    if(code == null) setCode(data.problemDataAndCode.codes[0]);
+                    if (code === null) setCode(data.problemDataAndCode.codes[0]);
                 }
             }
         }
-    }, [user, props.history, data.problemDataAndCode, problemActions, problemId, data.problemMetaData, data.failCause, isSuccess, which, isProgressing,code]);
+        // 모니터 크기가 컴퓨터 사이즈일 경우 테스트화면 높이를 그 크기에 맞게 조절
+        if(window.screen.availWidth >= 1024 ){
+            document.querySelector(".algorithm-test").style.height =
+            (window.screen.availHeight -
+                document.getElementById("top-nav").clientHeight -
+                document.getElementById("bottom-nav").clientHeight -
+                document.getElementById('answer-btn-bar').clientHeight
+            ) + "px";
+        }
+    }, [user, props.history, data.problemDataAndCode, problemActions, problemId, data.problemMetaData, data.failCause, isSuccess, which, isProgressing, code]);
     const isMarking = isProgressing && which === 'submitProblemCode';
     const isResetting = isProgressing && which === 'resetProblemCode';
 
@@ -128,15 +137,15 @@ function AlgorithmTest(props) {
     function submitCode() {
         const submittedCode = window.ace.edit('code-editor').getValue();
         const languageId = code.language.id;
-        const validation = validateSubmitCode({code: submittedCode, language:code.language});
-        if(validation.isValid){
+        const validation = validateSubmitCode({ code: submittedCode, language: code.language });
+        if (validation.isValid) {
             //- request Marking the code using problemId, submittedCode, languageId
             problemActions.submitProblemCode({ problemId, submittedCode, languageId });
-            problemActions.updateCodeFromProblemData({submittedCode, languageId});
-        }else{
-            showErrorAlert({errorWhat:'코드 제출', text:validation.failCause, appendFailureText:true});
+            problemActions.updateCodeFromProblemData({ submittedCode, languageId });
+        } else {
+            showErrorAlert({ errorWhat: '코드 제출', text: validation.failCause, appendFailureText: true });
         }
-       
+
     }
 }
 

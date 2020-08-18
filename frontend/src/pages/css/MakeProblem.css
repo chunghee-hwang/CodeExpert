@@ -19,7 +19,8 @@
     border-radius: 3px;
     font-size:1rem;
     width: 100%;
-    min-height: 50vh;
+    min-height:100px;
+    height:auto;
     padding:5px;
     outline:none;
     text-align: justify;

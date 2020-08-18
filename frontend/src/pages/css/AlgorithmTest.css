@@ -4,13 +4,13 @@
 }
 
 .problem-solution-section{
-    height: 100vh;
-    overflow: auto;
+    height: 100%;
+    overflow-y: auto;
 }
 
 .problem-info-section{
     z-index:0;
-    overflow: auto;
+    overflow-y: auto;
 
 }
 
@@ -127,11 +127,11 @@
   }
   .answer-section{
     z-index: -1;
-    overflow: scroll;
+    overflow-y: scroll;
 }
 
 .code-section{
-    overflow: scroll;
+    overflow-y: scroll;
 }
   /* 
     ##Device = Most of the Smartphones Mobiles (Portrait)
@@ -146,10 +146,10 @@
     }
     .answer-section{
         z-index: -1;
-        overflow: auto;
+        overflow-y: auto;
     }
     
     .code-section{
-        overflow: auto;
+        overflow-y: auto;
     }
   }

@@ -26,9 +26,14 @@ function ProblemInfoSection(props) {
                     <div className="problem-info-limit text-center">
                         <div className="problem-info-subtitle">제한 사항</div>
                         {problem.limitExplain}
-                        <div className="time-memory-limit mb-4">
+                        <div className="time-memory-limit">
                             <div className="mt-2">
                                 <span className="problem-info-subtitle">제한 시간</span> {problem.timeLimit} ms
+                            </div>
+                        </div>
+                        <div className="problem-creator mb-4">
+                            <div className="mt-2">
+                                <span className="problem-info-subtitle">문제 작성자</span> {problem.creator.nickname}
                             </div>
                         </div>
                     </div>

@@ -56,8 +56,6 @@ public class JwtTokenAuthorizationOncePerRequestFilter extends OncePerRequestFil
             } catch (ExpiredJwtException e) {
                 logger.warn("JWT_TOKEN_EXPIRED", e);
             }
-        } else {
-            logger.warn("JWT_TOKEN_DOES_NOT_EXIST");
         }
         logger.debug("JWT_TOKEN_USERNAME_VALUE '{}'", username);
         UserDetails userDetails = null;

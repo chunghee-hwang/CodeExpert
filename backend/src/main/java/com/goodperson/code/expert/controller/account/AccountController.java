@@ -65,7 +65,7 @@ public class AccountController {
         }
     }
 
-    @PostMapping("/logout")
+    @PostMapping("/logoutAccount")
     public ResponseEntity<?> logout(HttpServletResponse response) throws Exception{
         tokenCookieManager.deleteTokenFromCookie(response);
         return new ResponseEntity<>(HttpStatus.OK);

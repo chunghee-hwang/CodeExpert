@@ -279,7 +279,7 @@ sudo java -jar target/code.expert-0.0.1-SNAPSHOT.war # 포트 번호 80번은 su
 ```
 
 4. 브라우저로 웹 서버 접속(포트: 80 - 생략 가능)
-http://127.0.0.1/
+http://hostname/
 
 ### 서버 배포 결과
 (진행중)

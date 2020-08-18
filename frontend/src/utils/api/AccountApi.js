@@ -29,7 +29,7 @@ export const login = ({ email, password }) => {
 }
 
 export const logout = () => {
-    return axios.post("/logout");
+    return axios.post("/logoutAccount");
 }
 
 export const signUp = (data) => {

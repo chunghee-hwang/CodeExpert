@@ -18,8 +18,8 @@ export const paths =
     },
     actions: {
         makeProblem: "/makeProblem",
-        login: "/login",
-        logout: "/logout",
+        login: "/authenticate",
+        logout: "/logoutAccount",
         changeNickname: "/changeNickname",
         changePassword: "/changePassword",
         signup: "/signup",

@@ -65,6 +65,9 @@ const python3ExploitableCodes=[
     'getattr',
     'setattr',
     'delattr',
+    'sys.argv',
+    'codeExpertAnswerPython',
+    'codeExpertParametersPython'
 ]
 
 // 제출된 코드에 악용 가능 코드가 포함되어있나 확인하는 메소드

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import AceEditor from 'react-ace';
 import "ace-builds/src-noconflict/mode-java";
@@ -10,6 +10,14 @@ import "ace-builds/src-noconflict/snippets/java"
 import "ace-builds/src-noconflict/snippets/python"
 import "ace-builds/src-noconflict/snippets/c_cpp"
 function CodeSection(props) {
+    useEffect(() => {
+        let editor = window.ace.edit('code-editor');
+        const session = editor.getSession();
+        const undoManager = session.getUndoManager();
+        undoManager.reset();
+        session.setUndoManager(undoManager);
+        editor.moveCursorTo(0, 0);
+    });
     return (
         <div className="code-section" style={{ "display": "relative" }}>
             <AceEditor
@@ -26,14 +34,10 @@ function CodeSection(props) {
                     enableSnippets: true
                 }}
                 onLoad={(editor) => {
-                    document.querySelector(".code-section").style.height=document.querySelector("#code-editor").style.height;
-                    editor.moveCursorTo(0,0);
+                    document.querySelector(".code-section").style.height = document.querySelector("#code-editor").style.height;
                 }}
             />
-
         </div>
-
     );
-
 }
 export default CodeSection;

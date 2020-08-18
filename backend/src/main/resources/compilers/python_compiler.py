@@ -62,26 +62,22 @@ def argv_to_python_code(data_type_and_value):
     return value
 
 if __name__ == '__main__':
-    argv = sys.argv
-    len_argv = len(argv)
-    to = int(argv[1])
-    parameters = argv[2:len_argv-1]
-    answer = argv[len_argv-1]
-    parameters = [argv_to_python_code(parameter) for parameter in parameters]
-    answer = argv_to_python_code(answer)
-    solution = timeout(to)(solution)
+    codeExpertParametersPython = [argv_to_python_code(parameter) for parameter in sys.argv[2:len(sys.argv)-1]]
+    codeExpertAnswerPython = sys.argv[-1]
+    codeExpertAnswerPython = argv_to_python_code(codeExpertAnswerPython)
+    solution = timeout(int(sys.argv[1]))(solution)
     try:
         start_time = time.monotonic()
-        user_answer = solution(*parameters)
+        user_answer = solution(*codeExpertParametersPython)
         end_time = time.monotonic()
         time_elapsed = round((end_time - start_time)*1000, 2)
-        if answer == user_answer:
+        if codeExpertAnswerPython == user_answer:
             print('\n$answer|')
         else:
             print('\n$notAnswer|')
-        print('\n$expected|'+str(answer))
+        print('\n$expected|'+str(codeExpertAnswerPython))
         print('\n$actual|'+str(user_answer))
-        print('\n$input|'+str(parameters)[1:-1])
+        print('\n$input|'+str(codeExpertParametersPython)[1:-1])
         print('\n$time|'+str(time_elapsed))
     except TimeoutError as toe:
         print('\n$timeout|', file=sys.stderr)

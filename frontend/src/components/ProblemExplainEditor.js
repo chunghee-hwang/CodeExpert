@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { TiImage } from 'react-icons/ti';
 import { inputNames } from 'constants/FormInputNames';
 import LoadingScreen from './LoadingScreen';

@@ -4,6 +4,7 @@ import { dataTypes } from 'constants/DataTypes';
 /**
  * 테이블에서 파라미터들만 json으로 반환하는 메소드
  */
+
 export function getParams(tableProps) {
     let root = document.querySelector(`#${tableProps.id}`);
     let table = root.querySelector("table");
@@ -105,11 +106,16 @@ export function getParamsCount(tableProps) {
     return paramTr.childElementCount - 1;
 }
 
+function updateParamOrReturnsFromInputExampleTable(tableProps, updateParamIdx, newParam){
+    if(updateParamIdx !== -1){
+        tableProps.onUpdateParamOrReturns(updateParamIdx, newParam);
+    }
+}
+
 // 데이터 타입 선택 select 만드는 메소드
 function createDataTypeSelect(tableProps, dataTypeKey = dataTypes.integer.key) {
     let dataTypeInput = document.createElement('select');
     dataTypeInput.setAttribute('class', 'data-type-input custom-select');
-    dataTypeInput.addEventListener('change', e => { updateInputExampleTable(tableProps) })
     let selectedIdx = 0;
     if (tableProps.dataTypes) {
         tableProps.dataTypes.forEach((dataType, idx) => {
@@ -124,7 +130,17 @@ function createDataTypeSelect(tableProps, dataTypeKey = dataTypes.integer.key) {
 
         dataTypeInput.selectedIndex = selectedIdx;
     }
+    dataTypeInput.addEventListener('change', e => { 
+        const updateIdx = getParamOrReturnsThIdx(e.target);
+        updateParamOrReturnsFromInputExampleTable(tableProps, updateIdx, {dataType:tableProps.dataTypes[e.target.selectedIndex]}) 
+    });
     return dataTypeInput;
+}
+
+function getParamOrReturnsThIdx(nameInputOrDatatypeInput){
+    const paramOrReturnTh = nameInputOrDatatypeInput.parentElement.parentElement;
+    const ths = Array.from(document.querySelector('.param-tr').querySelectorAll('th'));
+    return ths.findIndex(th=>paramOrReturnTh===th);
 }
 
 // 파라미터명 입력 input 만드는 메소드
@@ -134,7 +150,11 @@ function createParamInput(paramName, tableProps) {
         paramInput.disabled = true;
         addClassName(paramInput, 'disabled');
     } else {
-        paramInput.addEventListener('keyup', () => updateInputExampleTable(tableProps));
+        paramInput.addEventListener('keyup', e => {
+            e.target.value = e.target.value.replace(/\s/g, '');
+            const updateIdx = getParamOrReturnsThIdx(paramInput);
+            updateParamOrReturnsFromInputExampleTable(tableProps, updateIdx, {name:e.target.value});
+        });
     }
     return paramInput;
 }
@@ -199,12 +219,83 @@ export function addParam(tableProps, param = null) {
        
     });
     if (tableProps.tableMode === tableMode.write.paramAndTestcase)
+    {
         updateParamRemoveButtons(tableProps);
-    updateInputExampleTable(tableProps);
+        addParamFromInputExampleTable(tableProps, param);
+    }
+}
+
+/**
+  * 파라미터를 삭제하는 메소드
+  * @param deleteParamIdx - 삭제할 파라미터 인덱스
+  */
+export function deleteParam(tableProps, deleteParamIdx){
+    let root = document.querySelector(`#${tableProps.id}`);
+    let trs = root.querySelectorAll('table tr');
+    trs.forEach((tr, idx) => {
+        if (idx === 0) {
+            tr.querySelectorAll('.param-th')[deleteParamIdx].remove();
+        }
+        else if (idx !== trs.length - 1) {
+            tr.querySelectorAll('.input-td')[deleteParamIdx].remove();
+        }
+        else {
+            if(tableProps.tableMode === tableMode.write.paramAndTestcase){
+                tr.querySelectorAll('.remove-btn-td')[deleteParamIdx].remove();
+            }
+        }
+    });
+    if (tableProps.tableMode === tableMode.write.paramAndTestcase){
+        deleteParamFromInputExampleTable(tableProps, deleteParamIdx);
+    }
+}
+
+/**
+  * 테이블 파라미터를 수정하는 메소드
+  * @param updateParamIdx 수정할 파라미터 인덱스
+  * 
+  * @newParam 새로운 파라미터 정보
+  */
+ export function updateParamOrReturns(tableProps, updateParamIdx, newParamOrReturns){
+    let root = document.querySelector(`#${tableProps.id}`);
+    const paramTr = root.querySelector(".param-tr");
+    const ths = paramTr.querySelectorAll('th');
+    const updatedTh = ths[updateParamIdx];
+    const paramOrReturnsName = newParamOrReturns.name;
+    const paramOrReturnsDataType = newParamOrReturns.dataType;
+    if(paramOrReturnsName!==undefined && paramOrReturnsName!==null){
+        const paramInput = updatedTh.querySelector('.param-input');
+        if(paramInput){
+            paramInput.value = newParamOrReturns.name;
+        }
+    }
+    if(paramOrReturnsDataType){
+        if(tableProps.tableMode === tableMode.write.paramAndTestcase){
+            const dataTypeInput = updatedTh.querySelector('.data-type-input');
+            if(dataTypeInput){
+                const foundDataTypeInputIndex = Array.from(dataTypeInput.options).findIndex(option=>Number(option.value) === paramOrReturnsDataType.id);
+                if(foundDataTypeInputIndex!==-1){
+                    dataTypeInput.selectedIdx = foundDataTypeInputIndex;
+                }
+            }
+        }else if(tableProps.tableMode === tableMode.write.testcase){
+            const paramDataTypeSpan = updatedTh.querySelector('.param-data-type-span');
+            const returnDataTypeSpan = updatedTh.querySelector('.return-data-type-span');
+            const dataTypeName = dataTypes[paramOrReturnsDataType.name].name;
+            if(paramDataTypeSpan){
+                paramDataTypeSpan.innerText = dataTypeName;
+                paramDataTypeSpan.dataset.datatypeid = paramOrReturnsDataType.id;
+            }else if(returnDataTypeSpan){
+                returnDataTypeSpan.innerText= dataTypeName;
+                returnDataTypeSpan.dataset.datatypeid = paramOrReturnsDataType.id;
+            }
+        }
+    }
+
 }
 
 
-// 결과 값 input과 데이터 타입 선택 input을 담고 있는 div 만드는 메소드
+/**결과 값 input과 데이터 타입 선택 input을 담고 있는 div 만드는 메소드*/
 export function createReturnDiv(tableProps, returnDataType = null) {
     if (!returnDataType) {
         returnDataType = tableProps.dataTypes[0];
@@ -259,19 +350,6 @@ export function getTestcaseCount(tableProps) {
         .childElementCount - 1;
 }
 
-export function updateParameters(tableProps, newParams){
-    if(tableProps.tableMode === tableMode.write.testcase)
-    {
-        let root = document.querySelector(`#${tableProps.id}`);
-        let params = newParams.params;
-        let returns = newParams.returns;
-        createReturnDiv(tableProps, returns.dataType);
-        root.querySelectorAll(".param-th").forEach(paramTh=>paramTh.remove());
-        params.forEach(param=>addParam(tableProps, param));
-        
-    }
-}
-
 function updateParamRemoveButtons(tableProps) {
     let root = document.querySelector(`#${tableProps.id}`);
     let removeColumnTr = root.querySelector('.remove-column-tr')
@@ -312,21 +390,7 @@ function createParamRemoveButton(tableProps) {
         if (getParamsCount(tableProps) > 1) {
             let btnTd = btn.parentElement;
             let columnIdx = Array.from(btnTd.parentElement.children).indexOf(btnTd);
-
-            let root = document.querySelector(`#${tableProps.id}`);
-            let trs = root.querySelectorAll('table tr');
-            trs.forEach((tr, idx) => {
-                if (idx === 0) {
-                    tr.querySelectorAll('.param-th')[columnIdx].remove();
-                }
-                else if (idx !== trs.length - 1) {
-                    tr.querySelectorAll('.input-td')[columnIdx].remove();
-                }
-                else {
-                    tr.querySelectorAll('.remove-btn-td')[columnIdx].remove();
-                }
-            });
-            updateInputExampleTable(tableProps);
+            deleteParam(tableProps, columnIdx);
         } else {
             alert('최소 한 개의 파라미터가 필요합니다.')
         }
@@ -334,6 +398,10 @@ function createParamRemoveButton(tableProps) {
     return btn;
 }
 
-function updateInputExampleTable(tableProps) {
-    if (tableProps.onChangeParamNames) tableProps.onChangeParamNames(getParams(tableProps));
+function addParamFromInputExampleTable(tableProps, param) {
+    if (tableProps.onAddParam) tableProps.onAddParam(param);
+}
+
+function deleteParamFromInputExampleTable(tableProps, deleteParamIdx) {
+    if (tableProps.onDeleteParam) tableProps.onDeleteParam(deleteParamIdx);
 }

@@ -10,7 +10,7 @@ import React, { useEffect } from 'react';
 import { Button, Form, Spinner } from 'react-bootstrap';
 import { showErrorAlert, showValidationFailureAlert, showWarningAlert } from 'utils/AlertManager';
 import AuthenticateManager from 'utils/AuthenticateManager';
-import { getParamsAndTestcases, updateParameters } from 'utils/InputOutputTableUtil';
+import { getParamsAndTestcases, deleteParam, addParam, updateParamOrReturns } from 'utils/InputOutputTableUtil';
 import { getIntegerQueryParameter, moveToPage } from 'utils/PageControl';
 import { validateDeleteProblem, validateMakeProblem, validateUpdateProblem } from 'utils/validation/MakeProblemValidation';
 
@@ -109,15 +109,16 @@ function MakeProblem(props) {
     /* 테스트케이스 설정 테이블 */
     let testcaseSetTable = <InputOutputTable id="testcase-set-table" tableMode={tableMode.write.paramAndTestcase} labelName='테스트 케이스'
         initValue={data.problemData ? data.problemData.answerTable : null}
-        onChangeParamNames={(params) => {
-            if(which!=='problemData')
-            {
-                let newProps = {
-                    ...ioExTable.props,
-                }
-                updateParameters(newProps, params);
-            }
-        }} dataTypes={data.problemMetaData ? data.problemMetaData.dataTypes : null} />
+        onAddParam={(param) => {
+            addParam({...ioExTable.props}, param)
+        }}
+        onDeleteParam={(deleteIdx)=>{
+            deleteParam({...ioExTable.props}, deleteIdx);
+        }}
+        onUpdateParamOrReturns={(updateIdx, param)=>{
+            updateParamOrReturns({...ioExTable.props}, updateIdx, param);
+        }}
+        dataTypes={data.problemMetaData ? data.problemMetaData.dataTypes : null} />
 
     const registerProblem = () => {
         const answerTableInfo = getParamsAndTestcases(testcaseSetTable.props);

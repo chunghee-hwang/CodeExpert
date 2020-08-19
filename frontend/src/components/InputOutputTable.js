@@ -16,7 +16,9 @@ import DataTypeTooltip from './DataTypeTooltip';
  * 
  * -dataTypes: 자료형 목록
  * 
- * -onChangeParamNames: 파라미터가 바뀔 경우 호출되는 메소드
+ * -onAddParam: 파라미터가 추가될 경우 호출되는 메소드
+ * 
+ * -onDeleteParam: 파라미터가 삭제될 경우 호출되는 메소드
  */
 function InputOutputTable(props) {
 
@@ -94,7 +96,7 @@ function InputOutputTable(props) {
     function createButtonControl() {
         let addButtonControl;
         let addParamButton = <button className="btn btn-outline-success btn-sm mx-2" onClick={() => {
-            addParam(props)
+            addParam(props, { name: '', dataType: props.dataTypes[0] })
         }} >파라미터 추가</button>;
         let addTestcaseButton = <button className="btn btn-outline-info btn-sm mx-2" onClick={() => addTestcase(props)} >테스트케이스 추가</button>;
         switch (props.tableMode) {

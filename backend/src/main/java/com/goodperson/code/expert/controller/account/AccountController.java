@@ -48,68 +48,67 @@ public class AccountController {
 
     @Autowired
     private TokenCookieManager tokenCookieManager;
-    //login
+
+    // login
     @RequestMapping(value = "${jwt.get.token.url}", method = RequestMethod.POST)
     public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtTokenRequest authenticationRequest,
             HttpServletResponse response) throws AuthenticationException {
-        try{
+        try {
             authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
             final UserDetails userDetails = accountService.loadUserByUsername(authenticationRequest.getUsername());
             final String token = jwtTokenUtil.generateToken(userDetails);
             tokenCookieManager.addTokenToCookie(response, token);
-            UserResponseDto userDto = accountService.convertUserToResponseDto((User)userDetails);
+            UserResponseDto userDto = accountService.convertUserToResponseDto((User) userDetails);
             return new ResponseEntity<>(userDto, HttpStatus.OK);
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             return new ResponseEntity<>(errorResponseManager.makeErrorResponse(e), HttpStatus.BAD_REQUEST);
         }
     }
 
     @PostMapping("/logoutAccount")
-    public ResponseEntity<?> logout(HttpServletResponse response) throws Exception{
+    public ResponseEntity<?> logout(HttpServletResponse response) throws Exception {
         tokenCookieManager.deleteTokenFromCookie(response);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<?> signUp(@RequestBody UserRequestDto userRequestDto)
-            throws Exception
-    {
-        try{
-            UserResponseDto signUpUserDto= accountService.signUp(userRequestDto);
+    public ResponseEntity<?> signUp(@RequestBody UserRequestDto userRequestDto) throws Exception {
+        try {
+            UserResponseDto signUpUserDto = accountService.signUp(userRequestDto);
             return new ResponseEntity<>(signUpUserDto, HttpStatus.OK);
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             return new ResponseEntity<>(errorResponseManager.makeErrorResponse(e), HttpStatus.BAD_REQUEST);
         }
     }
 
     @PutMapping("/changeNickname")
-    public ResponseEntity<?> changeNickname(@RequestBody UserRequestDto userRequestDto) throws Exception
-    {
-        UserResponseDto userResponseDto = accountService.changeNickname(userRequestDto);
-        return new ResponseEntity<>(userResponseDto, HttpStatus.OK);
+    public ResponseEntity<?> changeNickname(@RequestBody UserRequestDto userRequestDto) throws Exception {
+        try {
+            UserResponseDto userResponseDto = accountService.changeNickname(userRequestDto);
+            return new ResponseEntity<>(userResponseDto, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(errorResponseManager.makeErrorResponse(e), HttpStatus.BAD_REQUEST);
+        }
     }
 
     @PutMapping("/changePassword")
-    public ResponseEntity<?> changePassword(@RequestBody UserRequestDto userRequestDto) throws Exception{
-        try{
+    public ResponseEntity<?> changePassword(@RequestBody UserRequestDto userRequestDto) throws Exception {
+        try {
             UserResponseDto userResponseDto = accountService.changePassword(userRequestDto);
             return new ResponseEntity<>(userResponseDto, HttpStatus.OK);
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             return new ResponseEntity<>(errorResponseManager.makeErrorResponse(e), HttpStatus.BAD_REQUEST);
         }
-        
+
     }
 
     @PutMapping("/deleteAccount")
-    public ResponseEntity<?> deleteAccount(HttpServletResponse response) throws Exception{
-        try{
+    public ResponseEntity<?> deleteAccount(HttpServletResponse response) throws Exception {
+        try {
             accountService.deleteAccount();
             tokenCookieManager.deleteTokenFromCookie(response);
             return new ResponseEntity<>(HttpStatus.OK);
-        }catch(Exception e){
+        } catch (Exception e) {
             return new ResponseEntity<>(errorResponseManager.makeErrorResponse(e), HttpStatus.BAD_REQUEST);
         }
     }

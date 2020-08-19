@@ -1,4 +1,5 @@
 import axios from 'axios';
+import AuthenticateManager from './AuthenticateManager';
 export const graphQLFetch = (query) => {
     const config = {
          method:"post", 
@@ -11,7 +12,10 @@ export const graphQLFetch = (query) => {
         }else if(res.data.error){
             throw new Error(res.data.error.message);
         }
-        return res.data.data});
+        return res.data.data})
+        .catch(err=>{
+            AuthenticateManager.catchAxiosUnAuthorizedError(err);
+        });
 }
 
 export const objectToGraphQLObject=(object)=>{

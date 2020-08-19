@@ -132,7 +132,8 @@ export function validateMakeProblem(form, answerTableInfo, exampleTableInfo) {
         validation.failCause = '예시 테이블: ' + validationExampleTable.failCause;
         validation.failedElement = document.getElementById('io-ex-set-table');
     }
-    else {
+    else
+     {
         validation.isValid = true;
         values[inputNames.timeLimit] = Number(values[inputNames.timeLimit]);
     }

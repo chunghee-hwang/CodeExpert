@@ -15,16 +15,16 @@ export function validateNewNickname(form, prevNickname) {
         values
     }
     validation.failedElement = form[inputNames.newNickname];
-    if (!values[inputNames.newNickname]) {
-        validation.failCause = "닉네임을 입력해주세요";
-    }
-    else if (decodeURI(prevNickname) === values[inputNames.newNickname]) {
-        validation.failCause = "이전 닉네임과 새 닉네임이 일치합니다.";
-    }
-    else if (!nicknameRegex.test(values[inputNames.newNickname])) {
-        validation.failCause = "닉네임은 2자 이상 15자 이내로, 영어, 자음 모음 합쳐진 한글, 숫자만 입력 가능합니다.";
-    }
-    else
+    // if (!values[inputNames.newNickname]) {
+    //     validation.failCause = "닉네임을 입력해주세요";
+    // }
+    // else if (decodeURI(prevNickname) === values[inputNames.newNickname]) {
+    //     validation.failCause = "이전 닉네임과 새 닉네임이 일치합니다.";
+    // }
+    // else if (!nicknameRegex.test(values[inputNames.newNickname])) {
+    //     validation.failCause = "닉네임은 2자 이상 15자 이내로, 영어, 자음 모음 합쳐진 한글, 숫자만 입력 가능합니다.";
+    // }
+    // else
      {
         validation.isValid = true;
     }

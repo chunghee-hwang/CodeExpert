@@ -2,7 +2,9 @@ import AuthenticateManager from "utils/AuthenticateManager";
 import axios from "axios";
 
 export const changeNickname = (data) => {
-    return axios.put("/changeNickname", data);
+    return axios.put("/changeNickname", data).then((res)=>{
+        return res;
+    });
 }
 
 export const changePassword = (data) => {
@@ -15,17 +17,10 @@ export const deleteAccount = () => {
 
 export const login = ({ email, password }) => {
     return AuthenticateManager.executeJwtAuthenticationService(email, password)
-    .then((resposne)=>{
-        AuthenticateManager.registerSuccessfulLoginForJwt(email);
-        return resposne;
+    .then((res)=>{
+        AuthenticateManager.registerSuccessfulLoginForJwt();
+        return res;
     });
-    // return {
-    //     user: {
-    //         email: 1,
-    //         nickname: 'hwang',
-    //         resolvedProblemCount: 432
-    //     }
-    // }
 }
 
 export const logout = () => {

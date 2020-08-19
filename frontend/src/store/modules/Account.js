@@ -1,8 +1,9 @@
 import { createAction, handleActions } from 'redux-actions';
 import { call, put, takeEvery } from 'redux-saga/effects';
 import * as AccountApi from 'utils/api/AccountApi';
-import {USER_NAME_SESSION_ATTRIBUTE_NAME} from 'utils/AuthenticateManager';
+import AuthenticateManager from 'utils/AuthenticateManager';
 import { getErrorMessageFromResponse } from 'utils/ErrorHandler';
+
 const CHANGE_NICKNAME = 'CHANGE_NICKNAME';
 const CHANGE_NICKNAME_SUCCESS = 'CHANGE_NICKNAME_SUCCESS';
 const CHANGE_NICKNAME_FAILURE = 'CHANGE_NICKNAME_FAILURE';
@@ -40,11 +41,16 @@ export const clearWhich = createAction(CLEAR_WHICH);
 function* changeNicknameSaga(action) {
     try {
         const response = yield call(AccountApi.changeNickname, action.payload);
-        yield call(saveUserDataToLocalStorage, response.data);
+        yield call(AuthenticateManager.saveUserDataToLocalStorage, response.data);
         yield put({ type: CHANGE_NICKNAME_SUCCESS, payload: response.data });
     }
     catch (e) {
-        yield put({ type: CHANGE_NICKNAME_FAILURE, payload: getErrorMessageFromResponse(e) });
+        try {
+            yield call(AuthenticateManager.catchAxiosUnAuthorizedError, e);
+        }
+        catch (e) {
+            yield put({ type: CHANGE_NICKNAME_FAILURE, payload: getErrorMessageFromResponse(e) });
+        }
     }
 }
 
@@ -53,24 +59,34 @@ function* changePasswordSaga(action) {
         const response = yield call(AccountApi.changePassword, action.payload);
         yield put({ type: CHANGE_PASSWORD_SUCCESS, payload: response.data });
     } catch (e) {
-        yield put({ type: CHANGE_PASSWORD_FAILURE, payload: getErrorMessageFromResponse(e) });
+        try {
+            yield call(AuthenticateManager.catchAxiosUnAuthorizedError, e);
+        }
+        catch (e) {
+            yield put({ type: CHANGE_PASSWORD_FAILURE, payload: getErrorMessageFromResponse(e) });
+        }
     }
 }
 
 function* deleteAccountSaga(action) {
     try {
         const response = yield call(AccountApi.deleteAccount, action.payload);
-        yield call(removeUserDataFromLocalStorage);
+        yield call(AuthenticateManager.removeUserDataFromLocalStorage);
         yield put({ type: DELETE_ACCOUNT_SUCCESS, payload: response.data });
     } catch (e) {
-        yield put({ type: DELETE_ACCOUNT_FAILURE, payload: getErrorMessageFromResponse(e) });
+        try {
+            yield call(AuthenticateManager.catchAxiosUnAuthorizedError, e);
+        }
+        catch (e) {
+            yield put({ type: DELETE_ACCOUNT_FAILURE, payload: getErrorMessageFromResponse(e) });
+        }
     }
 }
 
 function* loginSaga(action) {
     try {
         const response = yield call(AccountApi.login, action.payload);
-        yield call(saveUserDataToLocalStorage, response.data);
+        yield call(AuthenticateManager.saveUserDataToLocalStorage, response.data);
         yield put({ type: LOGIN_SUCCESS, payload: response.data });
     } catch (e) {
         yield put({ type: LOGIN_FAILURE, payload: getErrorMessageFromResponse(e) });
@@ -79,11 +95,16 @@ function* loginSaga(action) {
 
 function* logoutSaga(action) {
     try {
-        const response = yield call(AccountApi.logout, action.payload);
-        yield call(removeUserDataFromLocalStorage);
+        const response = yield call(AccountApi.logout);
+        yield call(AuthenticateManager.removeUserDataFromLocalStorage);
         yield put({ type: LOGOUT_SUCCESS, payload: response.data });
     } catch (e) {
-        yield put({ type: LOGOUT_FAILURE, payload: getErrorMessageFromResponse(e) });
+        try {
+            yield call(AuthenticateManager.catchAxiosUnAuthorizedError, e);
+        }
+        catch (e) {
+            yield put({ type: LOGOUT_FAILURE, payload: getErrorMessageFromResponse(e) });
+        }
     }
 }
 
@@ -105,18 +126,8 @@ export function* accountSaga() {
     yield takeEvery(SIGNUP, signupSaga);
 }
 
-const saveUserDataToLocalStorage = user => {
-    localStorage.setItem(USER_NAME_SESSION_ATTRIBUTE_NAME, JSON.stringify(user));
-}
-const removeUserDataFromLocalStorage = () => {
-    localStorage.removeItem(USER_NAME_SESSION_ATTRIBUTE_NAME);
-}
-const getUserDataFromLocalStorage = ()=>{
-    return localStorage.getItem(USER_NAME_SESSION_ATTRIBUTE_NAME);
-}
-
 // 새로 고침하면 유저 데이터가 store에서 날아가는 거 방지. 세션 스토리지기 때문에 서버의 세션이 만료되면 같이 만료됨.
-let userInStorage = getUserDataFromLocalStorage();
+let userInStorage = AuthenticateManager.getUserDataFromLocalStorage();
 const initialState = {
     isProgressing: false,
     isSuccess: false,
@@ -217,7 +228,7 @@ export default handleActions({
             isProgressing: true,
             isSuccess: false,
             data: null,
-            user:null
+            user: null
         };
     },
     [LOGIN_SUCCESS]: (state, action) => {

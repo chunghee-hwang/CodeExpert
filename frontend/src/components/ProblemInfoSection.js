@@ -33,7 +33,7 @@ function ProblemInfoSection(props) {
                         </div>
                         <div className="problem-creator mb-4">
                             <div className="mt-2">
-                                <span className="problem-info-subtitle">문제 작성자</span> {problem.creator.nickname}
+                                <span className="problem-info-subtitle">문제 작성자</span> {decodeURI(problem.creator.nickname)}
                             </div>
                         </div>
                     </div>

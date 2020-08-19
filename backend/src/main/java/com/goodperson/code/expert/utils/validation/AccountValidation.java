@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 public class AccountValidation {
     private final String emailRegex = "^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$";
     private final String passwordRegex = "^.*(?=^.{8,30}$)(?=.*\\d)(?=.*[a-zA-Z])(?=.*[!@#$%^&+=]).*$"; //특수문자 / 문자 / 숫자 포함 형태의 8~30자리 이내의 암호 정규식
-    private final String nicknameRegex = "^[a-zA-Z가-힣0-9]{2,15}$";
+    private final String nicknameRegex = "^[a-zA-Z가-힣0-9| ]{2,15}$";
 
     public void validateSignUp(UserRequestDto userDto) throws Exception {
         final String password = userDto.getPassword();
@@ -44,7 +44,7 @@ public class AccountValidation {
         if(StringUtils.isBlank(newNickname)){
             throw new Exception("The required fields are empty.");
         }
-        if(!newNickname.matches(nicknameRegex)){
+        if(!URLDecoder.decode(newNickname, "UTF-8").matches(nicknameRegex)){
             throw new Exception("The nickname format is not valid.");
         }
     }

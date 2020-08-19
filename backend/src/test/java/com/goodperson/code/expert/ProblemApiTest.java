@@ -4,12 +4,14 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 
 import com.goodperson.code.expert.dto.CodeDto;
 import com.goodperson.code.expert.dto.CompileErrorDto;
@@ -36,7 +38,6 @@ import com.goodperson.code.expert.model.ProblemParameterValue;
 import com.goodperson.code.expert.model.ProblemReturn;
 import com.goodperson.code.expert.model.ProblemTestcase;
 import com.goodperson.code.expert.model.ProblemType;
-import com.goodperson.code.expert.model.Solution;
 import com.goodperson.code.expert.model.User;
 import com.goodperson.code.expert.repository.CodeRepository;
 import com.goodperson.code.expert.repository.DataTypeRepository;
@@ -54,13 +55,13 @@ import com.goodperson.code.expert.utils.CodeGenerateManager;
 import com.goodperson.code.expert.utils.CompileManager;
 import com.goodperson.code.expert.utils.CompileOption;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-
 @SpringBootTest
 public class ProblemApiTest {
     @Autowired
@@ -439,77 +440,49 @@ public class ProblemApiTest {
             List<ProblemParameter> problemParameters, ProblemReturn problemReturn,
             List<List<ProblemParameterValue>> parameterValues, List<String> returnValues, User authenticatedUser)
             throws Exception {
-        List<MarkResultDto> markResults = new ArrayList<>();
-
-        // 코드 생성
-        // 채점 및 채점 결과 생성
-        String languageName = language.getName();
-        final int testcaseSize = parameterValues.size();
-        CompileErrorDto compileErrorDto = new CompileErrorDto();
-        for (int idx = 0; idx < testcaseSize; idx++) {
-            List<ProblemParameterValue> problemParameterValues = parameterValues.get(idx);
-            String returnValue = returnValues.get(idx);
-            CompileOption compileOption = compileManager.makeCompileOption(problemParameters, problemReturn,
-                    problemParameterValues, returnValue, problem.getTimeLimit());
-            final int testcaseNumber = idx;
-            switch (languageName) {
-                case "java":
-                    compileManager.compileJava(submittedCode, compileOption, compileErrorDto);
-                    break;
-                case "python3":
-                    compileManager.compilePython(submittedCode, compileOption, compileErrorDto);
-                    break;
-                case "cpp":
-                    compileManager.compileCpp(submittedCode, compileOption, compileErrorDto);
-                    break;
-            }
-            Thread.sleep(10);
-        }
-
-        if (markResults.size() == testcaseSize) {
-            saveCodeMarkResult(markResults, submittedCode, authenticatedUser, problem, language);
-        } else {
-            throw new Exception("An error occured when marking the codes");
-        }
-        return markResults;
-    }
-
-    private void saveCodeMarkResult(List<MarkResultDto> results, String submittedCode, User authenticatedUser,
-            Problem problem, Language language) {
-        boolean isAnswer = results.stream().allMatch(result -> result.getIsAnswer());
-        // 정답이든 아니든 code 엔티티에 저장(코드 저장)
-        Optional<Code> codeOptional = codeRepository.findByProblemAndLanguageAndCreatorAndIsInitCode(problem, language, authenticatedUser, false);
-        Code code = null;
-        // 이전에 작성한 코드가 있으면 덮어쓴다.
-        if (codeOptional.isPresent()) {
-            code = codeOptional.get();
-        } else {
-            code = new Code();
-            code.setProblem(problem);
-            code.setLanguage(language);
-        }
-        code.setContent(submittedCode);
-        code.setCreator(authenticatedUser);
-        code.setIsInitCode(false);
-        codeRepository.save(code);
-
-        // 정답일 경우 solution 엔티티에 저장
-        if (isAnswer) {
-            Optional<Solution> solutionOptional = solutionRepository.findByCode(code);
-            Solution solution = null;
-            // 이전에 작성된 솔루션이 있으면 덮어쓴다.
-            if (solutionOptional.isPresent()) {
-                solution = solutionOptional.get();
-                if (!solution.getCreator().getId().equals(authenticatedUser.getId()))
-                    return;
-            } else {
-                solution = new Solution();
-                solution.setProblem(problem);
-                solution.setCreator(authenticatedUser);
-            }
-            solution.setCode(code);
-            solutionRepository.save(solution);
-        }
+                List<MarkResultDto> markResults = new ArrayList<>();
+                // 코드 생성
+                // 채점 및 채점 결과 생성
+                if (StringUtils.isEmpty(submittedCode)) {
+                    throw new Exception("The submitted code is empty");
+                }
+                String languageName = language.getName();
+                final int testcaseSize = parameterValues.size();
+                CompileErrorDto compileErrorDto = new CompileErrorDto();
+                for (int idx = 0; idx < testcaseSize; idx++) {
+                    List<ProblemParameterValue> problemParameterValues = parameterValues.get(idx);
+                    String returnValue = returnValues.get(idx);
+                    CompileOption compileOption = compileManager.makeCompileOption(problemParameters, problemReturn,
+                            problemParameterValues, returnValue, problem.getTimeLimit());
+                    final int testcaseNumber = idx + 1;
+                    MarkResultDto markResultDto = null;
+                    switch (languageName) {
+                        case "java":
+                        markResultDto = compileManager.compileJava(submittedCode, compileOption, compileErrorDto);
+                            break;
+                        case "python3":
+                        markResultDto =compileManager.compilePython(submittedCode, compileOption, compileErrorDto);
+                            break;
+                        case "cpp":
+                        markResultDto = compileManager.compileCpp(submittedCode, compileOption, compileErrorDto);
+                            break;
+                    }
+                    if(compileErrorDto.isCompileError()){
+                        throw new Exception("An error occured while compile");
+                    }
+                    if(markResultDto!=null){
+                        markResultDto.setTestcaseNumber(testcaseNumber);
+                    }
+                    markResults.add(markResultDto);
+                    Thread.sleep(10);
+                }
+                if (markResults.size() == testcaseSize) {
+                    Collections.sort(markResults,
+                            (result1, result2) -> result1.getTestcaseNumber() - result2.getTestcaseNumber());
+                } else {
+                    throw new Exception("An error occured when marking the codes");
+                }
+                return markResults;
     }
 
     private void addParamterAndReturnAndTestcaseInfoFromTableInfo(Problem problem, InputOutputTableDto table,

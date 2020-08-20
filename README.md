@@ -320,5 +320,5 @@ http://ec2-13-124-43-63.ap-northeast-2.compute.amazonaws.com/
 | Storage | 20 GB |
 |네트워크 성능 | 낮음에서 중간|
 
-## 시연
-(진행중)
+## 시연 영상
+[![Code Expert](http://img.youtube.com/vi/nsx1mqPdvRU/0.jpg)](https://youtu.be/nsx1mqPdvRU "Code Expert")

@@ -4,7 +4,7 @@
 http://ec2-13-124-43-63.ap-northeast-2.compute.amazonaws.com/
 
 ## 프로젝트 개요
-[프로그래머스](https://programmers.co.kr/), [백준](https://www.acmicpc.net/), [코드 업](https://codeup.kr/), [Codility](https://www.codility.com/)과 같은 알고리즘 테스트 앱 클론 프로젝트 
+[프로그래머스](https://programmers.co.kr/), [백준](https://www.acmicpc.net/), [코드 업](https://codeup.kr/), [Codility](https://www.codility.com/)과 같은 알고리즘 테스트 웹서비스 클론 프로젝트 
 |내용|설명|
 |:---:|:---:|
 |프로젝트 이름|Code Expert|
@@ -16,17 +16,17 @@ http://ec2-13-124-43-63.ap-northeast-2.compute.amazonaws.com/
 | 백엔드 |Spring Boot, Spring Data JPA, Spring Security, GraphQL API, Rest API, MySQL|
 | 프론트엔드 |React.js, React Redux, Redux Saga, Javascript, AJAX, HTML, CSS|
 | 배포 방법 | Amazon EC2, Amazon RDS |
-## 앱 기능
+## 웹서비스 기능
 |내용|설명|
 |:---:|:---:|
 | 사용자 회원 가입 | 회원가입 시, 알고리즘 출제, 알고리즘 테스트 권한 획득 |
 | 사용자 로그인 / 로그아웃 | 로그인 시 사용자 프로필 표시(회원 이름, 푼 문제 수) |
 | 계정 관리 | 닉네임 변경, 비밀번호 변경, 회원 탈퇴 메뉴 표시|
-| 문제 출제 | 출제자가 문제, 사진, 테스트케이스 , 입출력 예시, 제한 사항 추가 |
+| 문제 출제, 수정, 삭제 | 출제자가 문제, 사진, 테스트케이스 , 입출력 예시, 제한 사항 추가 |
 | 문제 목록 표시 | 유형 별 문제, 전체 문제 표시, 해결한 문제는 체크 표시, 해결한 사람들이 몇 명인지 표시 |
-| 문제 풀기 | 문제를 보고 코드 작성, 테스트 케이스 추가 |
-| 문제 채점 | 테스트 케이스, 제한 시간, 제한 용량을 모두 만족하면 통과 처리, 채점은 서버 내 컴파일러 사용 |
-| 다른 사람의 풀이 | 다른 사람이 푼 코드 목록을 볼 수 있고 코드마다 댓글 표시 |
+| 문제 풀기 | 문제를 보고 코드 작성 및 채점 |
+| 문제 채점 | 입출력 예시 케이스, 테스트 케이스, 제한 시간을 모두 만족하면 통과 처리, 채점은 서버 내 컴파일러 사용 |
+| 다른 사람의 풀이 | 다른 사람이 푼 코드 목록을 볼 수 있고 코드마다 댓글 표시. 좋아요 수 표시 |
 
 ## 디자인 설계
 <details markdown="1">

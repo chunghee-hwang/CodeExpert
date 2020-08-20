@@ -364,7 +364,7 @@ public class ProblemServiceImpl implements ProblemService {
         }
 
         Problem problem = problemOptional.get();
-        ProblemDetailDto problemDetailDto = createProblemDataResponseDto(problem, exceptAnswerTable, authenticatedUser);
+        ProblemDetailDto problemDetailDto = createProblemDataResponseDto(problem, exceptAnswerTable, problem.getCreator());
         problemData.put("problem", problemDetailDto);
         return problemData;
     }

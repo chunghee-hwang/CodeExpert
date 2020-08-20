@@ -261,7 +261,7 @@ https://hch0821.gitbook.io/code-expert-api
   컴파일: ```clang++ -pthread -std=c++1z -o OUTPUT_FILENAME```
   실행: ```./OUTPUT_FILENAME```
 
-## 클론 후 앱 실행 방법(백앤드 & 프론트엔드)
+## 클론 후 앱 실행 방법(백엔드 & 프론트엔드)
 반드시 유닉스 환경에서 실행.
 
 1. openjdk 14.0.1, Python 3.8.2, clang 9.0.1-12, mysql 8 설치

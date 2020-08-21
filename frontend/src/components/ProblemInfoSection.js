@@ -23,7 +23,7 @@ function ProblemInfoSection(props) {
                         <div dangerouslySetInnerHTML={{ __html: problem.explain }}></div>
                     </div>
                     <InputOutputTable id="io-info-table" labelName="입출력 예시" tableMode={tableMode.read} initValue={problem.exampleTable} dataTypes={problemMetaData.dataTypes} />
-                    <div className="problem-info-limit text-center">
+                    <div className="problem-info-limit prewrap">
                         <div className="problem-info-subtitle">제한 사항</div>
                         {problem.limitExplain}
                         <div className="time-memory-limit">

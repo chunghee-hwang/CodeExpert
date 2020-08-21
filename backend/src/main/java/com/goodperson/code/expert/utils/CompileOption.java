@@ -14,4 +14,5 @@ public class CompileOption {
     private List<String> parameters;
     private String answer;
     private File compileFile;
+    private String code;
 }

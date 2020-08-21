@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -453,18 +452,18 @@ public class ProblemApiTest {
                     List<ProblemParameterValue> problemParameterValues = parameterValues.get(idx);
                     String returnValue = returnValues.get(idx);
                     CompileOption compileOption = compileManager.makeCompileOption(problemParameters, problemReturn,
-                            problemParameterValues, returnValue, problem.getTimeLimit());
+                            problemParameterValues, returnValue, problem.getTimeLimit(),"");
                     final int testcaseNumber = idx + 1;
                     MarkResultDto markResultDto = null;
                     switch (languageName) {
                         case "java":
-                        markResultDto = compileManager.compileJava(submittedCode, compileOption, compileErrorDto);
+                            markResultDto = compileManager.compileJava(compileOption, compileErrorDto);
                             break;
                         case "python3":
-                        markResultDto =compileManager.compilePython(submittedCode, compileOption, compileErrorDto);
+                            markResultDto =compileManager.compilePython(compileOption, compileErrorDto);
                             break;
                         case "cpp":
-                        markResultDto = compileManager.compileCpp(submittedCode, compileOption, compileErrorDto);
+                            markResultDto = compileManager.compileCpp(compileOption, compileErrorDto);
                             break;
                     }
                     if(compileErrorDto.isCompileError()){
@@ -476,10 +475,7 @@ public class ProblemApiTest {
                     markResults.add(markResultDto);
                     Thread.sleep(10);
                 }
-                if (markResults.size() == testcaseSize) {
-                    Collections.sort(markResults,
-                            (result1, result2) -> result1.getTestcaseNumber() - result2.getTestcaseNumber());
-                } else {
+                if (markResults.size() != testcaseSize) {
                     throw new Exception("An error occured when marking the codes");
                 }
                 return markResults;

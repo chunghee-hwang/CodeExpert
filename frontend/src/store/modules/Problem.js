@@ -413,8 +413,9 @@ export default handleActions({
     },
     [RESET_PROBLEM_CODE_SUCCESS]: (state, action) => {
         let newData = {...state.data, submitResults: null};
-        if(action.payload.code){
-            const languageId = action.payload.code.language.id;
+        const code = action.payload;
+        if(code){
+            const languageId = code.language.id;
             const matchedIndex = newData.problemDataAndCode.codes.findIndex(code=>code.language.id === languageId);
             if(matchedIndex !== -1){
                 newData.problemDataAndCode.codes.splice(matchedIndex, 1);
@@ -428,6 +429,7 @@ export default handleActions({
         };
     },
     [RESET_PROBLEM_CODE_FAILURE]: (state, action) => {
+        debugger;
         return {
             ...state,
             isProgressing: false,

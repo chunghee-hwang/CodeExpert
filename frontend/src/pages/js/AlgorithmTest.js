@@ -130,7 +130,6 @@ function AlgorithmTest(props) {
                 //- request reset problem code
                 problemActions.resetProblemCode({ problemId, languageId: code.language.id });
                 let editor = window.ace.edit('code-editor');
-                editor.setValue(code.initCode);
                 editor.gotoLine(1);
             }
         });

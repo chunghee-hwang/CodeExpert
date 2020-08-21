@@ -130,6 +130,7 @@ public class CompileManager {
         String[] lines = code.split("(?<=;)(?<=\n)?");
 
         for (String line : lines) {
+            line = line.replaceAll("^\\s+","");
             if (line.startsWith("import")) {
                 importCode.append(line);
             } else {

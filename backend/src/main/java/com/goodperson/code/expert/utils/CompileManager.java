@@ -11,6 +11,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.goodperson.code.expert.dto.CompileErrorDto;
 import com.goodperson.code.expert.dto.MarkResultDto;
@@ -125,20 +127,27 @@ public class CompileManager {
 
     // "import java.util.Arrays;\nimport java.util.stream.Collectors;\n
     private String[] splitJavaCodeToImportPartAndImplementCodePart(String code) {
-        StringBuffer importCode = new StringBuffer();
-        StringBuffer implementCode = new StringBuffer();
-        String[] lines = code.split("(?<=;)(?<=\n)?");
-
-        for (String line : lines) {
-            line = line.replaceAll("^\\s+","");
-            if (line.startsWith("import")) {
-                importCode.append(line);
-            } else {
-                implementCode.append(line);
+        Matcher matcher = Pattern.compile("import\\s+[\\w.]+;").matcher(code);
+        boolean isFirstMatch = true;
+        int importStartIndex = -1;
+        int importEndIndex = -1;
+        while(matcher.find()){
+            if(isFirstMatch){
+                importStartIndex = matcher.start();
+                isFirstMatch = false;
             }
+            importEndIndex =matcher.end();
         }
-
-        return new String[] { importCode.toString(), implementCode.toString() };
+        String importCode;
+        String implementCode;
+        if(importStartIndex == -1 || importEndIndex == -1){
+            importCode = "";
+            implementCode = code;
+        }else{
+            importCode = code.substring(importStartIndex, importEndIndex);
+            implementCode = code.substring(importEndIndex+1);
+        }
+        return new String[] { importCode, implementCode };
     }
 
     private String removePackageCodeFromValidateCode(String validateCode) {

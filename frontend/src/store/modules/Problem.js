@@ -416,9 +416,9 @@ export default handleActions({
         const code = action.payload;
         if(code){
             const languageId = code.language.id;
-            const matchedIndex = newData.problemDataAndCode.codes.findIndex(code=>code.language.id === languageId);
-            if(matchedIndex !== -1){
-                newData.problemDataAndCode.codes.splice(matchedIndex, 1);
+            const matchedCode = newData.problemDataAndCode.codes.find(code=>code.language.id === languageId);
+            if(matchedCode){
+                matchedCode.prevCode= null;
             }
         }
         return {

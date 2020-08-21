@@ -116,6 +116,11 @@
     text-align: center;
     width:100%;
 }
+
+.prewrap{
+    white-space: pre-wrap;
+}
+
 /* 
   ##Device = Desktops
 */

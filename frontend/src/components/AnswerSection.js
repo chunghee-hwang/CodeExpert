@@ -78,9 +78,9 @@ function AnswerSection(props) {
     const getSuccessDetail = (result) => {
         return <>
 
-            {result.input != null ? <div><div className="font-weight-bold">입력 값</div>{result.input}</div>: null}
-            {result.expected && result.actual && <div><div className="font-weight-bold">예상 값</div>{result.expected}<br /><div className="font-weight-bold">실제 값</div>{result.actual}</div>}
-            {result.outputMessage && <div><div className="font-weight-bold">출력</div>{result.outputMessage}</div>}
+            {result.input != null ? <div className="prewrap"><div className="font-weight-bold">입력 값</div>{result.input}</div>: null}
+            {result.expected && result.actual && <div className="prewrap"><div className="font-weight-bold">예상 값</div>{result.expected}<br /><div className="font-weight-bold">실제 값</div>{result.actual}</div>}
+            {result.outputMessage && <div className="prewrap"><div className="font-weight-bold">출력</div>{result.outputMessage}</div>}
             {result.timeElapsed != null ? <div><div className="font-weight-bold">걸린 시간</div>{result.timeElapsed} ms</div> : null}
         </>
     };
@@ -89,10 +89,10 @@ function AnswerSection(props) {
         return <>
             {result.isTimeOut ? <div>시간 초과</div> :
                 <>
-                    {result.errorMessage && <div><div className="font-weight-bold">에러 메시지</div> {result.errorMessage}</div>}
-                    {result.input != null ? <div><div className="font-weight-bold">입력 값</div>{result.input}</div>: null}
-                    {result.expected && result.actual && <div><div className="font-weight-bold">예상 값</div>{result.expected}<br /><div className="font-weight-bold">실제 값</div>{result.actual}</div>}
-                    {result.outputMessage && <div><div className="font-weight-bold">출력</div>{result.outputMessage}</div>}
+                    {result.errorMessage && <div className="prewrap"><div className="font-weight-bold">에러 메시지</div> {result.errorMessage}</div>}
+                    {result.input != null ? <div className="prewrap"><div className="font-weight-bold">입력 값</div>{result.input}</div>: null}
+                    {result.expected && result.actual && <div className="prewrap"><div className="font-weight-bold">예상 값</div>{result.expected}<br /><div className="font-weight-bold">실제 값</div>{result.actual}</div>}
+                    {result.outputMessage && <div className="prewrap"><div className="font-weight-bold">출력</div>{result.outputMessage}</div>}
                     {result.timeElapsed != null ? <div><div className="font-weight-bold">걸린 시간</div>{result.timeElapsed} ms</div> : null}
                 </>
             }

@@ -527,6 +527,9 @@ public class ProblemServiceImpl implements ProblemService {
             case "python3":
                 fullCode = compileManager.makePythonFullCode(submittedCode);
                 break;
+            case "cpp":
+                fullCode = submittedCode;
+                break;
         }
 
         for (int idx = 0; idx < testcaseSize; idx++) {

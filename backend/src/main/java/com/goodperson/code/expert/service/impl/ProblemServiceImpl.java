@@ -230,7 +230,12 @@ public class ProblemServiceImpl implements ProblemService {
                     'a');
             if (isMarkResultAnswer(answerTableMarkResults)) { // 정답 테이블을 모두 만족하면 solution 엔티티에 코드 저장
                 saveSolution(code, authenticatedUser);
+            }else{
+                deleteSolutionIfNotAnswer(code, authenticatedUser);
             }
+        }
+        else{
+            deleteSolutionIfNotAnswer(code, authenticatedUser);
         }
         Map<String, List<MarkResultDto>> results = new HashMap<>();
         results.put("exampleTableMarkResults", exampleTableMarkResults);
@@ -607,6 +612,18 @@ public class ProblemServiceImpl implements ProblemService {
         }
         solution.setCode(code);
         solutionRepository.save(solution);
+    }
+
+    // 정답이 아닐 경우 code에 연결된 솔루션 삭제(코드가 수정되어도 솔루션은 그대로 있다)
+    private void deleteSolutionIfNotAnswer(Code code, User authenticatedUser){
+        Optional<Solution> solutionOptional = solutionRepository.findByCode(code);
+        if (solutionOptional.isPresent()) {
+            Solution solution = solutionOptional.get();
+            if (solution.getCreator().getId().equals(authenticatedUser.getId()))
+            {
+                solutionRepository.delete(solution);
+            }
+        }
     }
 
     private ProblemDetailDto createProblemDataResponseDto(Problem problem, Boolean exceptAnswerTable, User creator) {

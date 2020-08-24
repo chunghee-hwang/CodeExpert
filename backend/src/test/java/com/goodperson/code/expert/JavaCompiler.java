@@ -15,7 +15,31 @@ import java.util.stream.Stream;
 
 public class JavaCompiler {
 
+    private Object getEmptyArray(String dataType) {
+        switch (dataType) {
+            case "integerArray":
+                return new int[] {};
+            case "longArray":
+                return new long[] {};
+            case "booleanArray":
+                return new boolean[] {};
+            case "doubleArray":
+                return new double[] {};
+            case "stringArray":
+                return new String[] {};
+            default:
+                return null;
+        }
+    }
+
     private Object splitArrayValue(String rawArrayValue, String dataType) {
+        boolean isEmptyArray = false;
+        isEmptyArray = rawArrayValue.replaceAll("\\s","").equals("[]");
+        System.out.println("isEmptyArray: " + isEmptyArray);
+        if(isEmptyArray){
+            return getEmptyArray(dataType);
+        }
+
         String[] rawArray = rawArrayValue.replaceAll("[\\[\\]\'\"\\s+]", "").split(",");
         Stream<String> valueStream = Arrays.stream(rawArray);
         switch (dataType) {

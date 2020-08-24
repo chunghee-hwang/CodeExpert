@@ -12,8 +12,29 @@ import java.util.concurrent.TimeoutException;
 import java.util.stream.Stream;
 
 public class JavaCompiler {
+    private Object getEmptyArray(String dataType) {
+        switch (dataType) {
+            case "integerArray":
+                return new int[] {};
+            case "longArray":
+                return new long[] {};
+            case "booleanArray":
+                return new boolean[] {};
+            case "doubleArray":
+                return new double[] {};
+            case "stringArray":
+                return new String[] {};
+            default:
+                return null;
+        }
+    }
 
     private Object splitArrayValue(String rawArrayValue, String dataType) {
+        boolean isEmptyArray = false;
+        isEmptyArray = rawArrayValue.replaceAll("\\s", "").equals("[]");
+        if (isEmptyArray) {
+            return getEmptyArray(dataType);
+        }
         String[] rawArray = rawArrayValue.replaceAll("[\\[\\]\'\"\\s+]", "").split(",");
         Stream<String> valueStream = Arrays.stream(rawArray);
         switch (dataType) {
@@ -128,6 +149,7 @@ public class JavaCompiler {
             }
         }).toArray();
     }
+
     private String toStringAnswer(Object answer) {
         if (answer instanceof int[])
             return Arrays.toString((int[]) answer);
@@ -154,14 +176,14 @@ public class JavaCompiler {
             return result.toString();
         } else if (answer instanceof String) {
             return "\"" + answer + "\"";
-        } else{
+        } else {
             return String.valueOf(answer);
         }
     }
 
-    private String formatParameterValues(Object[] parameterValues){
+    private String formatParameterValues(Object[] parameterValues) {
         String formattedParameterValues = Arrays.deepToString(parameterValues);
-        return formattedParameterValues.substring(1, formattedParameterValues.length()-1);
+        return formattedParameterValues.substring(1, formattedParameterValues.length() - 1);
     }
 
     public JavaCompiler(String[] args) throws Exception {
@@ -195,16 +217,15 @@ public class JavaCompiler {
                 if (formattedAnswer.equals(formattedUserAnswer)) {
                     printOutput("\n$answer|", outputWriter);
                 } else {
-                    printOutput("\n$notAnswer|",outputWriter);
+                    printOutput("\n$notAnswer|", outputWriter);
                 }
-                printOutput("\n$expected|"+formattedAnswer, outputWriter);
-                printOutput("\n$actual|"+formattedUserAnswer, outputWriter);
-                printOutput("\n$input|"+formatParameterValues(parameterValues), outputWriter);
+                printOutput("\n$expected|" + formattedAnswer, outputWriter);
+                printOutput("\n$actual|" + formattedUserAnswer, outputWriter);
+                printOutput("\n$input|" + formatParameterValues(parameterValues), outputWriter);
                 printOutput("\n$time|" + timeElapsed, outputWriter);
             } catch (TimeoutException te) {
                 printError("\n$timeout|", errorWriter);
-            } 
-            catch (Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace(System.err);
             } finally {
                 future.cancel(true);

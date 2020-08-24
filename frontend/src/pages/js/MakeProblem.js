@@ -193,7 +193,7 @@ function MakeProblem(props) {
                             <span>ms</span>
 
                             <Form.Label className="ml-5 font-weight-bold">메모리 제한</Form.Label>
-                            <Form.Control className="limit-time-control" name={inputNames.memoryLimit} placeholder="메모리 제한" maxLength="2" defaultValue={data.problemData ? data.problemData.memoryLimit : null} />
+                            <Form.Control className="limit-time-control" name={inputNames.memoryLimit} placeholder="메모리 제한" maxLength="3" defaultValue={data.problemData ? data.problemData.memoryLimit : null} />
                             <span>MB</span>
                         </Form.Group>
                         <Form.Group className="level-control-container my-5 align-center text-center">

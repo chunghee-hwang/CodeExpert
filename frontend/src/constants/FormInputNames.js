@@ -16,6 +16,7 @@ export const inputNames =
     problemExplain: "problemContent",
     limitExplain: "limitExplain",
     timeLimit: "timeLimit",
+    memoryLimit: "memoryLimit",
     problemLevelId: "problemLevelId",
     answerTable: "answerTable",
     exampleTable: "exampleTable",

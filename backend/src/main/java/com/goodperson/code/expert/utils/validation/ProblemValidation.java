@@ -67,6 +67,18 @@ public class ProblemValidation {
     
     @Value("${problem.parameterName.length.uplimit}")
     private int problemParameterNameLengthUpLimit;
+    
+    @Value("${problem.min.memory.limit}")
+    private int problemMinMemoryLimit;
+
+    @Value("${problem.max.memory.limit}")
+    private int problemMaxMemoryLimit;
+
+    @Value("${problem.min.time.limit}")
+    private int problemMinTimeLimit;
+
+    @Value("${problem.max.time.limit}")
+    private int problemMaxTimeLimit;
 
     private boolean isWordKeyword(String[] keywords, String word) {
         return Arrays.asList(keywords).indexOf(word) != -1;
@@ -83,9 +95,11 @@ public class ProblemValidation {
         final String problemContent = request.getProblemContent();
         final String limitExplain = request.getLimitExplain();
         final Integer timeLimit = request.getTimeLimit();
+        final Integer memoryLimit = request.getMemoryLimit();
         final InputOutputTableDto answerTable = request.getAnswerTable();
         final InputOutputTableDto exampleTable = request.getExampleTable();
         Objects.requireNonNull(timeLimit);
+        Objects.requireNonNull(memoryLimit);
         Objects.requireNonNull(answerTable);
         Objects.requireNonNull(exampleTable);
         if (StringUtils.isBlank(problemTitle) || StringUtils.isBlank(problemContent)
@@ -101,8 +115,16 @@ public class ProblemValidation {
         if (String.valueOf(timeLimit).length() > problemTimeLimitLengthDownLimit) {
             throw new Exception("The time limit length must <="+problemTimeLimitLengthDownLimit);
         }
-        if (!(String.valueOf(timeLimit).matches("^\\d+$") && timeLimit > 0)) {
-            throw new Exception("The time limit must > 0");
+        else if(timeLimit < problemMinTimeLimit){
+            throw new Exception("The time limit must >="+problemMinTimeLimit);
+        }
+        else if(timeLimit > problemMaxTimeLimit){
+            throw new Exception("The time limit must < "+problemMaxTimeLimit);
+        }
+        if(memoryLimit < problemMinMemoryLimit){
+            throw new Exception("The memory limit must >= "+problemMinMemoryLimit);
+        }else if(memoryLimit > problemMaxMemoryLimit){
+            throw new Exception("The memory limit must < "+problemMaxMemoryLimit);
         }
         validateInputOutputTable(exampleTable);
         validateInputOutputTable(answerTable);

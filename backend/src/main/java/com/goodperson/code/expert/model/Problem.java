@@ -43,6 +43,9 @@ public class Problem {
     @Column(nullable = false, columnDefinition = "MEDIUMINT", length = 5)
     private Integer timeLimit;
 
+    @Column(nullable = false, columnDefinition = "MEDIUMINT", length = 3)
+    private Integer memoryLimit;
+
     @CreatedDate
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdDate;

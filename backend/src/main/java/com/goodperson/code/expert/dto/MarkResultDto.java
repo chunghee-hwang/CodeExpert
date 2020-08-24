@@ -6,6 +6,7 @@ import lombok.Data;
 public class MarkResultDto {
     private int testcaseNumber;
     private Boolean isTimeOut;
+    private Boolean isOutOfMemory;
     private Boolean isAnswer;
     private Double timeElapsed;
     private String input;

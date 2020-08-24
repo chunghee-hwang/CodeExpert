@@ -70,6 +70,7 @@ export function validateMakeProblem(form, answerTableInfo, exampleTableInfo) {
         [inputNames.problemTypeId]: form[inputNames.problemTypeId].value.trim(),
         [inputNames.limitExplain]: form[inputNames.limitExplain].value.trim(),
         [inputNames.timeLimit]: form[inputNames.timeLimit].value.trim(),
+        [inputNames.memoryLimit]: form[inputNames.memoryLimit].value.trim(),
         [inputNames.problemLevelId]: form[inputNames.problemLevelId].value.trim(),
         [inputNames.answerTable]: answerTableInfo,
         [inputNames.exampleTable]: exampleTableInfo,
@@ -119,6 +120,27 @@ export function validateMakeProblem(form, answerTableInfo, exampleTableInfo) {
         validation.failCause = '제한 시간은 양의 정수로 입력해주세요';
         validation.failedElement = form[inputNames.timeLimit];
     }
+    else if (1> Number(values[inputNames.timeLimit]) || 10000 < Number(values[inputNames.timeLimit])) {
+        validation.failCause = '제한 시간은 1ms 이상 10000ms 이하로 입력해주세요';
+        validation.failedElement = form[inputNames.timeLimit];
+    }
+
+    else if (!values[inputNames.memoryLimit]) {
+        validation.failCause = '메모리 제한을 입력해주세요';
+        validation.failedElement = form[inputNames.memoryLimit];
+    }
+    else if (values[inputNames.memoryLimit].length > 3) {
+        validation.failCause = '메모리 제한은 3자 이하로 입력해주세요';
+        validation.failedElement = form[inputNames.memoryLimit];
+    }
+    else if (!/^\d+$/.test(values[inputNames.memoryLimit].trim())) {
+        validation.failCause = '메모리 제한은 양의 정수로 입력해주세요';
+        validation.failedElement = form[inputNames.memoryLimit];
+    }
+    else if (32> Number(values[inputNames.memoryLimit]) || 128 < Number(values[inputNames.memoryLimit])) {
+        validation.failCause = '메모리 제한은 32MB 이상 128MB 이하로 입력해주세요';
+        validation.failedElement = form[inputNames.memoryLimit];
+    }
     
     else if (!values[inputNames.problemLevelId]) {
         validation.failCause = '난이도를 입력해주세요';
@@ -136,6 +158,7 @@ export function validateMakeProblem(form, answerTableInfo, exampleTableInfo) {
      {
         validation.isValid = true;
         values[inputNames.timeLimit] = Number(values[inputNames.timeLimit]);
+        values[inputNames.memoryLimit] = Number(values[inputNames.memoryLimit]);
     }
     return validation;
 }
@@ -150,6 +173,7 @@ export function validateUpdateProblem(user, problem, form, answerTableInfo, exam
         [inputNames.problemTypeId]: form[inputNames.problemTypeId].value.trim(),
         [inputNames.limitExplain]: form[inputNames.limitExplain].value.trim(),
         [inputNames.timeLimit]: form[inputNames.timeLimit].value.trim(),
+        [inputNames.memoryLimit]: form[inputNames.memoryLimit].value.trim(),
         [inputNames.problemLevelId]: form[inputNames.problemLevelId].value.trim(),
         [inputNames.answerTable]: answerTableInfo,
         [inputNames.exampleTable]: exampleTableInfo,
@@ -203,6 +227,27 @@ export function validateUpdateProblem(user, problem, form, answerTableInfo, exam
         validation.failCause = '제한 시간은 양의 정수로 입력해주세요';
         validation.failedElement = form[inputNames.timeLimit];
     }
+    else if (1> Number(values[inputNames.timeLimit]) || 10000 < Number(values[inputNames.timeLimit])) {
+        validation.failCause = '제한 시간은 1ms 이상 10000ms 이하로 입력해주세요';
+        validation.failedElement = form[inputNames.timeLimit];
+    }
+
+    else if (!values[inputNames.memoryLimit]) {
+        validation.failCause = '메모리 제한을 입력해주세요';
+        validation.failedElement = form[inputNames.memoryLimit];
+    }
+    else if (values[inputNames.memoryLimit].length > 3) {
+        validation.failCause = '메모리 제한은 3자 이하로 입력해주세요';
+        validation.failedElement = form[inputNames.memoryLimit];
+    }
+    else if (!/^\d+$/.test(values[inputNames.memoryLimit].trim())) {
+        validation.failCause = '메모리 제한은 양의 정수로 입력해주세요';
+        validation.failedElement = form[inputNames.memoryLimit];
+    }
+    else if (32> Number(values[inputNames.memoryLimit]) || 128 < Number(values[inputNames.memoryLimit])) {
+        validation.failCause = '메모리 제한은 32MB 이상 128MB 이하로 입력해주세요';
+        validation.failedElement = form[inputNames.memoryLimit];
+    }
     else if (!values[inputNames.problemLevelId]) {
         validation.failCause = '난이도를 입력해주세요';
         validation.failedElement = form[inputNames.problemLevelId];
@@ -218,6 +263,7 @@ export function validateUpdateProblem(user, problem, form, answerTableInfo, exam
     else {
         validation.isValid = true;
         values[inputNames.timeLimit] = Number(values[inputNames.timeLimit]);
+        values[inputNames.memoryLimit] = Number(values[inputNames.memoryLimit]);
     }
     return validation;
 }

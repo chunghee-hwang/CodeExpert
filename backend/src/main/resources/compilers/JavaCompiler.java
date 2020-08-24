@@ -1,5 +1,3 @@
-package com.goodperson.code.expert.utils.compiler;
-
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -115,6 +113,7 @@ public class JavaCompiler {
             try {
                 return getParameterClass(parameter);
             } catch (Exception e) {
+                e.printStackTrace(System.err);
                 return null;
             }
         }).toArray(Class<?>[]::new);
@@ -171,8 +170,8 @@ public class JavaCompiler {
             Future<Object> future = null;
             try {
                 int lenArgs = args.length;
-                int to = Integer.parseInt(args[1]);
-                String[] parameters = Arrays.copyOfRange(args, 2, lenArgs - 1);
+                int to = Integer.parseInt(args[0]);
+                String[] parameters = Arrays.copyOfRange(args, 1, lenArgs - 1);
                 String answer = args[lenArgs - 1];
                 Method method = getClass().getDeclaredMethod("solution", getClassArrayFromParameters(parameters));
                 Object[] parameterValues = getValueFromParameters(parameters);
@@ -204,7 +203,8 @@ public class JavaCompiler {
                 printOutput("\n$time|" + timeElapsed, outputWriter);
             } catch (TimeoutException te) {
                 printError("\n$timeout|", errorWriter);
-            } catch (Exception e) {
+            } 
+            catch (Exception e) {
                 e.printStackTrace(System.err);
             } finally {
                 future.cancel(true);

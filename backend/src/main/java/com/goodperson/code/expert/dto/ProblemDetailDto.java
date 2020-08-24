@@ -16,6 +16,8 @@ public class ProblemDetailDto {
 
     private Integer timeLimit;
 
+    private Integer memoryLimit;
+
     private ProblemLevelDto level;
 
     private InputOutputTableDto answerTable;

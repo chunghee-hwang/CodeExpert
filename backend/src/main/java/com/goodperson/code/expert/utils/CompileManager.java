@@ -13,9 +13,11 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import com.goodperson.code.expert.dto.CompileErrorDto;
 import com.goodperson.code.expert.dto.MarkResultDto;
+import com.goodperson.code.expert.model.Language;
 import com.goodperson.code.expert.model.ProblemParameter;
 import com.goodperson.code.expert.model.ProblemParameterValue;
 import com.goodperson.code.expert.model.ProblemReturn;
@@ -46,12 +48,10 @@ public class CompileManager {
     private String compileFileDirectory;
 
     public CompileOption makeCompileOption(List<ProblemParameter> problemParameters, ProblemReturn problemReturn,
-            List<ProblemParameterValue> problemParameterValues, String returnValue, int timeOutInMilliseconds, String fullCode) {
+            List<ProblemParameterValue> problemParameterValues, String returnValue, int timeLimitInMilliseconds,
+            String fullCode, int memoryLimitInMegaBytes, Language language) {
         CompileOption compileOption = new CompileOption();
         List<String> parameters = new ArrayList<>();
-        // 500(timeout),
-        // "integerArray:[1, 2, 3, 4]", "integer:10"
-
         int paramLength = problemParameters.size();
 
         for (int paramIdx = 0; paramIdx < paramLength; paramIdx++) {
@@ -60,10 +60,12 @@ public class CompileManager {
             parameters.add(paramDataType.concat(":").concat(paramValue));
         }
         String returnDataType = problemReturn.getDataType().getName();
-        compileOption.setTimeOutInMilliseconds(timeOutInMilliseconds);
+        compileOption.setTimeLimitInMilliseconds(timeLimitInMilliseconds);
         compileOption.setParameters(parameters);
         compileOption.setAnswer(returnDataType.concat(":").concat(returnValue));
         compileOption.setCode(fullCode);
+        compileOption.setMemoryLimitInMegaBytes(memoryLimitInMegaBytes);
+        compileOption.setLanguage(language);
         return compileOption;
     }
 
@@ -113,10 +115,10 @@ public class CompileManager {
             List<String> commands = new ArrayList<>();
             commands.add("python3");
             commands.add(compileFile.getAbsolutePath());
-            commands.add(String.valueOf(compileOption.getTimeOutInMilliseconds()));
+            commands.add(String.valueOf(compileOption.getTimeLimitInMilliseconds()));
             commands.addAll(compileOption.getParameters());
             commands.add(compileOption.getAnswer());
-            markResultDto = execCodeAndGetMarkResult(commands.toArray(String[]::new), compileOption);
+            markResultDto = execCodeAndGetMarkResult(commands, compileOption);
             deleteCompiledOrExecFile(compileFile);
             return markResultDto;
         } catch (Exception e) {
@@ -172,11 +174,10 @@ public class CompileManager {
             List<String> commands = new ArrayList<>();
             commands.add("java");
             commands.add(compileFile.getAbsolutePath());
-            commands.add("--illegal-access=warn");
-            commands.add(String.valueOf(compileOption.getTimeOutInMilliseconds()));
+            commands.add(String.valueOf(compileOption.getTimeLimitInMilliseconds()));
             commands.addAll(compileOption.getParameters());
             commands.add(compileOption.getAnswer());
-            markResultDto = execCodeAndGetMarkResult(commands.toArray(String[]::new), compileOption);
+            markResultDto = execCodeAndGetMarkResult(commands, compileOption);
             deleteCompiledOrExecFile(compileFile);
             return markResultDto;
         } catch (Exception e) {
@@ -231,15 +232,15 @@ public class CompileManager {
             final String compileFileExtension = "cpp";
             File compileDirectory = makeCompileDirectory();
             final String execFileName = now.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS")) + "_exec.out";
-
             File compileFile = makeCompileFile(compileDirectory, compileOption.getCode(), now, compileFileExtension);
             File execFile = new File(compileDirectory, execFileName);
             final String compileFileFullPath = compileFile.getAbsolutePath();
             compileOption.setCompileFile(compileFile);
             String[] compileCommands = new String[] { "clang++", "-pthread", "-w", "-std=c++1z",
                     compileFile.getAbsolutePath(), "-o", execFile.getAbsolutePath() };
-            String[] execCommands = new String[] { execFile.getAbsolutePath(),
-                    String.valueOf(compileOption.getTimeOutInMilliseconds()) };
+            List<String> execCommands = new ArrayList<>();
+            execCommands.add(execFile.getAbsolutePath());
+            execCommands.add(String.valueOf(compileOption.getTimeLimitInMilliseconds()));
             Runtime runtime = Runtime.getRuntime();
 
             Process compileProcess = runtime.exec(compileCommands);
@@ -275,44 +276,84 @@ public class CompileManager {
         }
     }
 
+    private boolean isOutOfMemory(String languageName, String errorMessage){
+        switch(languageName){
+            case "cpp":
+                return errorMessage.contains("std::bad_alloc");
+            case "python3":
+                return errorMessage.contains("MemoryError:");
+            case "java":
+                return errorMessage.contains("java.lang.OutOfMemoryError");
+            default:
+                return false;
+        }
+    }
+
     // 코드 실행 결과 가져오는 메소드
-    private MarkResultDto execCodeAndGetMarkResult(String[] command, CompileOption compileOption) throws Exception {
+    private MarkResultDto execCodeAndGetMarkResult(List<String> commands, CompileOption compileOption)
+            throws Exception {
         final Runtime runtime = Runtime.getRuntime();
         MarkResultDto markResultDto = new MarkResultDto();
-        final Process execProcess = runtime.exec(command);
+
+        StringBuffer errorBuffer = new StringBuffer();
+        StringBuffer outputBuffer = new StringBuffer();
         final File compileFile = compileOption.getCompileFile();
-        final int timeOutInMilliseconds = compileOption.getTimeOutInMilliseconds();
+        final int timeLimitInMilliseconds = compileOption.getTimeLimitInMilliseconds();
+        int memoryLimitInMegaBytes = compileOption.getMemoryLimitInMegaBytes();
         final String compileFileFullPath = compileFile.getAbsolutePath();
         final String compileFileName = compileFile.getName();
         final String compileFileExtension = fileUtils.getFileExtension(compileFileFullPath);
-        execProcess.waitFor(compileOption.getTimeOutInMilliseconds() + 10000, TimeUnit.MILLISECONDS);
+        final String languageName = compileOption.getLanguage().getName();
+        String[] execCommand;
+        // 메모리 제한 명령어 생성
+
+        // java인 경우 JVM 자체의 메모리 제한을 둠.
+        final String laguageName = compileOption.getLanguage().getName();
+        if(laguageName.equals("java")){
+            commands.add(1,"-Xms"+"1m"); // JVM 초기 힙 크기
+            commands.add(2,"-Xmx"+memoryLimitInMegaBytes/2 +"m"); // JVM 최대 힙 크기
+            commands.add(3,"-Xss"+memoryLimitInMegaBytes/2 +"m"); // JVM 최대 스택 크기
+            execCommand = commands.toArray(String[]::new);
+        }
+        else{
+             // ulimit: 프로세스 제한 명령어 
+            // (ulimit -m 물리적 메모리 제한 용량(KB) ; 실행할 프로세스 명령어)
+            execCommand = new String[]
+            {
+            "/bin/sh",
+            "-c",
+            "(ulimit -v "+(memoryLimitInMegaBytes*1024+"; "+ commands.stream().collect(Collectors.joining(" "))+")")
+            };
+        }
+
+        Process execProcess =  runtime.exec(execCommand);
+        execProcess.waitFor(timeLimitInMilliseconds + 5000, TimeUnit.MILLISECONDS);
+        boolean isTimeOut = false;
+        boolean isAnswer = false;
+        Double timeElapsed = null;
+        String input = null;
+        String expected = null;
+        String actual = null;
+        String errorMessage = null;
+        String outputMessage = null;
+        String line = "";
         try (BufferedReader execInput = new BufferedReader(new InputStreamReader(execProcess.getInputStream()));
                 BufferedReader execError = new BufferedReader(new InputStreamReader(execProcess.getErrorStream()));) {
-            String line = "";
-            StringBuffer errorBuffer = new StringBuffer();
-            StringBuffer outputBuffer = new StringBuffer();
-            boolean isTimeOut = false;
-            boolean isAnswer = false;
-            Double timeElapsed = null;
-            String input = null;
-            String expected = null;
-            String actual = null;
-            String errorMessage = null;
-            String outputMessage = null;
-
             while ((line = execError.readLine()) != null) {
-                line = line.replaceAll(compileFileFullPath + "|" + compileFileName,
+                line = line.replaceAll("^\\s+", "").replaceAll(compileFileFullPath + "|" + compileFileName,
                         "solution".concat(compileFileExtension));
-                String trimmedLine = line.trim();
-                if (trimmedLine.startsWith("$timeout|")) {
+                if (line.isEmpty())
+                    continue;
+                if (line.startsWith("$timeout|")) {
                     isTimeOut = true;
-                    timeElapsed = (double) timeOutInMilliseconds;
-                    break;
-                } else {
+                    timeElapsed = (double) timeLimitInMilliseconds;
+                }
+                else {
                     errorBuffer.append(line);
                     errorBuffer.append("\n");
                 }
             }
+
             while ((line = execInput.readLine()) != null) {
                 if (line.isEmpty())
                     continue;
@@ -338,16 +379,26 @@ public class CompileManager {
             }
             errorMessage = errorBuffer.toString();
             outputMessage = outputBuffer.toString();
-
+            // 에러 메시지 앞부분 생략
+            if(languageName.equals("java")){
+                int lastErrorStackIndex = errorMessage.lastIndexOf("Caused by:");
+                if(lastErrorStackIndex != -1){
+                    errorMessage = errorMessage.substring(lastErrorStackIndex);
+                }
+            }
+        } catch (Exception e) {
+            errorMessage = e.getMessage();
+        } finally {
             markResultDto.setActual(actual);
             markResultDto.setErrorMessage(errorMessage);
             markResultDto.setInput(input);
             markResultDto.setExpected(expected);
             markResultDto.setIsAnswer(isAnswer);
             markResultDto.setIsTimeOut(isTimeOut);
+            markResultDto.setIsOutOfMemory(isOutOfMemory(languageName, errorMessage));
             markResultDto.setOutputMessage(outputMessage);
             markResultDto.setTimeElapsed(timeElapsed);
-            return markResultDto;
         }
+        return markResultDto;
     }
 }

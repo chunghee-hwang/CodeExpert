@@ -3,6 +3,8 @@ package com.goodperson.code.expert.utils;
 import java.io.File;
 import java.util.List;
 
+import com.goodperson.code.expert.model.Language;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,9 +12,11 @@ import lombok.Setter;
 @Setter
 public class CompileOption {
 
-    private int timeOutInMilliseconds;
+    private int timeLimitInMilliseconds;
+    private int memoryLimitInMegaBytes;
     private List<String> parameters;
     private String answer;
     private File compileFile;
     private String code;
+    private Language language;
 }

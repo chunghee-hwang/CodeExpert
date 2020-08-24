@@ -170,6 +170,7 @@ public class ProblemServiceImpl implements ProblemService {
         problem.setContent(request.getProblemContent());
         problem.setLimitExplain(request.getLimitExplain());
         problem.setTimeLimit(request.getTimeLimit());
+        problem.setMemoryLimit(request.getMemoryLimit());
         problem.setProblemLevel(problemLevel);
         problem.setProblemType(problemType);
         problem.setCreator(authenticatedUser);
@@ -518,6 +519,7 @@ public class ProblemServiceImpl implements ProblemService {
         String languageName = language.getName();
         final int testcaseSize = parameterValues.size();
         final int timeLimit = problem.getTimeLimit();
+        final int memoryLimit = problem.getMemoryLimit();
         CompileErrorDto compileErrorDto = new CompileErrorDto();
         String fullCode = "";
         switch(languageName){
@@ -536,7 +538,7 @@ public class ProblemServiceImpl implements ProblemService {
             List<ProblemParameterValue> problemParameterValues = parameterValues.get(idx);
             String returnValue = returnValues.get(idx);
             CompileOption compileOption = compileManager.makeCompileOption(problemParameters, problemReturn,
-                    problemParameterValues, returnValue, timeLimit, fullCode);
+                    problemParameterValues, returnValue, timeLimit, fullCode, memoryLimit, language);
 
             final int testcaseNumber = idx + 1;
             MarkResultDto markResultDto = null;
@@ -623,6 +625,7 @@ public class ProblemServiceImpl implements ProblemService {
         problemLevelDto.setName(problemLevel.getName());
         response.setLevel(problemLevelDto);
         response.setTimeLimit(problem.getTimeLimit());
+        response.setMemoryLimit(problem.getMemoryLimit());
         response.setExplain(problem.getContent());
         InputOutputTableDto exampleTable = createInputOutputTableDto(problem, 'e');
         response.setExampleTable(exampleTable);

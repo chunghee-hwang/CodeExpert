@@ -452,7 +452,7 @@ public class ProblemApiTest {
                     List<ProblemParameterValue> problemParameterValues = parameterValues.get(idx);
                     String returnValue = returnValues.get(idx);
                     CompileOption compileOption = compileManager.makeCompileOption(problemParameters, problemReturn,
-                            problemParameterValues, returnValue, problem.getTimeLimit(),"");
+                            problemParameterValues, returnValue, problem.getTimeLimit(),"", 1, language);
                     final int testcaseNumber = idx + 1;
                     MarkResultDto markResultDto = null;
                     switch (languageName) {

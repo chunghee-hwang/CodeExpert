@@ -303,6 +303,7 @@ http://ec2-13-124-43-63.ap-northeast-2.compute.amazonaws.com/
 #### Amazon EC2
 |항목|내용|
 |:---:|:---:|
+|운영체제|Ubuntu 20.04 LTS 64bit|
 |인스턴스 유형|t2.micro|
 |vCPU| 1 개|
 |시간당 CPU 크레딧| 6 |

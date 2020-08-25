@@ -197,6 +197,7 @@ public class JavaCompiler {
                 String answer = args[lenArgs - 1];
                 Method method = getClass().getDeclaredMethod("solution", getClassArrayFromParameters(parameters));
                 Object[] parameterValues = getValueFromParameters(parameters);
+                final String formattedInput = formatParameterValues(parameterValues);
 
                 ExecutorService executor = Executors.newCachedThreadPool();
                 Callable<Object> task = new Callable<Object>() {
@@ -206,7 +207,7 @@ public class JavaCompiler {
                     }
                 };
                 future = executor.submit(task);
-
+                
                 long startTime = System.currentTimeMillis();
                 Object userAnswer = future.get(to, TimeUnit.MILLISECONDS);
                 long endTime = System.currentTimeMillis();
@@ -221,7 +222,7 @@ public class JavaCompiler {
                 }
                 printOutput("\n$expected|" + formattedAnswer, outputWriter);
                 printOutput("\n$actual|" + formattedUserAnswer, outputWriter);
-                printOutput("\n$input|" + formatParameterValues(parameterValues), outputWriter);
+                printOutput("\n$input|" + formattedInput, outputWriter);
                 printOutput("\n$time|" + timeElapsed, outputWriter);
             } catch (TimeoutException te) {
                 printError("\n$timeout|", errorWriter);

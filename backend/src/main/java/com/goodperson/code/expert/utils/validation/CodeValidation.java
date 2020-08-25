@@ -26,7 +26,7 @@ public class CodeValidation {
     private final String[] python3ExploitableCodes = { "open", "eval", "exec", "execFile", "__import__", "os.system",
             "os.spawn", "os.popen", "popen2.", "commands.", "tarfile", "zipfile", "urllib2", "socket", "pickle",
             "shelve", "subprocess", "os.fork", "os.kill", "getattr", "setattr", "delattr", "sys.argv", "codeExpertAnswerPython",
-            "codeExpertParametersPython" };
+            "codeExpertParametersPython","codeExpertFormattedInput" };
 
 
 

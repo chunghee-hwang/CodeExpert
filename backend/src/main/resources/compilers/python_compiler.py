@@ -63,6 +63,7 @@ def argv_to_python_code(data_type_and_value):
 
 if __name__ == '__main__':
     codeExpertParametersPython = [argv_to_python_code(parameter) for parameter in sys.argv[2:len(sys.argv)-1]]
+    codeExpertFormattedInput = str(codeExpertParametersPython)[1:-1]
     codeExpertAnswerPython = sys.argv[-1]
     codeExpertAnswerPython = argv_to_python_code(codeExpertAnswerPython)
     solution = timeout(int(sys.argv[1]))(solution)
@@ -77,7 +78,7 @@ if __name__ == '__main__':
             print('\n$notAnswer|')
         print('\n$expected|'+str(codeExpertAnswerPython))
         print('\n$actual|'+str(user_answer))
-        print('\n$input|'+str(codeExpertParametersPython)[1:-1])
+        print('\n$input|'+codeExpertFormattedInput)
         print('\n$time|'+str(time_elapsed))
     except TimeoutError as toe:
         print('\n$timeout|', file=sys.stderr)

@@ -116,8 +116,10 @@ public class CompileManager {
             commands.add("python3");
             commands.add(compileFile.getAbsolutePath());
             commands.add(String.valueOf(compileOption.getTimeLimitInMilliseconds()));
-            commands.addAll(compileOption.getParameters());
-            commands.add(compileOption.getAnswer());
+            for(String parameter : compileOption.getParameters()){
+                commands.add("\""+parameter.replaceAll("\"|\'", "")+"\"");
+            }
+            commands.add("\""+compileOption.getAnswer().replaceAll("\"|\'", "")+"\"");
             markResultDto = execCodeAndGetMarkResult(commands, compileOption);
             deleteCompiledOrExecFile(compileFile);
             return markResultDto;

@@ -33,18 +33,23 @@ def timeout(timeout_deco):
 
 def split_array_value(array_value):
     if ',' in array_value:
-        return re.sub('[\\[\\]\'\"\s+]', '', array_value).split(',')
+        array = re.split(',\s*', array_value)
+        for index in range(len(array)):
+            array[index] = re.sub('\\[|\\]|\'|\"','',array[index])
+        return array
     else:
         return []
 
+def boolean_value_to_python_boolean(boolean_value):
+    if boolean_value == 'true':
+        return True
+    else:
+        return False
 
 def argv_to_python_code(data_type_and_value):
     data_type, value = data_type_and_value.split(':')
     if data_type == 'boolean':
-        if value == 'true':
-            value = True
-        else:
-            value = False
+        value = boolean_value_to_python_boolean(value)
     elif data_type == 'string':
         value = str(value).replace("\"", '')
     elif data_type == 'long' or data_type == 'integer':
@@ -54,11 +59,11 @@ def argv_to_python_code(data_type_and_value):
     elif data_type == 'integerArray' or data_type == 'longArray':
         value = list(map(int, split_array_value(value)))
     elif data_type == 'booleanArray':
-        value = list(map(bool, splitArray_value(value)))
+        value = list(map(boolean_value_to_python_boolean, split_array_value(value)))
     elif data_type == 'doubleArray':
         value = list(map(float, split_array_value(value)))
     elif data_type == 'stringArray':
-        value = list(map(str, split_array_value(value)))
+        value = split_array_value(value)
     return value
 
 if __name__ == '__main__':

@@ -423,6 +423,9 @@ public class ProblemServiceImpl implements ProblemService {
             initCodeContent = codeGenerateManager.makeInitCode(problemParameters, problemReturn, language);
             Optional<Code> prevInitCodeOptional = codeRepository
                     .findByProblemAndLanguageAndCreatorAndIsInitCode(problem, language, null, true);
+            
+            Optional<Code> prevCodeOptional = codeRepository.findByProblemAndLanguageAndCreatorAndIsInitCode(problem,
+                    language, authenticatedUser, false);
             Code initCode;
             if (prevInitCodeOptional.isPresent()) {
                 initCode = prevInitCodeOptional.get();
@@ -432,6 +435,10 @@ public class ProblemServiceImpl implements ProblemService {
                 initCode.setLanguage(language);
                 initCode.setProblem(problem);
                 initCode.setIsInitCode(true);
+            }
+
+            if(prevCodeOptional.isPresent()){
+                codeRepository.delete(prevCodeOptional.get());
             }
             initCode.setContent(initCodeContent);
             codeRepository.save(initCode);

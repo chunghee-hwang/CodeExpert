@@ -35,7 +35,10 @@ public class JavaCompiler {
         if (isEmptyArray) {
             return getEmptyArray(dataType);
         }
-        String[] rawArray = rawArrayValue.replaceAll("[\\[\\]\'\"\\s+]", "").split(",");
+        String[] rawArray = rawArrayValue.split(",\\s*");
+        for(int idx =0; idx < rawArray.length; idx++){
+            rawArray[idx] = rawArray[idx].replaceAll("\\[|\\]|\'|\"","");
+        }
         Stream<String> valueStream = Arrays.stream(rawArray);
         switch (dataType) {
             case "integerArray":

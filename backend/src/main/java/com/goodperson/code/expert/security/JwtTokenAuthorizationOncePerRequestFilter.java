@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.SignatureException;
 
 // API 요청을 할 때마다 사용자가 인증되어있는지 확인하는 필터
 @Component
@@ -53,8 +54,13 @@ public class JwtTokenAuthorizationOncePerRequestFilter extends OncePerRequestFil
                 username = jwtTokenUtil.getUsernameFromToken(jwtToken);
             } catch (IllegalArgumentException e) {
                 logger.error("JWT_TOKEN_UNABLE_TO_GET_USERNAME", e);
+                tokenCookieManager.deleteTokenFromCookie(response);
             } catch (ExpiredJwtException e) {
                 logger.warn("JWT_TOKEN_EXPIRED", e);
+                tokenCookieManager.deleteTokenFromCookie(response);
+            }catch(SignatureException e){
+                logger.error("JWT_SIGNATURE_NOT_MATCHED");
+                tokenCookieManager.deleteTokenFromCookie(response);
             }
         }
         logger.debug("JWT_TOKEN_USERNAME_VALUE '{}'", username);

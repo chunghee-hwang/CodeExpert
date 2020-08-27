@@ -424,8 +424,8 @@ public class ProblemServiceImpl implements ProblemService {
             Optional<Code> prevInitCodeOptional = codeRepository
                     .findByProblemAndLanguageAndCreatorAndIsInitCode(problem, language, null, true);
             
-            Optional<Code> prevCodeOptional = codeRepository.findByProblemAndLanguageAndCreatorAndIsInitCode(problem,
-                    language, authenticatedUser, false);
+            
+            List<Code> prevCodes = codeRepository.findAllByProblemAndLanguageAndIsInitCode(problem,language,false);
             Code initCode;
             if (prevInitCodeOptional.isPresent()) {
                 initCode = prevInitCodeOptional.get();
@@ -437,9 +437,8 @@ public class ProblemServiceImpl implements ProblemService {
                 initCode.setIsInitCode(true);
             }
 
-            if(prevCodeOptional.isPresent()){
-                codeRepository.delete(prevCodeOptional.get());
-            }
+            // 이전에 사용자들이 작성한 코드들은 모두 삭제
+            codeRepository.deleteAll(prevCodes);
             initCode.setContent(initCodeContent);
             codeRepository.save(initCode);
         }

@@ -1,5 +1,6 @@
 package com.goodperson.code.expert.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import com.goodperson.code.expert.model.Code;
@@ -13,4 +14,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CodeRepository extends JpaRepository<Code, Long> {
     Optional<Code> findByProblemAndLanguageAndCreatorAndIsInitCode(Problem problem, Language language, User creator, Boolean isInitCode);
+
+	List<Code> findAllByProblemAndLanguageAndIsInitCode(Problem problem, Language language, boolean b);
 }

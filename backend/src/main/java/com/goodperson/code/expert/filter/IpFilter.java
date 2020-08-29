@@ -45,6 +45,7 @@ class IpFilter implements Filter{
         log.info("The IP {}(countryCode {}) allowed? {}", request.getRemoteAddr(), countryCode, allowIpPassed);
         if(!allowIpPassed){
             res.sendError(HttpStatus.BAD_REQUEST.value());
+            return;
         }
 		chain.doFilter(req, res);
     }

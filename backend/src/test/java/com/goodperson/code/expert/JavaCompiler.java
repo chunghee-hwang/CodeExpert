@@ -35,7 +35,6 @@ public class JavaCompiler {
     private Object splitArrayValue(String rawArrayValue, String dataType) {
         boolean isEmptyArray = false;
         isEmptyArray = rawArrayValue.replaceAll("\\s","").equals("[]");
-        System.out.println("isEmptyArray: " + isEmptyArray);
         if(isEmptyArray){
             return getEmptyArray(dataType);
         }

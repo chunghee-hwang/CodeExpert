@@ -28,6 +28,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Component
 public class CompileManager {
 
@@ -124,7 +127,7 @@ public class CompileManager {
             deleteCompiledOrExecFile(compileFile);
             return markResultDto;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
             compileErrorDto.setCompileError(true);
             return markResultDto;
         }
@@ -272,7 +275,7 @@ public class CompileManager {
             deleteCompiledOrExecFile(compileFile, execFile);
             return markResultDto;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage());            
             compileErrorDto.setCompileError(true);
             return markResultDto;
         }

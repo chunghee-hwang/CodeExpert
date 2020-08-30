@@ -72,11 +72,4 @@
         <appender-ref ref="FILE"/>
         <appender-ref ref="Error"/>
     </root>
-
-    <!-- 특정패키지 로깅레벨 설정 -->
-    <logger name="org.apache.ibatis" level="DEBUG" additivity="false">
-        <appender-ref ref="CONSOLE"/>
-        <appender-ref ref="FILE"/>
-        <appender-ref ref="Error"/>
-    </logger>
 </configuration>

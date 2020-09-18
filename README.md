@@ -28,10 +28,6 @@ http://ec2-13-124-43-63.ap-northeast-2.compute.amazonaws.com/
 | 문제 채점 | 입출력 예시 케이스, 테스트 케이스, 제한 시간, 메모리 제한을 모두 만족하면 통과 처리, 채점은 서버 내 컴파일러 사용 |
 | 다른 사람의 풀이 | 다른 사람이 푼 코드 목록을 볼 수 있고 코드마다 댓글 표시. 좋아요 수 표시 |
 
-## 웹서비스 보안 사항
-* Spring Security, JWT를 이용하여 안전한 로그인 로직 구현.
-* http://www.geoplugin.net 을 통한 한국 외 다른 나라 접근 금지 로직 구현
-
 ## 디자인 설계
 <details markdown="1">
 <summary>접기/펼치기</summary>
@@ -328,3 +324,6 @@ http://ec2-13-124-43-63.ap-northeast-2.compute.amazonaws.com/
 
 ## 시연 영상
 [![Code Expert](http://img.youtube.com/vi/jxMuPeMyQEk/0.jpg)](https://youtu.be/jxMuPeMyQEk "Code Expert")
+
+## 개발자 이력서
+https://github.com/hch0821/CodeExpert/tree/master/documents/resume.pdf

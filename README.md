@@ -8,7 +8,7 @@ http://ec2-13-124-43-63.ap-northeast-2.compute.amazonaws.com/
 |내용|설명|
 |:---:|:---:|
 |프로젝트 이름|Code Expert|
-|프로젝트 기간|2020-06-16 ~ 2020-09-02|
+|프로젝트 기간|2020-06-16 ~ 2020-08-24|
 
 ## 기술 스택
 |내용|설명|
@@ -324,6 +324,3 @@ http://ec2-13-124-43-63.ap-northeast-2.compute.amazonaws.com/
 
 ## 시연 영상
 [![Code Expert](http://img.youtube.com/vi/jxMuPeMyQEk/0.jpg)](https://youtu.be/jxMuPeMyQEk "Code Expert")
-
-## 개발자 이력서
-https://github.com/hch0821/CodeExpert/tree/master/documents/resume.pdf

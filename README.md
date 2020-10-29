@@ -265,7 +265,7 @@ https://hch0821.gitbook.io/code-expert-api
 ## 클론 후 앱 실행 방법(백엔드 & 프론트엔드)
 반드시 유닉스 환경에서 실행.
 
-1. openjdk 14.0.1, Python 3.8.2, clang 9.0.1-12, mysql 8 설치
+1. [openjdk 14.0.1](https://linuxhint.com/install_jdk_14_ubuntu/), Python 3.8.2, [clang 9.0.1-12](https://askubuntu.com/a/1198094), [mysql 8](https://www.tecmint.com/install-mysql-8-in-ubuntu/) 설치
 
 2. [db 작업](https://cjh5414.github.io/mysql-create-user/)<br/>
 -* spring.datasource.url에 명시된 db 이름대로 mysql에 db 생성<br/>

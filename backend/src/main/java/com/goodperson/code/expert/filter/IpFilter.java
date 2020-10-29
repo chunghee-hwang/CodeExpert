@@ -36,7 +36,7 @@ class IpFilter implements Filter{
         String countryCode = null;
         final String koreaCountryCode = "KR";
         String userIp = request.getRemoteAddr();
-        if (!userIp.equals("127.0.0.1")) {
+        if (!userIp.equals("127.0.0.1")&&!userIp.equals("0:0:0:0:0:0:0:1")){
             countryCode = requestCountryCodeFromIp(userIp);
             if (countryCode == null || !countryCode.equals(koreaCountryCode)) {
                 allowIpPassed = false;

@@ -1,16 +1,5 @@
 ﻿# Code Expert
 
-## 배포된 서버
-
-http://ec2-13-124-43-63.ap-northeast-2.compute.amazonaws.com/
-
-#### 회원가입 없이, 게스트로 로그인하기
-
-```
-id: guest@email.com
-pw: guest123@
-```
-
 ## 프로젝트 개요
 
 [프로그래머스](https://programmers.co.kr/), [백준](https://www.acmicpc.net/), [코드 업](https://codeup.kr/), [Codility](https://www.codility.com/)과 같은 알고리즘 테스트 웹서비스 클론 프로젝트
@@ -328,53 +317,8 @@ sudo java -jar target/code.expert-0.0.1-SNAPSHOT.war # 포트 번호 80번은 su
 ```
 
 5. 브라우저로 웹 서버 접속(포트: 80 - 생략 가능)<br/>
-   http://hostname/
+   http://localhost/
 
-## 배포
-
-### 서버 배포 결과
-
-http://ec2-13-124-43-63.ap-northeast-2.compute.amazonaws.com/
-
-#### 회원가입 없이, 게스트로 로그인하기
-
-```
-id: guest@email.com
-pw: guest123@
-```
-
--\* SSL은 금전적 문제로 적용 안 함.<br/>
-
-### 서버 구성
-
-<img src="./images/deploy/server_config.png"></img>
-
-### 서버 사양
-
-#### Amazon EC2
-
-|       항목        |          내용          |
-| :---------------: | :--------------------: |
-|     운영체제      | Ubuntu 20.04 LTS 64bit |
-|   인스턴스 유형   |        t2.micro        |
-|       vCPU        |          1 개          |
-| 시간당 CPU 크레딧 |           6            |
-|      Memory       |          1 GB          |
-|      Storage      |          8 GB          |
-|   네트워크 성능   |     낮음에서 중간      |
-
-<br/>
-
-#### Amazon RDS
-
-|       항목        |     내용      |
-| :---------------: | :-----------: |
-|   인스턴스 유형   |  db.t2.micro  |
-|       vCPU        |     1 개      |
-| 시간당 CPU 크레딧 |       6       |
-|      Memory       |     1 GB      |
-|      Storage      |     20 GB     |
-|   네트워크 성능   | 낮음에서 중간 |
 
 ## 시연 영상
 

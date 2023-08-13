@@ -2,7 +2,7 @@ package com.goodperson.code.expert.controller.account;
 
 import java.util.Objects;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 import com.goodperson.code.expert.dto.UserRequestDto;
 import com.goodperson.code.expert.dto.UserResponseDto;
@@ -48,6 +48,8 @@ public class AccountController {
 
     @Autowired
     private TokenCookieManager tokenCookieManager;
+
+
 
     // login
     @RequestMapping(value = "${jwt.get.token.url}", method = RequestMethod.POST)

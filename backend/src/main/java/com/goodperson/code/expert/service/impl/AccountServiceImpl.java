@@ -10,6 +10,7 @@ import com.goodperson.code.expert.service.AccountService;
 import com.goodperson.code.expert.utils.validation.AccountValidation;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,8 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AccountServiceImpl implements AccountService
-{
+public class AccountServiceImpl implements AccountService {
     @Autowired
     private UserRepository userRepository;
 
@@ -28,6 +28,7 @@ public class AccountServiceImpl implements AccountService
 
     @Autowired
     private AccountValidation accountValidation;
+
 
     @Override
     public UserResponseDto signUp(UserRequestDto userDto) throws Exception {
@@ -77,8 +78,7 @@ public class AccountServiceImpl implements AccountService
         accountValidation.validateChangePassword(userDto);
         User authenticatedUser = getAuthenticatedUser();
         // 비밀번호 확인
-        if (!passwordEncoder.matches(password, authenticatedUser.getPassword())) 
-        {
+        if (!passwordEncoder.matches(password, authenticatedUser.getPassword())) {
             throw new Exception("The password is not correct.");
         }
         authenticatedUser.setPassword(passwordEncoder.encode(newPassword));// encode: 클라이언트에서 암호화하고 서버에선 복호화하지 않기(단방향 암호화)
@@ -108,7 +108,7 @@ public class AccountServiceImpl implements AccountService
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<User> userOptional = userRepository.findByEmail(username);
         if (!userOptional.isPresent()) {
-            
+
             throw new UsernameNotFoundException(String.format("The user info or password is not correct: '%s'.", username));
         }
         return userOptional.get();
@@ -121,10 +121,10 @@ public class AccountServiceImpl implements AccountService
             throw new UsernameNotFoundException("Not authroized.");
         }
         Object principal = authentication.getPrincipal();
-        if(principal == null){
+        if (principal == null) {
             throw new Exception("You are not authorized");
         }
-        User authenticatedUser = (User)principal;
+        User authenticatedUser = (User) principal;
         return authenticatedUser;
     }
 

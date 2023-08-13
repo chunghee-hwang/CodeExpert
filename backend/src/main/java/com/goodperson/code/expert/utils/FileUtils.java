@@ -22,7 +22,7 @@ public class FileUtils {
         int idx = fileName.lastIndexOf('.');
         if (idx == -1)
             throw new Exception("The file info is not correct.");
-        return fileName.substring(idx, fileName.length());
+        return fileName.substring(idx);
     }
 
     public String getFileNameExceptExtension(String fileName) throws Exception {

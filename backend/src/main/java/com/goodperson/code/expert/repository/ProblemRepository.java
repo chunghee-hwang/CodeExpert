@@ -8,11 +8,11 @@ import com.goodperson.code.expert.model.User;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ProblemRepository extends PagingAndSortingRepository<Problem, Long> {
+public interface ProblemRepository extends JpaRepository<Problem, Long> {
     public Problem findFirstByOrderByIdDesc(); // 마지막으로 삽입된 problem 가져오기
 
     public boolean existsByIdAndCreator(Long id, User creator); // 문제 작성자가 아닌 사람이 문제를 수정할 경우를 체크할 때 사용

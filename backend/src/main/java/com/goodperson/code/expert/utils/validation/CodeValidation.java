@@ -32,19 +32,15 @@ public class CodeValidation {
 
     // 제출된 코드에 악용 가능 코드가 포함되어있나 확인하는 메소드
     private boolean isExploitableCode(String code, String languageName) {
-        switch (languageName) {
-            case "cpp":
-                return Arrays.stream(cppExploitableCodes).anyMatch(
-                        cppExploitableCode -> Pattern.compile("\\b" + cppExploitableCode + "\\b").matcher(code).find());
-            case "java":
-                return Arrays.stream(javaExploitableCodes).anyMatch(javaExploitableCode -> Pattern
-                        .compile("\\b" + javaExploitableCode + "\\b").matcher(code).find());
-            case "python3":
-                return Arrays.stream(python3ExploitableCodes).anyMatch(python3ExploitableCode -> Pattern
-                        .compile("\\b" + python3ExploitableCode + "\\b").matcher(code).find());
-            default:
-                return true;
-        }
+        return switch (languageName) {
+            case "cpp" -> Arrays.stream(cppExploitableCodes).anyMatch(
+                    cppExploitableCode -> Pattern.compile("\\b" + cppExploitableCode + "\\b").matcher(code).find());
+            case "java" -> Arrays.stream(javaExploitableCodes).anyMatch(javaExploitableCode -> Pattern
+                    .compile("\\b" + javaExploitableCode + "\\b").matcher(code).find());
+            case "python3" -> Arrays.stream(python3ExploitableCodes).anyMatch(python3ExploitableCode -> Pattern
+                    .compile("\\b" + python3ExploitableCode + "\\b").matcher(code).find());
+            default -> true;
+        };
     }
 
     // 제출된 코드 유효한지 검사

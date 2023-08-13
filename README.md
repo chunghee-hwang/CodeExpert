@@ -12,7 +12,7 @@
 
 |    내용    |                                    설명                                     |
 | :--------: | :-------------------------------------------------------------------------: |
-|   백엔드   | Spring Boot, Spring Data JPA, Spring Security, GraphQL API, Rest API, MySQL |
+|   백엔드   | Spring Boot 3.0.0, Spring Data JPA, Spring Security, GraphQL API, Rest API, MySQL |
 | 프론트엔드 |       React.js, React Redux, Redux Saga, Javascript, AJAX, HTML, CSS        |
 | 배포 방법  |                           Amazon EC2, Amazon RDS                            |
 
@@ -280,7 +280,7 @@ https://hch0821.gitbook.io/code-expert-api
 
 ### 알고리즘 테스트 컴파일러
 
-- Java: openjdk 14.0.1
+- Java: openjdk 17.0.8
 - Python: Python 3.8.2
 - C++: clang 9.0.1-12
 
@@ -296,7 +296,7 @@ https://hch0821.gitbook.io/code-expert-api
 
 반드시 유닉스 환경에서 실행.
 
-1. [openjdk 14.0.1](https://linuxhint.com/install_jdk_14_ubuntu/), Python 3.8.2, [clang 9.0.1-12](https://askubuntu.com/a/1198094), [mysql 8](https://www.tecmint.com/install-mysql-8-in-ubuntu/) 설치
+1. openjdk 17, Python 3.8.2, [clang 9.0.1-12](https://askubuntu.com/a/1198094), mariadb 11.0.2 설치
 
 2. [db 작업](https://cjh5414.github.io/mysql-create-user/)<br/> -_ spring.datasource.url에 명시된 db 이름대로 mysql에 db 생성<br/> -_ spring.datasource.username, spring.datasource.password에 명시된 db 사용자 이름, 비밀번호를 보고 사용자 생성.<br/>
    -\* 사용자에게 해당 db의 권한 모두 허락
@@ -312,12 +312,12 @@ sudo apt install maven
 ```bash
 cd CodeExpert/backend
 mvn clean
-mvn install -DskipTests
-sudo java -jar target/code.expert-0.0.1-SNAPSHOT.war # 포트 번호 80번은 sudo 권한 필요
+mvn install
+sudo java -jar target/code.expert-1.0.0.jar # 포트 번호 80번은 sudo 권한 필요
 ```
 
 5. 브라우저로 웹 서버 접속(포트: 80 - 생략 가능)<br/>
-   http://localhost/
+   http://localhost
 
 
 ## 시연 영상

@@ -150,10 +150,10 @@ public class ProblemServiceImpl implements ProblemService {
         Optional<ProblemType> problemTypeOptional = problemTypeRepository.findById(request.getProblemTypeId());
         Optional<ProblemLevel> problemLevelOptional = problemLevelRepository.findById(request.getProblemLevelId());
 
-        if (!problemTypeOptional.isPresent()) {
+        if (problemTypeOptional.isEmpty()) {
             throw new Exception("The problem type info is not correct");
         }
-        if (!problemLevelOptional.isPresent()) {
+        if (problemLevelOptional.isEmpty()) {
             throw new Exception("The problem level info is not correct");
         }
         problemValidation.validateRegisterOrUpdateProblem(request);
@@ -195,7 +195,7 @@ public class ProblemServiceImpl implements ProblemService {
         if (!isCreator)
             throw new Exception("You are not the creator of this problem.");
         Optional<Problem> problemOptional = problemRepository.findById(problemId);
-        if (!problemOptional.isPresent())
+        if (problemOptional.isEmpty())
             throw new Exception("The problem info is not correct.");
         Problem problem = problemOptional.get();
         problemRepository.delete(problem);
@@ -209,9 +209,9 @@ public class ProblemServiceImpl implements ProblemService {
         User authenticatedUser = accountService.getAuthenticatedUser();
         Optional<Language> languageOptional = languageRepository.findById(languageId);
         Optional<Problem> problemOptional = problemRepository.findById(problemId);
-        if (!problemOptional.isPresent())
+        if (problemOptional.isEmpty())
             throw new Exception("The problem info is not correct.");
-        if (!languageOptional.isPresent())
+        if (languageOptional.isEmpty())
             throw new Exception("The language info is not correct");
         final Language language = languageOptional.get();
         final Problem problem = problemOptional.get();
@@ -274,9 +274,9 @@ public class ProblemServiceImpl implements ProblemService {
         User authenticatedUser = accountService.getAuthenticatedUser();
         Optional<Language> languageOptional = languageRepository.findById(languageId);
         Optional<Problem> problemOptional = problemRepository.findById(problemId);
-        if (!problemOptional.isPresent())
+        if (problemOptional.isEmpty())
             throw new Exception("The problem info is not correct.");
-        if (!languageOptional.isPresent())
+        if (languageOptional.isEmpty())
             throw new Exception("The language info is not correct");
         final Language language = languageOptional.get();
         final Problem problem = problemOptional.get();
@@ -322,7 +322,7 @@ public class ProblemServiceImpl implements ProblemService {
         List<ProblemDto> problemDtos = new ArrayList<>();
         for (Problem problem : problemPage.getContent()) {
             long resolveCount = solutionRepository.countUserByResolvedProblem(problem);
-            boolean createdByMe = problem.getCreator().getId() == authenticatedUser.getId();
+            boolean createdByMe = problem.getCreator().getId().longValue() == authenticatedUser.getId().longValue();
             boolean resolved = solutionRepository.existsByProblemAndCreator(problem, authenticatedUser);
             ProblemDto problemDto = new ProblemDto();
             problemDto.setId(problem.getId());
@@ -360,11 +360,11 @@ public class ProblemServiceImpl implements ProblemService {
         Optional<Problem> problemOptional;
         if (checkCreatorIsValid) {
             problemOptional = problemRepository.findByIdAndCreator(problemId, authenticatedUser);
-            if (!problemOptional.isPresent())
+            if (problemOptional.isEmpty())
                 throw new Exception("The problem info is not correct or you are not creator of the problem.");
         } else {
             problemOptional = problemRepository.findById(problemId);
-            if (!problemOptional.isPresent())
+            if (problemOptional.isEmpty())
                 throw new Exception("The problem info is not correct.");
         }
 
@@ -380,7 +380,7 @@ public class ProblemServiceImpl implements ProblemService {
         Map<String, Object> problemCodes = new HashMap<>();
         User authenticatedUser = accountService.getAuthenticatedUser();
         Optional<Problem> problemOptional = problemRepository.findById(problemId);
-        if (!problemOptional.isPresent())
+        if (problemOptional.isEmpty())
             throw new Exception("The problem info is not correct");
         Problem problem = problemOptional.get();
         List<Language> languages = languageRepository.findAll();
@@ -393,7 +393,7 @@ public class ProblemServiceImpl implements ProblemService {
                     language, null, true);
             Optional<Code> prevCodeOptional = codeRepository.findByProblemAndLanguageAndCreatorAndIsInitCode(problem,
                     language, authenticatedUser, false);
-            if (!initCodeOptional.isPresent()) {
+            if (initCodeOptional.isEmpty()) {
                 throw new Exception("The initial code info is empty.");
             } else {
                 initCodeContent = initCodeOptional.get().getContent();
@@ -473,7 +473,7 @@ public class ProblemServiceImpl implements ProblemService {
             ProblemParameter problemParameter = new ProblemParameter();
             problemParameter.setTableType(tableType);
             Optional<DataType> dataTypeOptional = dataTypeRepository.findById(parameterDto.getDataType().getId());
-            if (!dataTypeOptional.isPresent()) {
+            if (dataTypeOptional.isEmpty()) {
                 throw new Exception("The datatype info is not correct.");
             }
             problemParameter.setDataType(dataTypeOptional.get());
@@ -486,7 +486,7 @@ public class ProblemServiceImpl implements ProblemService {
         ProblemReturn problemReturn = new ProblemReturn();
         problemReturn.setTableType(tableType);
         Optional<DataType> dataTypeOptional = dataTypeRepository.findById(returnDto.getDataType().getId());
-        if (!dataTypeOptional.isPresent()) {
+        if (dataTypeOptional.isEmpty()) {
             throw new Exception("The data type info is not correct.");
         }
         problemReturn.setDataType(dataTypeOptional.get());
@@ -532,18 +532,12 @@ public class ProblemServiceImpl implements ProblemService {
         final int timeLimit = problem.getTimeLimit();
         final int memoryLimit = problem.getMemoryLimit();
         CompileErrorDto compileErrorDto = new CompileErrorDto();
-        String fullCode = "";
-        switch(languageName){
-            case "java":
-                fullCode = compileManager.makeJavaFullCode(submittedCode);
-                break;
-            case "python3":
-                fullCode = compileManager.makePythonFullCode(submittedCode);
-                break;
-            case "cpp":
-                fullCode = submittedCode;
-                break;
-        }
+        String fullCode = switch (languageName) {
+            case "java" -> compileManager.makeJavaFullCode(submittedCode);
+            case "python3" -> compileManager.makePythonFullCode(submittedCode);
+            case "cpp" -> submittedCode;
+            default -> "";
+        };
 
         for (int idx = 0; idx < testcaseSize; idx++) {
             List<ProblemParameterValue> problemParameterValues = parameterValues.get(idx);
@@ -552,18 +546,12 @@ public class ProblemServiceImpl implements ProblemService {
                     problemParameterValues, returnValue, timeLimit, fullCode, memoryLimit, language);
 
             final int testcaseNumber = idx + 1;
-            MarkResultDto markResultDto = null;
-            switch (languageName) {
-                case "java":
-                markResultDto = compileManager.compileJava(compileOption, compileErrorDto);
-                    break;
-                case "python3":
-                markResultDto =compileManager.compilePython(compileOption, compileErrorDto);
-                    break;
-                case "cpp":
-                markResultDto = compileManager.compileCpp(compileOption, compileErrorDto);
-                    break;
-            }
+            MarkResultDto markResultDto = switch (languageName) {
+                case "java" -> compileManager.compileJava(compileOption, compileErrorDto);
+                case "python3" -> compileManager.compilePython(compileOption, compileErrorDto);
+                case "cpp" -> compileManager.compileCpp(compileOption, compileErrorDto);
+                default -> null;
+            };
             if(markResultDto == null || compileErrorDto.isCompileError()){
                 throw new Exception("An error occured while compile");
             }
@@ -579,7 +567,7 @@ public class ProblemServiceImpl implements ProblemService {
     }
 
     private boolean isMarkResultAnswer(List<MarkResultDto> markResults) {
-        return markResults.stream().allMatch(result -> result.getIsAnswer());
+        return markResults.stream().allMatch(MarkResultDto::getIsAnswer);
     }
 
     private Code saveCode(String submittedCode, User authenticatedUser, Problem problem, Language language) {

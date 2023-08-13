@@ -23,7 +23,7 @@
     "react-redux": "^7.2.0",
     "react-router-bootstrap": "^0.25.0",
     "react-router-dom": "^5.2.0",
-    "react-scripts": "^5.0.1",
+    "react-scripts": "5.0.1",
     "react-split": "^2.0.9",
     "redux": "^4.0.5",
     "redux-actions": "^2.6.5",
@@ -56,8 +56,8 @@
     ]
   },
   "devDependencies": {
-    "@babel/core": "^7.11.1",
-    "@babel/preset-env": "^7.11.0",
+    "@babel/core": "^7.22.10",
+    "@babel/preset-env": "^7.22.10",
     "remote-redux-devtools": "^0.5.16"
   }
 }

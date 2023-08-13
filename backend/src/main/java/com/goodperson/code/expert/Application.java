@@ -2,16 +2,12 @@ package com.goodperson.code.expert;
 
 import java.util.TimeZone;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.web.servlet.ServletComponentScan;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @SpringBootApplication
-@ServletComponentScan
-@EnableJpaAuditing
 public class Application {
 	@PostConstruct
     void started() {

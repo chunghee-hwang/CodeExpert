@@ -76,8 +76,7 @@ public class CompileManager {
         try {
             ClassPathResource resource = new ClassPathResource(compilerFilePath);
             try (InputStream is = resource.getInputStream()) {
-                String validateCode = IOUtils.toString(is, "UTF-8");
-                return validateCode;
+                return IOUtils.toString(is, "UTF-8");
             }
         } catch (Exception e) {
             return "";
@@ -87,8 +86,9 @@ public class CompileManager {
     private File makeCompileDirectory() {
         String workPath = System.getProperty("user.home");
         File compileDirectory = new File(workPath + "/" + compileFileDirectory);
-        if (!compileDirectory.exists())
+        if (!compileDirectory.exists()) {
             compileDirectory.mkdirs();
+        }
         return compileDirectory;
     }
 
@@ -159,7 +159,7 @@ public class CompileManager {
     }
 
     private String removePackageCodeFromValidateCode(String validateCode) {
-        StringBuffer removedCode = new StringBuffer(validateCode.replaceAll("package\\s+[\\w+.]+;", ""));
+        StringBuilder removedCode = new StringBuilder(validateCode.replaceAll("package\\s+[\\w+.]+;", ""));
         return removedCode.delete(removedCode.lastIndexOf("}"), removedCode.length()).toString();
     }
 
@@ -204,7 +204,7 @@ public class CompileManager {
     private String applyDetailToCppValidateCode(String validateCode, List<String> parameters, String answer) {
         String answerDataType;
         String answerValue;
-        StringBuffer parameterValues = new StringBuffer();
+        StringBuilder parameterValues = new StringBuilder();
         String[] answerDataTypeAndValue = answer.split(":");
         answerDataType = codeGenerateManager.getCppDataTypeExpression(answerDataTypeAndValue[0]);
         answerValue = codeGenerateManager.getCppParameterValueExpression(answerDataTypeAndValue[0],
@@ -257,13 +257,13 @@ public class CompileManager {
                     new InputStreamReader(compileProcess.getErrorStream()));) {
                 markResultDto = new MarkResultDto();
                 String line = "";
-                StringBuffer errorBuffer = new StringBuffer();
+                StringBuilder errorBuffer = new StringBuilder();
                 while ((line = compileError.readLine()) != null) {
                     line = line.replaceAll(compileFileFullPath, "solution.".concat(compileFileExtension));
                     errorBuffer.append(line);
                     errorBuffer.append("\n");
                 }
-                if (errorBuffer.length() != 0) {
+                if (!errorBuffer.isEmpty()) {
                     markResultDto.setIsAnswer(false);
                     markResultDto.setErrorMessage(errorBuffer.toString());
                     deleteCompiledOrExecFile(compileFile);
@@ -282,16 +282,12 @@ public class CompileManager {
     }
 
     private boolean isOutOfMemory(String languageName, String errorMessage){
-        switch(languageName){
-            case "cpp":
-                return errorMessage.contains("std::bad_alloc");
-            case "python3":
-                return errorMessage.contains("MemoryError:");
-            case "java":
-                return errorMessage.contains("java.lang.OutOfMemoryError");
-            default:
-                return false;
-        }
+        return switch (languageName) {
+            case "cpp" -> errorMessage.contains("std::bad_alloc");
+            case "python3" -> errorMessage.contains("MemoryError:");
+            case "java" -> errorMessage.contains("java.lang.OutOfMemoryError");
+            default -> false;
+        };
     }
 
     // 코드 실행 결과 가져오는 메소드
@@ -300,8 +296,8 @@ public class CompileManager {
         final Runtime runtime = Runtime.getRuntime();
         MarkResultDto markResultDto = new MarkResultDto();
 
-        StringBuffer errorBuffer = new StringBuffer();
-        StringBuffer outputBuffer = new StringBuffer();
+        StringBuilder errorBuffer = new StringBuilder();
+        StringBuilder outputBuffer = new StringBuilder();
         final File compileFile = compileOption.getCompileFile();
         final int timeLimitInMilliseconds = compileOption.getTimeLimitInMilliseconds();
         int memoryLimitInMegaBytes = compileOption.getMemoryLimitInMegaBytes();
@@ -327,7 +323,7 @@ public class CompileManager {
             {
             "/bin/sh",
             "-c",
-            "(ulimit -v "+(memoryLimitInMegaBytes*1024+"; "+ commands.stream().collect(Collectors.joining(" "))+")")
+            "(ulimit "+(memoryLimitInMegaBytes*1024+"; "+ String.join(" ", commands) +")")
             };
         }
 

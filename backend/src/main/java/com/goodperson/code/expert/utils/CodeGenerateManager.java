@@ -13,15 +13,12 @@ public class CodeGenerateManager {
 
     public String makeInitCode(List<ProblemParameter> problemParameters, ProblemReturn problemReturn,
             Language language) {
-        switch (language.getName()) {
-            case "java":
-                return makeJavaInitCode(problemParameters, problemReturn);
-            case "cpp":
-                return makeCppInitCode(problemParameters, problemReturn);
-            case "python3":
-                return makePythonInitCode(problemParameters, problemReturn);
-        }
-        return "An error occurred while the code is initialized.";
+        return switch (language.getName()) {
+            case "java" -> makeJavaInitCode(problemParameters, problemReturn);
+            case "cpp" -> makeCppInitCode(problemParameters, problemReturn);
+            case "python3" -> makePythonInitCode(problemParameters, problemReturn);
+            default -> "An error occurred while the code is initialized.";
+        };
     }
 
     private String makeCppInitCode(List<ProblemParameter> problemParameters, ProblemReturn problemReturn) {
@@ -63,22 +60,12 @@ public class CodeGenerateManager {
         if (returnDataTypeName.endsWith("Array")) {
             returnValueExpression = "[]";
         } else {
-            switch (returnDataTypeName) {
-                case "integer":
-                case "long":
-                case "double":
-                    returnValueExpression = "0";
-                    break;
-                case "boolean":
-                    returnValueExpression = "True";
-                    break;
-                case "string":
-                    returnValueExpression = "''";
-                    break;
-                default:
-                    returnValueExpression = "";
-                    break;
-            }
+            returnValueExpression = switch (returnDataTypeName) {
+                case "integer", "long", "double" -> "0";
+                case "boolean" -> "True";
+                case "string" -> "''";
+                default -> "";
+            };
         }
         stringBuilder.append(returnValueExpression);
         stringBuilder.append("\n\treturn answer");
@@ -110,153 +97,63 @@ public class CodeGenerateManager {
     }
 
     private String getJavaValueExpression(String dataTypeName) {
-        String dataTypeValue;
-        switch (dataTypeName) {
-            case "integer":
-            case "long":
-            case "double":
-                dataTypeValue = "0";
-                break;
-            case "integerArray":
-                dataTypeValue = "new int[]{}";
-                break;
-            case "longArray":
-                dataTypeValue = "new long[]{}";
-                break;
-            case "doubleArray":
-                dataTypeValue = "new double[]{}";
-                break;
-            case "boolean":
-                dataTypeValue = "true";
-                break;
-            case "booleanArray":
-                dataTypeValue = "new boolean[]{}";
-                break;
-            case "string":
-                dataTypeValue = "\"\"";
-                break;
-            case "stringArray":
-                dataTypeValue = "new String[]{}";
-                break;
-            default:
-                dataTypeValue = "null";
-                break;
-        }
-        return dataTypeValue;
+        return switch (dataTypeName) {
+            case "integer", "long", "double" -> "0";
+            case "integerArray" -> "new int[]{}";
+            case "longArray" -> "new long[]{}";
+            case "doubleArray" -> "new double[]{}";
+            case "boolean" -> "true";
+            case "booleanArray" -> "new boolean[]{}";
+            case "string" -> "\"\"";
+            case "stringArray" -> "new String[]{}";
+            default -> "null";
+        };
     }
 
     private String getJavaDataTypeExpression(String dataTypeName) {
-        String dataTypeExpression;
-        switch (dataTypeName) {
-            case "integer":
-                dataTypeExpression = "int ";
-                break;
-            case "integerArray":
-                dataTypeExpression = "int[] ";
-                break;
-            case "integer_2dArray":
-                dataTypeExpression = "int[][] ";
-                break;
-            case "long":
-                dataTypeExpression = "long ";
-                break;
-            case "longArray":
-                dataTypeExpression = "long[] ";
-                break;
-            case "long_2dArray":
-                dataTypeExpression = "long[][] ";
-                break;
-            case "double":
-                dataTypeExpression = "double ";
-                break;
-            case "doubleArray":
-                dataTypeExpression = "double[] ";
-                break;
-            case "double_2dArray":
-                dataTypeExpression = "double[][] ";
-                break;
-            case "boolean":
-                dataTypeExpression = "boolean ";
-                break;
-            case "booleanArray":
-                dataTypeExpression = "boolean[] ";
-                break;
-            case "string":
-                dataTypeExpression = "String ";
-                break;
-            case "stringArray":
-                dataTypeExpression = "String[] ";
-                break;
-            default:
-                dataTypeExpression = "void ";
-                break;
-        }
-        return dataTypeExpression;
+        return switch (dataTypeName) {
+            case "integer" -> "int ";
+            case "integerArray" -> "int[] ";
+            case "integer_2dArray" -> "int[][] ";
+            case "long" -> "long ";
+            case "longArray" -> "long[] ";
+            case "long_2dArray" -> "long[][] ";
+            case "double" -> "double ";
+            case "doubleArray" -> "double[] ";
+            case "double_2dArray" -> "double[][] ";
+            case "boolean" -> "boolean ";
+            case "booleanArray" -> "boolean[] ";
+            case "string" -> "String ";
+            case "stringArray" -> "String[] ";
+            default -> "void ";
+        };
     }
 
     public String getCppDataTypeExpression(String dataTypeName) {
-        String dataTypeExpression;
-        switch (dataTypeName) {
-            case "integer":
-                dataTypeExpression = "int ";
-                break;
-            case "integerArray":
-                dataTypeExpression = "std::vector<int> ";
-                break;
-            case "long":
-                dataTypeExpression = "long ";
-                break;
-            case "longArray":
-                dataTypeExpression = "std::vector<long> ";
-                break;
-            case "double":
-                dataTypeExpression = "double ";
-                break;
-            case "doubleArray":
-                dataTypeExpression = "std::vector<double> ";
-                break;
-            case "boolean":
-                dataTypeExpression = "bool ";
-                break;
-            case "booleanArray":
-                dataTypeExpression = "std::vector<bool> ";
-                break;
-            case "string":
-                dataTypeExpression = "std::string ";
-                break;
-            case "stringArray":
-                dataTypeExpression = "std::vector<std::string> ";
-                break;
-            default:
-                dataTypeExpression = "void ";
-                break;
-        }
-        return dataTypeExpression;
+        return switch (dataTypeName) {
+            case "integer" -> "int ";
+            case "integerArray" -> "std::vector<int> ";
+            case "long" -> "long ";
+            case "longArray" -> "std::vector<long> ";
+            case "double" -> "double ";
+            case "doubleArray" -> "std::vector<double> ";
+            case "boolean" -> "bool ";
+            case "booleanArray" -> "std::vector<bool> ";
+            case "string" -> "std::string ";
+            case "stringArray" -> "std::vector<std::string> ";
+            default -> "void ";
+        };
     }
 
     public String getCppParameterValueExpression(String dataTypeName, String value) {
-        String valueExpression;
-        switch (dataTypeName) {
-            case "integer":
-            case "long":
-            case "double":
-            case "boolean":
-            case "string":
-                valueExpression = value;
-                break;
-            case "integerArray":
-            case "longArray":
-            case "doubleArray":
-            case "booleanArray":
-            case "stringArray":
+        return switch (dataTypeName) {
+            case "integer", "long", "double", "boolean", "string" -> value;
+            case "integerArray", "longArray", "doubleArray", "booleanArray", "stringArray" -> {
                 String prefix = getCppDataTypeExpression(dataTypeName);
-                valueExpression = prefix + value.replaceAll("\\[", "{").replaceAll("\\]", "}");
-                break;
-            default:
-                valueExpression = "";
-                break;
-        }
-        return valueExpression;
+                yield prefix + value.replaceAll("\\[", "{").replaceAll("\\]", "}");
+            }
+            default -> "";
+        };
     }
 
     public String getCppAnswerValueExpression(String dataTypeName) {
@@ -266,22 +163,12 @@ public class CodeGenerateManager {
             dataTypeExpression = "{}";
             return dataTypeExpression;
         }
-        switch (dataTypeName) {
-            case "integer":
-            case "long":
-            case "double":
-                dataTypeExpression = "0";
-                break;
-            case "boolean":
-                dataTypeExpression = "true";
-                break;
-            case "string":
-                dataTypeExpression = "\"\"";
-                break;
-            default:
-                dataTypeExpression = "nullptr";
-                break;
-        }
+        dataTypeExpression = switch (dataTypeName) {
+            case "integer", "long", "double" -> "0";
+            case "boolean" -> "true";
+            case "string" -> "\"\"";
+            default -> "nullptr";
+        };
         return dataTypeExpression;
     }
 }

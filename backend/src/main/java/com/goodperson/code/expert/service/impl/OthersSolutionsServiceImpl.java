@@ -59,18 +59,18 @@ public class OthersSolutionsServiceImpl implements OthersSolutionsService {
     private ProblemRepository problemRepository;
     @Autowired
     private AccountService accountService;
-    
+
     @Override
-    @GraphQLQuery(name="othersSolutions")
+    @GraphQLQuery(name = "othersSolutions")
     public OthersSolutionsDto getOthersSolutions(Long problemId, Long languageId, Integer page)
             throws Exception {
         final int numberOfShow = 5;
         User authenticatedUser = accountService.getAuthenticatedUser();
         Optional<Problem> problemOptional = problemRepository.findById(problemId);
-        if (!problemOptional.isPresent())
+        if (problemOptional.isEmpty())
             throw new Exception("The problem info is not correct");
         Optional<Language> languageOptional = languageRepository.findById(languageId);
-        if (!languageOptional.isPresent())
+        if (languageOptional.isEmpty())
             throw new Exception("The language info is not correct");
 
         Problem problem = problemOptional.get();
@@ -78,20 +78,20 @@ public class OthersSolutionsServiceImpl implements OthersSolutionsService {
         Page<Object[]> solutionAndLikeCountsPage = solutionRepository.findAllSolutionAndLikeCountByProblemAndLanguage(
                 language, problem, PageRequest.of(page - 1, numberOfShow), Sort.by("likeCount").descending());
         List<Object[]> solutionAndLikeCounts = solutionAndLikeCountsPage.getContent();
-        OthersSolutionsDto othersSolutionsDto = convertSolutionsToOtherSolutionsDto(solutionAndLikeCounts,
+        return convertSolutionsToOtherSolutionsDto(solutionAndLikeCounts,
                 solutionAndLikeCountsPage.getTotalPages(), problem, authenticatedUser);
-        return othersSolutionsDto;
     }
 
     @Override
-    @GraphQLMutation(name="registerComment")
+    @GraphQLMutation(name = "registerComment")
     public Map<String, Object> registerComment(Long solutionId, String commentContent)
             throws Exception {
         Map<String, Object> data = new HashMap<>();
         User authenticatedUser = accountService.getAuthenticatedUser();
         Optional<Solution> solutionOptional = solutionRepository.findById(solutionId);
-        if (!solutionOptional.isPresent())
+        if (solutionOptional.isEmpty()) {
             throw new Exception("The solution info is not correct");
+        }
         SolutionComment solutionComment = new SolutionComment();
         solutionComment.setContent(commentContent);
         solutionComment.setSolution(solutionOptional.get());
@@ -103,16 +103,17 @@ public class OthersSolutionsServiceImpl implements OthersSolutionsService {
     }
 
     @Override
-    @GraphQLMutation(name="updateComment")
+    @GraphQLMutation(name = "updateComment")
     public Map<String, Object> updateComment(Long commentId, String commentContent)
             throws Exception {
         Map<String, Object> data = new HashMap<>();
         User authenticatedUser = accountService.getAuthenticatedUser();
         Optional<SolutionComment> solutionCommentOptional = solutionCommentRepository.findById(commentId);
-        if (!solutionCommentOptional.isPresent())
+        if (solutionCommentOptional.isEmpty()) {
             throw new Exception("The comment info is not correct");
+        }
         SolutionComment solutionComment = solutionCommentOptional.get();
-        if (solutionComment.getWriter().getId() != authenticatedUser.getId())
+        if (solutionComment.getWriter().getId().longValue() != authenticatedUser.getId().longValue())
             throw new Exception("You are not the writer of the comment");
         solutionComment.setContent(commentContent);
         solutionCommentRepository.save(solutionComment);
@@ -122,16 +123,17 @@ public class OthersSolutionsServiceImpl implements OthersSolutionsService {
     }
 
     @Override
-    @GraphQLMutation(name="deleteComment")
+    @GraphQLMutation(name = "deleteComment")
     public Map<String, Object> deleteComment(Long commentId) throws Exception {
         Map<String, Object> data = new HashMap<>();
         User authenticatedUser = accountService.getAuthenticatedUser();
         Optional<SolutionComment> solutionCommentOptional = solutionCommentRepository.findById(commentId);
-        if (!solutionCommentOptional.isPresent())
+        if (solutionCommentOptional.isEmpty())
             throw new Exception("The comment info is not correct");
         SolutionComment solutionComment = solutionCommentOptional.get();
-        if (solutionComment.getWriter().getId() != authenticatedUser.getId())
+        if (solutionComment.getWriter().getId().longValue() == authenticatedUser.getId().longValue()) {
             throw new Exception("You are not the writer of the comment");
+        }
         solutionCommentRepository.delete(solutionComment);
         data.put("solutionId", solutionComment.getSolution().getId());
         data.put("comment", convertSolutionCommentToDto(solutionComment));
@@ -139,13 +141,14 @@ public class OthersSolutionsServiceImpl implements OthersSolutionsService {
     }
 
     @Override
-    @GraphQLMutation(name="likeOrCancelLike")
+    @GraphQLMutation(name = "likeOrCancelLike")
     public Map<String, Object> likeOrCancelLike(Long solutionId) throws Exception {
         Map<String, Object> data = new HashMap<>();
         User authenticatedUser = accountService.getAuthenticatedUser();
         Optional<Solution> solutionOptional = solutionRepository.findById(solutionId);
-        if (!solutionOptional.isPresent())
+        if (solutionOptional.isEmpty()) {
             throw new Exception("The solution info is not correct");
+        }
         Solution likeSolution = solutionOptional.get();
         long likeCount = solutionLikeUserInfoRepository.countByLikeSolution(likeSolution); // 좋아요 누르기 전 개수 가져오기
         data.put("solutionId", likeSolution.getId());
@@ -154,7 +157,7 @@ public class OthersSolutionsServiceImpl implements OthersSolutionsService {
     }
 
     private OthersSolutionsDto convertSolutionsToOtherSolutionsDto(List<Object[]> solutionAndLikeCounts, int totalPages,
-            Problem problem, User authenticatedUser) {
+                                                                   Problem problem, User authenticatedUser) {
         OthersSolutionsDto othersSolutionsDto = new OthersSolutionsDto();
         ProblemDto problemDto = new ProblemDto();
         problemDto.setId(problem.getId());
@@ -197,7 +200,7 @@ public class OthersSolutionsServiceImpl implements OthersSolutionsService {
 
     // likeCountBeforePressed: 좋아요 버튼을 누르기 전 좋아요 개수, isLikeReadonly: 좋아요 수 수정 가능 여부
     private LikesDto getLikesDto(Solution likeSolution, Long likeCountBeforePressed, User likeUser,
-            boolean isLikeReadonly) {
+                                 boolean isLikeReadonly) {
         LikesDto likesDto = new LikesDto();
         Optional<SolutionLikeUserInfo> likeUserInfoOptional = solutionLikeUserInfoRepository
                 .findByLikeSolutionAndLikeUser(likeSolution, likeUser);
@@ -239,9 +242,8 @@ public class OthersSolutionsServiceImpl implements OthersSolutionsService {
 
     private List<CommentDto> getCommentDtoList(Solution solution) {
         List<SolutionComment> solutionComments = solutionCommentRepository.findAllBySolution(solution);
-        List<CommentDto> commentDtos = solutionComments.stream()
-                .map(solutionComment -> convertSolutionCommentToDto(solutionComment)).collect(Collectors.toList());
-        return commentDtos;
+        return solutionComments.stream()
+                .map(this::convertSolutionCommentToDto).collect(Collectors.toList());
     }
 
     private CommentDto convertSolutionCommentToDto(SolutionComment solutionComment) {

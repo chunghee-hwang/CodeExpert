@@ -81,7 +81,7 @@ public class ProblemValidation {
     private int problemMaxTimeLimit;
 
     private boolean isWordKeyword(String[] keywords, String word) {
-        return Arrays.asList(keywords).indexOf(word) != -1;
+        return Arrays.asList(keywords).contains(word);
     }
 
     // 예약어인지 판단하는 메소드 (모든 언어의 키워드를 검사)
@@ -131,39 +131,19 @@ public class ProblemValidation {
     }
 
     private boolean isValueDataTypeMatch(String dataTypeName, String value) {
-        boolean isMatch = false;
-        switch (dataTypeName) {
-            case "integer":
-                isMatch = value.matches(integerRegex);
-                break;
-            case "integerArray":
-                isMatch = value.matches(integerArrayRegex);
-                break;
-            case "long":
-                isMatch = value.matches(longRegex);
-                break;
-            case "longArray":
-                isMatch = value.matches(longArrayRegex);
-                break;
-            case "double":
-                isMatch = value.matches(doubleRegex);
-                break;
-            case "doubleArray":
-                isMatch = value.matches(doubleArrayRegex);
-                break;
-            case "boolean":
-                isMatch = value.matches(booleanRegex);
-                break;
-            case "booleanArray":
-                isMatch = value.matches(booleanArrayRegex);
-                break;
-            case "string":
-                isMatch = value.matches(stringRegex);
-                break;
-            case "stringArray":
-                isMatch = value.matches(stringArrayRegex);
-                break;
-        }
+        boolean isMatch = switch (dataTypeName) {
+            case "integer" -> value.matches(integerRegex);
+            case "integerArray" -> value.matches(integerArrayRegex);
+            case "long" -> value.matches(longRegex);
+            case "longArray" -> value.matches(longArrayRegex);
+            case "double" -> value.matches(doubleRegex);
+            case "doubleArray" -> value.matches(doubleArrayRegex);
+            case "boolean" -> value.matches(booleanRegex);
+            case "booleanArray" -> value.matches(booleanArrayRegex);
+            case "string" -> value.matches(stringRegex);
+            case "stringArray" -> value.matches(stringArrayRegex);
+            default -> false;
+        };
         return isMatch;
     }
 
@@ -190,8 +170,8 @@ public class ProblemValidation {
         Objects.requireNonNull(returnsDataType);
         Objects.requireNonNull(returnsDataType.getId());
 
-        final List<String> paramNames = params.stream().map(param -> param.getName()).collect(Collectors.toList());
-        if (params.stream().count() < problemParameterLengthUpLimit) {
+        final List<String> paramNames = params.stream().map(ParameterDto::getName).toList();
+        if ((long) params.size() < problemParameterLengthUpLimit) {
             throw new Exception("The parameter length must >= "+problemParameterLengthUpLimit);
         }
         if (paramNames.stream().anyMatch(paramName -> paramName.length() < problemParameterNameLengthUpLimit)) {

@@ -11,7 +11,7 @@
     "bootstrap": "^4.5.0",
     "core-js": "^3.6.5",
     "moment": "^2.27.0",
-    "moment-timezone": "^0.5.31",
+    "moment-timezone": "^0.5.35",
     "react": "^16.13.1",
     "react-ace": "^9.1.2",
     "react-app-polyfill": "^1.0.6",
